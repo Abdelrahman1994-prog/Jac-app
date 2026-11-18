@@ -141,7 +141,27 @@ object CockpitStyles {
         gauge = GaugeStyle(sweepDegrees = 250f, arcWidthFraction = 0.05f, segmented = false, showNeedle = true, glow = true, animatedBezel = true),
     )
 
-    val all: List<CockpitStyle> = listOf(JacOriginal, RacingRed, CyberBlue, CarbonBlack, SportGt)
+    /** Calm, minimal cluster: thin rings, blue speed, amber engine speed, central road view. */
+    val Horizon = CockpitStyle(
+        id = CockpitThemeId.HORIZON,
+        backgroundTop = Color(0xFF1B222C),
+        backgroundBottom = Color(0xFF0A0D12),
+        defaultBackground = DashboardBackground.GRADIENT,
+        panel = Color(0x10FFFFFF),
+        panelBorder = Color(0x1AFFFFFF),
+        accent = Color(0xFF2BB5F2),
+        accentSecondary = Color(0xFFFFA23E),
+        text = Color(0xFFF1F5F9),
+        textDim = Color(0xFF8592A3),
+        track = Color(0xFF2A333F),
+        tick = Color(0xFFB4BFCC),
+        ok = Color(0xFF3DDC97),
+        warning = Color(0xFFFFB020),
+        critical = Color(0xFFFF4D5E),
+        gauge = GaugeStyle(sweepDegrees = 290f, arcWidthFraction = 0.022f, segmented = false, showNeedle = false, glow = false, showTickLabels = false, bezel = false),
+    )
+
+    val all: List<CockpitStyle> = listOf(JacOriginal, RacingRed, CyberBlue, CarbonBlack, SportGt, Horizon)
 
     fun forId(id: CockpitThemeId): CockpitStyle = all.first { it.id == id }
 

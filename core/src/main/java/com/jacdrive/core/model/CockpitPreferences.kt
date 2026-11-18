@@ -1,6 +1,6 @@
 package com.jacdrive.core.model
 
-enum class CockpitThemeId { JAC_ORIGINAL, RACING_RED, CYBER_BLUE, CARBON_BLACK, SPORT_GT }
+enum class CockpitThemeId { JAC_ORIGINAL, RACING_RED, CYBER_BLUE, CARBON_BLACK, SPORT_GT, HORIZON }
 
 enum class GaugeLayout {
     /** Speedometer and tachometer side by side, info column in the middle. */
@@ -11,6 +11,9 @@ enum class GaugeLayout {
 
     /** Large digital numbers with bar indicators. */
     DIGITAL,
+
+    /** Minimal twin rings with sub-gauges and a central road view. */
+    HORIZON,
 }
 
 enum class DashboardBackground { THEME_DEFAULT, PURE_BLACK, GRADIENT, CARBON, GRID }
@@ -25,6 +28,7 @@ enum class DashboardWidget(val metric: VehicleMetric?) {
     THROTTLE(VehicleMetric.THROTTLE_POSITION),
     FUEL_LEVEL(VehicleMetric.FUEL_LEVEL),
     INTAKE_TEMP(VehicleMetric.INTAKE_AIR_TEMP),
+    AMBIENT_TEMP(VehicleMetric.AMBIENT_TEMP),
     TRIP_DISTANCE(VehicleMetric.TRIP_DISTANCE),
     AVG_FUEL(VehicleMetric.AVG_FUEL_CONSUMPTION),
     CONNECTION(null),

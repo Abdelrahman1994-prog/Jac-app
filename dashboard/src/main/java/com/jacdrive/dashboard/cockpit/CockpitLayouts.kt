@@ -31,6 +31,7 @@ fun CockpitLayoutContent(
             portrait -> PortraitLayout(state, style, nowMs, warnings)
             state.prefs.layout == GaugeLayout.DUAL_DIAL -> DualDialLayout(state, style, nowMs, warnings)
             state.prefs.layout == GaugeLayout.SPORT_CENTER -> SportCenterLayout(state, style, nowMs, warnings)
+            state.prefs.layout == GaugeLayout.HORIZON -> HorizonLayout(state, style, nowMs, warnings)
             else -> DigitalLayout(state, style, nowMs, warnings)
         }
     }

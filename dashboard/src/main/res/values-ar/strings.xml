@@ -30,6 +30,7 @@
     <string name="cockpit_mode_offline">لا يوجد محوّل</string>
     <string name="cockpit_mode_live">مباشر</string>
     <string name="cockpit_rpm_unit">دورة/دقيقة</string>
+    <string name="cockpit_rpm_x1000">×1000 دورة</string>
     <string name="cockpit_na">غير متاح</string>
     <string name="cockpit_theme">الثيم</string>
     <string name="cockpit_layout">تخطيط العدادات</string>

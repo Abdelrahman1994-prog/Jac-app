@@ -17,6 +17,7 @@
     <string name="metric_intake">Intake air</string>
     <string name="metric_map">Manifold pressure</string>
     <string name="metric_timing">Timing advance</string>
+    <string name="metric_ambient">Outside</string>
     <string name="metric_trip">Trip</string>
     <string name="metric_avg_fuel">Avg. fuel</string>
     <string name="metric_connection">OBD link</string>
@@ -40,4 +41,6 @@
     <string name="bg_gradient">Gradient</string>
     <string name="bg_carbon">Carbon fibre</string>
     <string name="bg_grid">Grid</string>
+    <string name="theme_horizon">Horizon</string>
+    <string name="layout_horizon">Horizon</string>
 </resources>

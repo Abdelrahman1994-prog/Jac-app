@@ -17,6 +17,7 @@
     <string name="metric_intake">هواء السحب</string>
     <string name="metric_map">ضغط مشعب السحب</string>
     <string name="metric_timing">تقديم الشرارة</string>
+    <string name="metric_ambient">الحرارة الخارجية</string>
     <string name="metric_trip">الرحلة</string>
     <string name="metric_avg_fuel">متوسط الوقود</string>
     <string name="metric_connection">اتصال OBD</string>
@@ -40,4 +41,6 @@
     <string name="bg_gradient">تدرّج لوني</string>
     <string name="bg_carbon">ألياف الكربون</string>
     <string name="bg_grid">شبكة</string>
+    <string name="theme_horizon">الأفق</string>
+    <string name="layout_horizon">الأفق</string>
 </resources>

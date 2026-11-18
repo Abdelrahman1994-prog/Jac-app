@@ -90,7 +90,13 @@ class DataStoreSettingsRepository @Inject constructor(
     override suspend fun setDemoMode(enabled: Boolean) = put(Keys.demo, enabled)
     override suspend fun setOnboardingDone() = put(Keys.onboarding, true)
 
-    override suspend fun setCockpitTheme(id: CockpitThemeId) = put(Keys.cockpitTheme, id.name)
+    override suspend fun setCockpitTheme(id: CockpitThemeId) {
+        dataStore.edit {
+            it[Keys.cockpitTheme] = id.name
+            // Horizon is designed around its own layout, so selecting it switches to that layout.
+            if (id == CockpitThemeId.HORIZON) it[Keys.layout] = GaugeLayout.HORIZON.name
+        }
+    }
     override suspend fun setAccentOverride(argb: Long?) {
         dataStore.edit { if (argb == null) it.remove(Keys.accent) else it[Keys.accent] = argb }
     }

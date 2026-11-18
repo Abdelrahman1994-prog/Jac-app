@@ -19,6 +19,7 @@ object JacFonts {
 
     /** Instrument numerals and display headings: Rajdhani's condensed, technical figures. */
     val Display = FontFamily(
+        Font(R.font.rajdhani_light, FontWeight.Light),
         Font(R.font.rajdhani_medium, FontWeight.Medium),
         Font(R.font.rajdhani_semibold, FontWeight.SemiBold),
         Font(R.font.rajdhani_bold, FontWeight.Bold),

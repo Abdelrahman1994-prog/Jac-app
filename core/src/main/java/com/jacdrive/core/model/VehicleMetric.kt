@@ -15,6 +15,7 @@ enum class VehicleMetric(val metricUnit: String, val staleAfterMs: Long) {
     INTAKE_AIR_TEMP("°C", 10_000),
     INTAKE_MANIFOLD_PRESSURE("kPa", 3_000),
     TIMING_ADVANCE("°", 3_000),
+    AMBIENT_TEMP("°C", 60_000),
     TRIP_DISTANCE("km", 10_000),
     AVG_FUEL_CONSUMPTION("L/100km", 30_000),
 }

@@ -21,6 +21,7 @@ fun VehicleMetric.labelRes(): Int = when (this) {
     VehicleMetric.INTAKE_AIR_TEMP -> R.string.metric_intake
     VehicleMetric.INTAKE_MANIFOLD_PRESSURE -> R.string.metric_map
     VehicleMetric.TIMING_ADVANCE -> R.string.metric_timing
+    VehicleMetric.AMBIENT_TEMP -> R.string.metric_ambient
     VehicleMetric.TRIP_DISTANCE -> R.string.metric_trip
     VehicleMetric.AVG_FUEL_CONSUMPTION -> R.string.metric_avg_fuel
 }
@@ -32,6 +33,7 @@ fun CockpitThemeId.labelRes(): Int = when (this) {
     CockpitThemeId.CYBER_BLUE -> R.string.theme_cyber_blue
     CockpitThemeId.CARBON_BLACK -> R.string.theme_carbon_black
     CockpitThemeId.SPORT_GT -> R.string.theme_sport_gt
+    CockpitThemeId.HORIZON -> R.string.theme_horizon
 }
 
 /** Display units chosen by the user. */
@@ -41,7 +43,7 @@ data class DisplayUnits(val speed: SpeedUnit, val temperature: TemperatureUnit)
 fun VehicleMetric.format(value: Double, units: DisplayUnits): String = when (this) {
     VehicleMetric.SPEED -> Num.int(UnitConverter.speed(value, units.speed))
     VehicleMetric.RPM -> Num.int(value)
-    VehicleMetric.COOLANT_TEMP, VehicleMetric.INTAKE_AIR_TEMP -> Num.int(UnitConverter.temperature(value, units.temperature))
+    VehicleMetric.COOLANT_TEMP, VehicleMetric.INTAKE_AIR_TEMP, VehicleMetric.AMBIENT_TEMP -> Num.int(UnitConverter.temperature(value, units.temperature))
     VehicleMetric.BATTERY_VOLTAGE -> Num.one(value)
     VehicleMetric.ENGINE_LOAD, VehicleMetric.THROTTLE_POSITION, VehicleMetric.FUEL_LEVEL -> Num.int(value)
     VehicleMetric.INTAKE_MANIFOLD_PRESSURE -> Num.int(value)
@@ -53,7 +55,7 @@ fun VehicleMetric.format(value: Double, units: DisplayUnits): String = when (thi
 fun VehicleMetric.unitLabel(units: DisplayUnits): String = when (this) {
     VehicleMetric.SPEED -> if (units.speed == SpeedUnit.KMH) "km/h" else "mph"
     VehicleMetric.TRIP_DISTANCE -> if (units.speed == SpeedUnit.KMH) "km" else "mi"
-    VehicleMetric.COOLANT_TEMP, VehicleMetric.INTAKE_AIR_TEMP ->
+    VehicleMetric.COOLANT_TEMP, VehicleMetric.INTAKE_AIR_TEMP, VehicleMetric.AMBIENT_TEMP ->
         if (units.temperature == TemperatureUnit.CELSIUS) "°C" else "°F"
     else -> metricUnit
 }
@@ -63,6 +65,7 @@ fun com.jacdrive.core.model.GaugeLayout.layoutLabelRes(): Int = when (this) {
     com.jacdrive.core.model.GaugeLayout.DUAL_DIAL -> R.string.layout_dual
     com.jacdrive.core.model.GaugeLayout.SPORT_CENTER -> R.string.layout_sport
     com.jacdrive.core.model.GaugeLayout.DIGITAL -> R.string.layout_digital
+    com.jacdrive.core.model.GaugeLayout.HORIZON -> R.string.layout_horizon
 }
 
 @StringRes

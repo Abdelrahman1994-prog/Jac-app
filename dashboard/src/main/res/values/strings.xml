@@ -30,6 +30,7 @@
     <string name="cockpit_mode_offline">NO ADAPTER</string>
     <string name="cockpit_mode_live">LIVE</string>
     <string name="cockpit_rpm_unit">r/min</string>
+    <string name="cockpit_rpm_x1000">x1000 rpm</string>
     <string name="cockpit_na">N/A</string>
     <string name="cockpit_theme">Theme</string>
     <string name="cockpit_layout">Gauge layout</string>

@@ -63,7 +63,7 @@ class CockpitScreenshotTest {
                 VehicleMetric.COOLANT_TEMP to v(s.coolantC), VehicleMetric.BATTERY_VOLTAGE to v(s.batteryV),
                 VehicleMetric.ENGINE_LOAD to v(s.engineLoadPct), VehicleMetric.THROTTLE_POSITION to v(s.throttlePct),
                 VehicleMetric.FUEL_LEVEL to v(s.fuelLevelPct), VehicleMetric.INTAKE_AIR_TEMP to v(s.intakeC),
-                VehicleMetric.TRIP_DISTANCE to v(12.4), VehicleMetric.AVG_FUEL_CONSUMPTION to v(8.6),
+                VehicleMetric.AMBIENT_TEMP to v(25.0), VehicleMetric.TRIP_DISTANCE to v(12.4), VehicleMetric.AVG_FUEL_CONSUMPTION to v(8.6),
             ),
             supportedMetrics = null,
             timestampMs = now,
@@ -101,6 +101,12 @@ class CockpitScreenshotTest {
 
     @Test fun layoutSportCenter() =
         render("layout_sport_center", CockpitPreferences(themeId = CockpitThemeId.SPORT_GT, layout = GaugeLayout.SPORT_CENTER, animationsEnabled = false))
+
+    @Test fun themeHorizon() =
+        render("theme_horizon", CockpitPreferences(themeId = CockpitThemeId.HORIZON, layout = GaugeLayout.HORIZON, animationsEnabled = false))
+
+    @Test fun horizonArabic() =
+        render("horizon_rtl", CockpitPreferences(themeId = CockpitThemeId.HORIZON, layout = GaugeLayout.HORIZON, animationsEnabled = false), rtl = true)
 
     @Test fun layoutDigital() =
         render("layout_digital", CockpitPreferences(themeId = CockpitThemeId.CYBER_BLUE, layout = GaugeLayout.DIGITAL, animationsEnabled = false))
