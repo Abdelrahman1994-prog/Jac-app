@@ -35,4 +35,12 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+/** v3 → v4: alert history (Phase 5). */
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `alert_event` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestampMs` INTEGER NOT NULL, `type` TEXT NOT NULL, `severity` TEXT NOT NULL, `value` REAL, `detail` TEXT, `spoken` INTEGER NOT NULL)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_alert_event_timestampMs` ON `alert_event` (`timestampMs`)")
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)

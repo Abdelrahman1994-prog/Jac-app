@@ -50,6 +50,16 @@ class DataStoreSettingsRepository @Inject constructor(
         val hiddenWidgets = stringSetPreferencesKey("cockpit_hidden_widgets")
         val redline = intPreferencesKey("cockpit_redline")
         val keepScreenOn = booleanPreferencesKey("cockpit_keep_screen_on")
+
+        val voice = booleanPreferencesKey("alert_voice")
+        val voiceLang = stringPreferencesKey("alert_voice_lang")
+        val alertNotifications = booleanPreferencesKey("alert_notifications")
+        val disabledAlerts = stringSetPreferencesKey("alert_disabled")
+        val coolantThreshold = intPreferencesKey("alert_coolant_c")
+        val batteryLow = stringPreferencesKey("alert_battery_low")
+        val batteryHigh = stringPreferencesKey("alert_battery_high")
+        val rpmThreshold = intPreferencesKey("alert_rpm")
+        val cooldown = intPreferencesKey("alert_cooldown_min")
     }
 
     private val prefs: Flow<Preferences> = dataStore.data.catch { e ->
@@ -86,6 +96,48 @@ class DataStoreSettingsRepository @Inject constructor(
             keepScreenOn = p[Keys.keepScreenOn] ?: d.keepScreenOn,
         )
     }.distinctUntilChanged()
+
+    override val alerts: Flow<com.jacdrive.core.model.AlertPreferences> = prefs.map { p ->
+        val d = com.jacdrive.core.model.AlertPreferences()
+        val disabled = p[Keys.disabledAlerts].orEmpty()
+        com.jacdrive.core.model.AlertPreferences(
+            voiceEnabled = p[Keys.voice] ?: d.voiceEnabled,
+            voiceLanguage = enumOr(p[Keys.voiceLang], d.voiceLanguage),
+            notificationsEnabled = p[Keys.alertNotifications] ?: d.notificationsEnabled,
+            enabled = com.jacdrive.core.model.AlertType.entries.filterNot { it.name in disabled }.toSet(),
+            coolantThresholdC = p[Keys.coolantThreshold] ?: d.coolantThresholdC,
+            batteryLowRunningV = p[Keys.batteryLow]?.toDoubleOrNull() ?: d.batteryLowRunningV,
+            batteryHighV = p[Keys.batteryHigh]?.toDoubleOrNull() ?: d.batteryHighV,
+            rpmThreshold = p[Keys.rpmThreshold] ?: d.rpmThreshold,
+            cooldownMinutes = p[Keys.cooldown] ?: d.cooldownMinutes,
+        )
+    }.distinctUntilChanged()
+
+    override suspend fun updateAlerts(transform: (com.jacdrive.core.model.AlertPreferences) -> com.jacdrive.core.model.AlertPreferences) {
+        dataStore.edit { p ->
+            val current = com.jacdrive.core.model.AlertPreferences(
+                voiceEnabled = p[Keys.voice] ?: true,
+                voiceLanguage = enumOr(p[Keys.voiceLang], com.jacdrive.core.model.VoiceLanguage.APP),
+                notificationsEnabled = p[Keys.alertNotifications] ?: true,
+                enabled = com.jacdrive.core.model.AlertType.entries.filterNot { it.name in p[Keys.disabledAlerts].orEmpty() }.toSet(),
+                coolantThresholdC = p[Keys.coolantThreshold] ?: 105,
+                batteryLowRunningV = p[Keys.batteryLow]?.toDoubleOrNull() ?: 13.0,
+                batteryHighV = p[Keys.batteryHigh]?.toDoubleOrNull() ?: 15.2,
+                rpmThreshold = p[Keys.rpmThreshold] ?: 5500,
+                cooldownMinutes = p[Keys.cooldown] ?: 10,
+            )
+            val n = transform(current)
+            p[Keys.voice] = n.voiceEnabled
+            p[Keys.voiceLang] = n.voiceLanguage.name
+            p[Keys.alertNotifications] = n.notificationsEnabled
+            p[Keys.disabledAlerts] = com.jacdrive.core.model.AlertType.entries.filterNot { it in n.enabled }.map { it.name }.toSet()
+            p[Keys.coolantThreshold] = n.coolantThresholdC.coerceIn(90, 125)
+            p[Keys.batteryLow] = n.batteryLowRunningV.coerceIn(11.0, 14.0).toString()
+            p[Keys.batteryHigh] = n.batteryHighV.coerceIn(14.0, 16.5).toString()
+            p[Keys.rpmThreshold] = n.rpmThreshold.coerceIn(2500, 8000)
+            p[Keys.cooldown] = n.cooldownMinutes.coerceIn(1, 60)
+        }
+    }
 
     override suspend fun setThemeMode(mode: ThemeMode) = put(Keys.themeMode, mode.name)
     override suspend fun setSpeedUnit(unit: SpeedUnit) = put(Keys.speedUnit, unit.name)

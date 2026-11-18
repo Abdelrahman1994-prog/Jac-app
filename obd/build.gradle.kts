@@ -12,6 +12,7 @@ android {
 dependencies {
     api(project(":core"))
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 

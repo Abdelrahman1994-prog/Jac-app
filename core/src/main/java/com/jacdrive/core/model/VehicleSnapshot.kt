@@ -31,6 +31,8 @@ data class VehicleSnapshot(
     val values: Map<VehicleMetric, LiveValue>,
     val supportedMetrics: Set<VehicleMetric>?,
     val timestampMs: Long,
+    /** Check-engine lamp from PID 0101 when polled; null when unknown. */
+    val milOn: Boolean? = null,
 ) {
     operator fun get(metric: VehicleMetric): LiveValue? = values[metric]
 

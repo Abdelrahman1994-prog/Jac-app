@@ -101,3 +101,26 @@ class DtcDatabaseTest {
         assertTrue(HealthScore.compute(session(1), snap(DataSource.ECU), 60_000)!!.deductions.isEmpty())
     }
 }
+
+class DiagnosticReportTest {
+    private val db = DtcDatabase(java.io.File("src/main/assets/dtc_database.json").readText())
+
+    private fun s(id: Long, stored: List<String>) = com.jacdrive.diagnostics.data.DiagnosticSession(
+        id, id * 1000, com.jacdrive.diagnostics.data.SessionKind.SCAN, true, stored.size, stored, emptyList(), null, null, emptySet(), "ISO 15765-4 CAN 11/500", "OBDII", 12000,
+    )
+
+    @Test fun arabicReportIsRtlEscapedAndComplete() {
+        val html = com.jacdrive.diagnostics.data.DiagnosticReport.html(s(2, listOf("P0301", "P1A23")), s(1, listOf("P0420")), null, db::lookup, arabic = true, appVersion = "1.0")
+        assertTrue(html.contains("dir=\"rtl\""))
+        assertTrue(html.contains("تم اكتشاف خلل في الاحتراق داخل الأسطوانة الأولى"))
+        assertTrue(html.contains("P0420")) // resolved since previous scan
+        assertTrue(html.contains("غير مدعوم من وحدة التحكم")) // permanent not supported
+        assertFalse(html.contains("<script"))
+    }
+
+    @Test fun englishReportEscapesText() {
+        val html = com.jacdrive.diagnostics.data.DiagnosticReport.html(s(2, listOf("P0301")).copy(adapterName = "<b>x</b>"), null, null, db::lookup, arabic = false, appVersion = "1.0")
+        assertTrue(html.contains("&lt;b&gt;x&lt;/b&gt;"))
+        assertTrue(html.contains("Cylinder 1 misfire detected"))
+    }
+}

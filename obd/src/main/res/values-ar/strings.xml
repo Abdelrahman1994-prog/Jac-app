@@ -5,4 +5,14 @@
     <string name="obd_notif_connected">متصل بالسيارة</string>
     <string name="obd_notif_retrying">انقطع الاتصال · جارٍ إعادة الاتصال</string>
     <string name="obd_notif_disconnect">قطع الاتصال</string>
+    <string name="alert_channel">تنبيهات السيارة</string>
+    <string name="alert_title">تنبيه JAC DRIVE</string>
+    <string name="alert_test">التنبيهات الصوتية في جاك درايف تعمل.</string>
+    <string name="alert_coolant">حرارة المحرك مرتفعة، %1$d درجة. توقف بأمان واترك المحرك يبرد.</string>
+    <string name="alert_battery_low">جهد البطارية منخفض، %1$s فولت. قد يحتاج نظام الشحن إلى فحص.</string>
+    <string name="alert_battery_high">جهد البطارية مرتفع، %1$s فولت.</string>
+    <string name="alert_rpm">دورات المحرك مرتفعة.</string>
+    <string name="alert_mil">لمبة فحص المحرك مضاءة. قم بفحص الأعطال عندما يكون ذلك آمناً.</string>
+    <string name="alert_disconnected">انقطع الاتصال بمحوّل الفحص.</string>
+    <string name="alert_maintenance">موعد صيانة: %1$s.</string>
 </resources>

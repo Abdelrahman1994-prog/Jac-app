@@ -138,4 +138,6 @@
     <string name="health_based_on">مبني على فحص %1$s</string>
     <string name="health_no_deductions">لم يتم العثور على مشاكل في البيانات المُبلغ عنها.</string>
     <string name="health_live_excluded">لم تُضمَّن فحوصات الحساسات المباشرة (لا توجد بيانات حديثة من السيارة).</string>
+    <string name="msg_report_saved">تم حفظ التقرير. افتحه في المتصفح للقراءة أو المشاركة أو الطباعة.</string>
+    <string name="session_export">تصدير التقرير</string>
 </resources>

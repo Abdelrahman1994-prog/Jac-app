@@ -179,9 +179,17 @@ private fun JacNavHost(nav: NavHostController, modifier: Modifier) {
             )
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = back, onOpenThemeStudio = { nav.navigate(Routes.THEME_STUDIO) }, onOpenAdapter = { nav.navigate(Routes.ADAPTER) })
+            SettingsScreen(
+                onBack = back,
+                onOpenThemeStudio = { nav.navigate(Routes.THEME_STUDIO) },
+                onOpenAdapter = { nav.navigate(Routes.ADAPTER) },
+                onOpenAlerts = { nav.navigate(Routes.ALERTS) },
+                onOpenDiagnostics = { nav.navigateToSection(MainSection.DIAGNOSTICS) },
+                onOpenTrips = { nav.navigateToSection(MainSection.TRIPS) },
+            )
         }
         composable(Routes.THEME_STUDIO) { ThemeStudioScreen(onBack = back) }
         composable(Routes.ADAPTER) { AdapterScreen(onBack = back) }
+        composable(Routes.ALERTS) { com.jacdrive.settings.AlertsScreen(onBack = back) }
     }
 }

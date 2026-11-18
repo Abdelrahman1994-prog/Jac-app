@@ -20,6 +20,7 @@ import com.jacdrive.maintenance.ServiceItem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.first
 
 /**
  * Daily check that notifies once per item when it becomes due soon or overdue. A notification is
@@ -30,6 +31,8 @@ class MaintenanceReminderWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
     private val repository: MaintenanceRepository,
+    private val alertDao: com.jacdrive.core.database.AlertDao,
+    private val settings: com.jacdrive.core.settings.SettingsRepository,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -44,7 +47,18 @@ class MaintenanceReminderWorker @AssistedInject constructor(
             prefs.edit().putBoolean(key, true).apply()
             Triple(iw.item, st, name(iw.item.builtInKey, iw.item.customName))
         }
-        if (due.isNotEmpty() && canNotify()) notify(due.map { it.third }, due.any { it.second.state == DueState.OVERDUE })
+        val enabled = settings.alerts.first().isEnabled(com.jacdrive.core.model.AlertType.MAINTENANCE_DUE)
+        if (due.isNotEmpty() && enabled) {
+            alertDao.insert(
+                com.jacdrive.core.database.AlertEventEntity(
+                    timestampMs = now, type = com.jacdrive.core.model.AlertType.MAINTENANCE_DUE.name,
+                    severity = if (due.any { it.second.state == DueState.OVERDUE }) "WARNING" else "INFO",
+                    value = null, detail = due.joinToString(", ") { it.third }, spoken = false,
+                ),
+            )
+            // Notification only, no voice: this check runs at an arbitrary time of day.
+            if (canNotify()) notify(due.map { it.third }, due.any { it.second.state == DueState.OVERDUE })
+        }
         return Result.success()
     }
 

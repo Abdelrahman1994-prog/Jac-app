@@ -15,6 +15,8 @@ import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Route
+import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -38,7 +40,6 @@ import com.jacdrive.core.model.AppSettings
 import com.jacdrive.core.model.SpeedUnit
 import com.jacdrive.core.model.TemperatureUnit
 import com.jacdrive.core.model.ThemeMode
-import com.jacdrive.ui.components.InDevelopmentChip
 import com.jacdrive.ui.components.JacCard
 import com.jacdrive.ui.components.ScreenHeader
 import com.jacdrive.ui.components.SectionHeader
@@ -51,11 +52,21 @@ fun SettingsScreen(
     onBack: (() -> Unit)?,
     onOpenThemeStudio: () -> Unit,
     onOpenAdapter: () -> Unit,
+    onOpenAlerts: () -> Unit = {},
+    onOpenDiagnostics: () -> Unit = {},
+    onOpenTrips: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val app = state.app
     var dialog by rememberSaveable { mutableStateOf<String?>(null) }
+    val dataMessage by viewModel.dataMessage.collectAsStateWithLifecycle()
+    val backupLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/zip"),
+    ) { uri -> uri?.let(viewModel::exportBackup) }
+    val restoreLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri -> uri?.let(viewModel::checkRestore) }
 
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -152,16 +163,27 @@ fun SettingsScreen(
                     stringResource(R.string.settings_alerts_voice),
                     subtitle = stringResource(R.string.settings_alerts_voice_sub),
                     icon = Icons.Rounded.NotificationsActive,
-                ) { InDevelopmentChip() }
+                    onClick = onOpenAlerts,
+                )
             }
         }
 
         item { SectionHeader(stringResource(R.string.settings_data)) }
         item {
             JacCard {
-                SettingRow(stringResource(R.string.settings_backup), subtitle = stringResource(R.string.settings_backup_sub), icon = Icons.Rounded.Backup) { InDevelopmentChip() }
+                SettingRow(
+                    stringResource(R.string.settings_backup), subtitle = stringResource(R.string.settings_backup_sub), icon = Icons.Rounded.Backup,
+                    onClick = { backupLauncher.launch("jacdrive-backup-${java.text.SimpleDateFormat("yyyyMMdd", java.util.Locale.US).format(java.util.Date())}.zip") },
+                )
                 RowDivider()
-                SettingRow(stringResource(R.string.settings_export), subtitle = stringResource(R.string.settings_export_sub), icon = Icons.Rounded.Description) { InDevelopmentChip() }
+                SettingRow(
+                    stringResource(R.string.settings_restore), subtitle = stringResource(R.string.settings_restore_sub), icon = Icons.Rounded.SettingsBackupRestore,
+                    onClick = { restoreLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+                )
+                RowDivider()
+                SettingRow(stringResource(R.string.settings_export), subtitle = stringResource(R.string.settings_export_sub), icon = Icons.Rounded.Description, onClick = onOpenDiagnostics)
+                RowDivider()
+                SettingRow(stringResource(R.string.settings_export_trips), subtitle = stringResource(R.string.settings_export_trips_sub), icon = Icons.Rounded.Route, onClick = onOpenTrips)
             }
         }
 
@@ -179,6 +201,21 @@ fun SettingsScreen(
                 SettingRow(stringResource(R.string.settings_licenses), icon = Icons.Rounded.Gavel, onClick = { dialog = "licenses" })
             }
         }
+    }
+
+    when (val m = dataMessage) {
+        SettingsViewModel.DataMessage.BackupSaved -> InfoDialog(stringResource(R.string.settings_backup), stringResource(R.string.data_backup_saved)) { viewModel.dismissData() }
+        is SettingsViewModel.DataMessage.Failed -> InfoDialog(stringResource(R.string.settings_restore), stringResource(R.string.data_failed, m.reason)) { viewModel.dismissData() }
+        is SettingsViewModel.DataMessage.RestoreReady -> AlertDialog(
+            onDismissRequest = { viewModel.dismissData() },
+            title = { Text(stringResource(R.string.settings_restore)) },
+            text = {
+                Text(stringResource(R.string.data_restore_confirm, java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT).format(java.util.Date(m.info.createdMs))))
+            },
+            confirmButton = { TextButton(onClick = { viewModel.restore(m.info) }) { Text(stringResource(R.string.data_restore_now)) } },
+            dismissButton = { TextButton(onClick = { viewModel.dismissData() }) { Text(stringResource(R.string.data_cancel)) } },
+        )
+        null -> Unit
     }
 
     when (dialog) {

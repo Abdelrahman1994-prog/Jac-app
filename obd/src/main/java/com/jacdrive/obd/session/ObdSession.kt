@@ -90,6 +90,7 @@ class ObdSession(
         var latencyTotal = 0.0
         var linkStreak = 0
         var cycle = 0L
+        var milOn: Boolean? = null
 
         suspend fun request(cmd: String, timeout: Long, parse: (String) -> ElmResult): ElmResult {
             val t0 = clock()
@@ -130,6 +131,11 @@ class ObdSession(
                     if (n >= NOT_RESPONDING_AFTER) status[slot.pid] = PidStatus.NOT_RESPONDING
                 }
             }
+            // MIL status every ~120 cycles (about 30 s at the default rate) for the check-engine alert.
+            if (0x01 in supportedPids && cycle % 120 == 0L) {
+                val r = request("0101", PID_TIMEOUT_MS) { ElmResponseParser.parseData(it, "0101") }
+                (r as? ElmResult.Data)?.let(PidDecoder::monitorStatus)?.let { milOn = it.milOn }
+            }
             if (useAdapterVoltage && cycle % 15 == 0L) {
                 val r = request("ATRV", PID_TIMEOUT_MS) { ElmResponseParser.parseText(it, "ATRV") }
                 (r as? ElmResult.Text)?.text?.let(ElmInitializer::parseVoltage)?.let {
@@ -155,7 +161,7 @@ class ObdSession(
             stats = stats.copy(cycles = cycle, pidStatus = status.toMap())
             emit(
                 SessionUpdate(
-                    VehicleSnapshot(DataMode.LIVE, connection, values.toMap(), supportedMetrics, now),
+                    VehicleSnapshot(DataMode.LIVE, connection, values.toMap(), supportedMetrics, now, milOn),
                     stats,
                 ),
             )

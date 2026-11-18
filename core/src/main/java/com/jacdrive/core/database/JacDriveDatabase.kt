@@ -11,8 +11,9 @@ import androidx.room.RoomDatabase
     entities = [
         VehicleProfileEntity::class, DiagnosticSessionEntity::class, DiagnosticCodeEntity::class,
         TripEntity::class, PerformanceRunEntity::class, MaintenanceItemEntity::class, MaintenanceRecordEntity::class,
+        AlertEventEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class JacDriveDatabase : RoomDatabase() {
@@ -21,6 +22,7 @@ abstract class JacDriveDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
     abstract fun performanceDao(): PerformanceDao
     abstract fun maintenanceDao(): MaintenanceDao
+    abstract fun alertDao(): AlertDao
 
     companion object {
         const val NAME = "jacdrive.db"

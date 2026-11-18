@@ -6,6 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.jacdrive.core.database.JacDriveDatabase
 import com.jacdrive.core.database.MIGRATION_1_2
 import com.jacdrive.core.database.MIGRATION_2_3
+import com.jacdrive.core.database.MIGRATION_3_4
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,11 +41,12 @@ class MigrationTest {
         helper.createDatabase(DB2, 2).use { db ->
             db.execSQL("INSERT INTO diagnostic_session (timestampMs, kind, permanentSupported) VALUES (5, 'SCAN', 0)")
         }
-        val db = helper.runMigrationsAndValidate(DB2, 3, true, MIGRATION_2_3)
+        val db = helper.runMigrationsAndValidate(DB2, 4, true, MIGRATION_2_3, MIGRATION_3_4)
         db.query("SELECT COUNT(*) FROM diagnostic_session").use { it.moveToFirst(); assertEquals(1, it.getInt(0)) }
         db.execSQL("INSERT INTO trip (startMs, endMs, distanceKm, durationS, movingS, maxSpeedKmh, completed) VALUES (1, 2, 3.5, 60, 50, 80, 1)")
         db.execSQL("INSERT INTO maintenance_item (builtInKey, enabled, sortOrder) VALUES ('ENGINE_OIL', 1, 0)")
         db.execSQL("INSERT INTO maintenance_record (itemId, dateMs) VALUES (1, 0)")
+        db.execSQL("INSERT INTO alert_event (timestampMs, type, severity, spoken) VALUES (1, 'COOLANT_HIGH', 'CRITICAL', 1)")
     }
 
     private companion object {

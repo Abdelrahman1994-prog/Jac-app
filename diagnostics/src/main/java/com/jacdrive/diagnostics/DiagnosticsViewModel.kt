@@ -36,6 +36,7 @@ enum class Busy { SCANNING, CLEARING }
 
 sealed interface DiagMessage {
     data object ScanSaved : DiagMessage
+    data object ReportSaved : DiagMessage
     data object Cleared : DiagMessage
     data object NotConnected : DiagMessage
     data object EngineRunning : DiagMessage
@@ -120,4 +121,11 @@ class DiagnosticsViewModel @Inject constructor(
     fun dismissMessage() = local.update { it.first to null }
 
     fun delete(id: Long) = viewModelScope.launch { repository.delete(id) }
+
+    /** Writes an HTML report for [session] to [uri] (picked with the system file dialog). */
+    fun exportReport(session: com.jacdrive.diagnostics.data.DiagnosticSession, previous: com.jacdrive.diagnostics.data.DiagnosticSession?, arabic: Boolean, uri: android.net.Uri) =
+        viewModelScope.launch {
+            val ok = runCatching { repository.writeReport(session, previous, arabic, uri) { dtcProvider.database.lookup(it) } }.isSuccess
+            local.update { it.first to if (ok) DiagMessage.ReportSaved else DiagMessage.Error("report") }
+        }
 }

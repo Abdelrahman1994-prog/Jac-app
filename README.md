@@ -6,10 +6,9 @@ timing, trip analytics and maintenance tracking. Arabic and English with full RT
 
 Target device: Xiaomi Redmi Note 15 (any Android 8.0+ phone works; `minSdk 26`, `targetSdk 35`).
 
-> **Status: Phase 4 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
-> ELM327 connection, live data, fault-code scanner, bilingual DTC database, diagnostic history,
-> health score, trip recording and analytics, performance timers and maintenance management are
-> implemented. Voice alerts, backup/restore and the Android Auto decision are Phase 5.
+> **Status: all 5 phases implemented (v1.0.0).** Every feature below is built and covered by
+> automated tests. Communication with a real vehicle and adapter has **not** been tested yet; see
+> "Tested vs. untested".
 > Screens whose engine arrives in a later phase are visibly marked **"In development"** in the app.
 
 ![Cockpit – Horizon](docs/screenshots/theme_horizon.jpg)
@@ -94,6 +93,27 @@ not for Play Store distribution).
    or copy the APK to the phone and open it (allow "Install unknown apps" for your file manager).
 
 The debug build installs side-by-side as `com.jacdrive.app.debug`.
+
+## Manual test checklist (on the phone)
+
+1. **First launch:** the startup animation plays, then Home shows the "No OBD adapter" banner.
+2. **Settings:** switch the language to العربية (the layout mirrors) and back. Switch units to mph/°F.
+3. **Settings → Demo mode on:** open Cockpit, try every theme and layout from the palette button,
+   and confirm the DEMO watermark and badge. Confirm that Trips, Diagnostics and alerts record nothing.
+4. **Settings → Bluetooth adapter:** grant the permission, pair, and connect with the ignition ON.
+   Watch the init steps, then check adapter info and the live PID table.
+5. **Cockpit while connected:** the badge shows LIVE with the adapter and protocol.
+6. **Diagnostics:** scan; open a code; export the report from the session; try Clear with the engine
+   running (it should be refused), then with the engine off.
+7. **Drive:** after the engine is switched off, a trip appears in Trips after 90 s. Export CSV.
+8. **Performance (closed venue only):** acknowledge the warning, arm, and run 0–60.
+9. **Maintenance:** set the odometer, set the engine-oil interval, log a service.
+10. **Smart alerts:** test the voice in Arabic. Set the coolant threshold low (e.g. 95 °C) to
+    trigger a real alert once the engine is warm, then reset it.
+11. **Backup:** save a backup, change something, restore it, and confirm the app restarts with
+    the data restored.
+
+On HyperOS, set JAC DRIVE's battery saver to **No restrictions**, and allow notifications.
 
 ## Testing
 
@@ -219,18 +239,44 @@ notification per item when it becomes due soon or overdue (never repeated for th
 | 2 | Bluetooth Classic scanning/pairing, ELM327 init (ATZ/ATE0/ATL0/ATS0/ATH0/ATSP0), PID discovery (0100/0120/0140…), live PIDs 010C 010D 0105 0104 0111 010F 010B 012F 010E (+0142, 0146, 0110, 015E), foreground service, auto-reconnect, timeouts, BLE-ready transport, Horizon theme | ✅ Done (vehicle test pending) |
 | 3 | Mode 03/07/0A DTC reading, MIL & readiness (0101), bilingual DTC database, severity/causes/steps, guarded Mode 04 clear, session history & comparison, health score | ✅ Done (vehicle test pending) |
 | 4 | Performance timers + phone G-force, trip recording, charts, CSV export, maintenance intervals/reminders/costs | ✅ Done (vehicle test pending) |
-| 5 | Alert engine with Arabic/English TTS, Android Auto feasibility + compliant implementation if eligible, backup/restore, full test pass, release APK | Planned |
+| 5 | Alert engine with Arabic/English TTS, alert history, backup/restore, HTML diagnostic reports, Android Auto decision, full test pass, release APK | ✅ Done (vehicle test pending) |
 
-## Android Auto – current position (to be finalised in Phase 5)
+## Smart alerts, backup and reports (Phase 5)
+
+**Alerts** (Settings → Smart alerts): engine temperature high, battery voltage low (engine running) or
+high, high RPM, check-engine lamp turned on (PID `0101` polled about every 30 s), adapter disconnected
+unexpectedly, and maintenance due. Each alert can be switched on or off, and its threshold set.
+* **Avoiding distraction:** a condition must persist for a sustain time (1.5–30 s depending on the alert)
+  before it fires, must clear past a hysteresis margin before it can fire again, and never repeats
+  within the cooldown (default 10 min).
+* **Real data only:** only fresh, real vehicle data counts; demo data never triggers an alert.
+* **Voice:** spoken with the phone's text-to-speech in Arabic, English or the app language, using
+  navigation-guidance audio. On Android Auto or Bluetooth the car's speakers play it over the music.
+  If the Arabic voice isn't installed, the screen says so and links to the text-to-speech settings.
+* **Notification and history:** a notification is posted too, and every alert is kept in the alert
+  history. Maintenance reminders come as a notification only; the daily check can run at any time of
+  day, so it doesn't speak.
+
+**Backup and restore** (Settings → Data): a `.zip` holding a manifest, the database (taken after a
+WAL checkpoint) and the settings. Restore checks the file first: it must be a JAC DRIVE backup, pass
+a SQLite integrity check, and not come from a newer app version. It then asks for confirmation,
+replaces the data and restarts. Backups from older versions are upgraded by the normal migrations.
+
+**Diagnostic reports:** in any diagnostic session, the share icon saves a self-contained HTML
+report. It covers vehicle, MIL, codes with descriptions, causes and checks, readiness, and the
+comparison with the previous scan. It's in Arabic (RTL) or English, and opens in any browser to
+print or share.
+
+## Android Auto – decision
+
+Full analysis with sources: [`docs/ANDROID_AUTO.md`](docs/ANDROID_AUTO.md).
 
 An ordinary phone app does **not** appear on the car screen. Android Auto only shows apps built
 with the Car App Library (or media/messaging APIs) that fit one of Google's supported categories
-(e.g. media, messaging, navigation, points of interest, IoT, weather — the list changes, so it will
-be re-verified against Google's current documentation in Phase 5) and that render only through
+(media, messaging/calling, navigation, points of interest, IoT for controlling external devices, weather, and parked-only games — verified November 2026) and that render only through
 Google's driver-safety templates. A custom instrument cluster with free-form gauges cannot be drawn
-on the Android Auto screen, and JAC DRIVE will not use mirroring or other workarounds. The full
-cockpit stays on the phone; if a category genuinely fits, a limited template-based companion will
-be added. The `core`/`obd` modules have no phone-UI dependencies so they can also be reused for a
+on the Android Auto screen, and JAC DRIVE will not use mirroring or other workarounds. JAC DRIVE fits none of these, so it has **no Android Auto screen**. The full cockpit stays on the
+phone, and voice alerts play through the car speakers while Android Auto is running. The `core`/`obd` modules have no phone-UI dependencies so they can also be reused for a
 future Android Automotive OS build.
 
 ## Safety

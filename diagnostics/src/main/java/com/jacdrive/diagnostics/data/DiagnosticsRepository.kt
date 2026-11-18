@@ -26,6 +26,7 @@ sealed interface ClearOutcome {
 
 @Singleton
 class DiagnosticsRepository @Inject constructor(
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
     private val dao: DiagnosticDao,
     private val vehicleDao: VehicleProfileDao,
     private val obd: ObdConnectionManager,
@@ -75,6 +76,13 @@ class DiagnosticsRepository @Inject constructor(
     }
 
     suspend fun delete(id: Long) = dao.delete(id)
+
+    suspend fun writeReport(session: DiagnosticSession, previous: DiagnosticSession?, arabic: Boolean, uri: android.net.Uri, lookup: (String) -> DtcInfo) =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
+            val html = DiagnosticReport.html(session, previous, vehicleDao.get(), lookup, arabic, version)
+            context.contentResolver.openOutputStream(uri)?.use { it.write(html.toByteArray(Charsets.UTF_8)) } ?: error("no stream")
+        }
 
     private fun protocolName() = obd.state.value.adapter?.protocolName
     private fun adapterName() = (obd.state.value.connection as? ConnectionState.Connected)?.adapterName

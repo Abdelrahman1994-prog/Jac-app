@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ fun SessionScreen(id: Long, onBack: () -> Unit, onOpenCode: (String) -> Unit, vi
     val state by viewModel.state.collectAsStateWithLifecycle()
     val session = state.sessions.firstOrNull { it.id == id }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    val arabic = isArabic()
     if (session == null) {
         ScreenHeader(stringResource(R.string.session_title), onBack = onBack, modifier = Modifier.padding(horizontal = 16.dp))
         return
@@ -51,6 +53,10 @@ fun SessionScreen(id: Long, onBack: () -> Unit, onOpenCode: (String) -> Unit, vi
     val previous = remember(state.sessions, id) {
         state.sessions.dropWhile { it.id != id }.drop(1).firstOrNull { it.kind == SessionKind.SCAN }
     }
+
+    val exporter = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/html"),
+    ) { uri -> uri?.let { viewModel.exportReport(session, previous, arabic, it) } }
 
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -62,9 +68,17 @@ fun SessionScreen(id: Long, onBack: () -> Unit, onOpenCode: (String) -> Unit, vi
                 formatDate(session.timestampMs),
                 subtitle = stringResource(if (session.kind == SessionKind.CLEAR) R.string.session_kind_clear else R.string.session_kind_scan),
                 onBack = onBack,
-                actions = { IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Rounded.Delete, stringResource(R.string.session_delete)) } },
+                actions = {
+                    if (session.kind == SessionKind.SCAN) {
+                        IconButton(onClick = { exporter.launch("jacdrive-report-${session.id}.html") }) {
+                            Icon(androidx.compose.material.icons.Icons.Rounded.IosShare, stringResource(R.string.session_export))
+                        }
+                    }
+                    IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Rounded.Delete, stringResource(R.string.session_delete)) }
+                },
             )
         }
+        state.message?.takeIf { it == DiagMessage.ReportSaved }?.let { item { com.jacdrive.ui.components.InfoNote(stringResource(R.string.msg_report_saved), color = JacTheme.status.ok) } }
         item { SessionFacts(session) }
         if (session.kind == SessionKind.SCAN) {
             listOf(

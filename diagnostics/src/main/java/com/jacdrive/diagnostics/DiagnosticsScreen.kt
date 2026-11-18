@@ -245,6 +245,7 @@ private fun MessageCard(msg: DiagMessage, onDismiss: () -> Unit) {
     val s = JacTheme.status
     val (color, text) = when (msg) {
         DiagMessage.ScanSaved -> s.ok to stringResource(R.string.msg_scan_saved)
+        DiagMessage.ReportSaved -> s.ok to stringResource(R.string.msg_report_saved)
         DiagMessage.Cleared -> s.ok to stringResource(R.string.msg_cleared)
         DiagMessage.NotConnected -> s.warning to stringResource(R.string.msg_not_connected)
         DiagMessage.EngineRunning -> s.warning to stringResource(R.string.msg_engine_running)

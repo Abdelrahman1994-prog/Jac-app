@@ -5,4 +5,14 @@
     <string name="obd_notif_connected">Connected to vehicle</string>
     <string name="obd_notif_retrying">Connection lost · reconnecting</string>
     <string name="obd_notif_disconnect">Disconnect</string>
+    <string name="alert_channel">Vehicle alerts</string>
+    <string name="alert_title">JAC DRIVE alert</string>
+    <string name="alert_test">JAC DRIVE voice alerts are working.</string>
+    <string name="alert_coolant">Engine temperature high, %1$d degrees. Stop safely and let the engine cool.</string>
+    <string name="alert_battery_low">Battery voltage low, %1$s volts. The charging system may need checking.</string>
+    <string name="alert_battery_high">Battery voltage high, %1$s volts.</string>
+    <string name="alert_rpm">High engine speed.</string>
+    <string name="alert_mil">Check engine light is on. Run a diagnostic scan when it is safe.</string>
+    <string name="alert_disconnected">O B D adapter disconnected.</string>
+    <string name="alert_maintenance">Maintenance due: %1$s.</string>
 </resources>

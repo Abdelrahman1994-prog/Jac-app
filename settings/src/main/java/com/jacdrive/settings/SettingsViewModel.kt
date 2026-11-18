@@ -28,7 +28,35 @@ data class SettingsUiState(
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repo: SettingsRepository,
+    private val backup: com.jacdrive.core.backup.BackupManager,
+    @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
 ) : ViewModel() {
+
+    sealed interface DataMessage {
+        data object BackupSaved : DataMessage
+        data class RestoreReady(val info: com.jacdrive.core.backup.BackupInfo) : DataMessage
+        data class Failed(val reason: String) : DataMessage
+    }
+
+    val dataMessage = kotlinx.coroutines.flow.MutableStateFlow<DataMessage?>(null)
+
+    fun exportBackup(uri: android.net.Uri) = viewModelScope.launch {
+        dataMessage.value = runCatching {
+            context.contentResolver.openOutputStream(uri)?.use { backup.export(it) } ?: error("no stream")
+            DataMessage.BackupSaved
+        }.getOrElse { DataMessage.Failed(it.message ?: "error") }
+    }
+
+    fun checkRestore(uri: android.net.Uri) = viewModelScope.launch {
+        dataMessage.value = runCatching {
+            val info = context.contentResolver.openInputStream(uri)?.use { backup.validate(it) } ?: error("no stream")
+            DataMessage.RestoreReady(info)
+        }.getOrElse { DataMessage.Failed(it.message ?: "error") }
+    }
+
+    fun restore(info: com.jacdrive.core.backup.BackupInfo) = viewModelScope.launch { backup.restoreAndRestart(info) }
+
+    fun dismissData() { dataMessage.value = null }
 
     val state: StateFlow<SettingsUiState> = combine(repo.settings, repo.cockpit, ::SettingsUiState)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())

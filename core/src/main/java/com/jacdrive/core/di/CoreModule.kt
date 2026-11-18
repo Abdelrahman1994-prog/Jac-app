@@ -69,6 +69,8 @@ object CoreProvidesModule {
 
     @Provides fun performanceDao(db: JacDriveDatabase): com.jacdrive.core.database.PerformanceDao = db.performanceDao()
 
+    @Provides fun alertDao(db: JacDriveDatabase): com.jacdrive.core.database.AlertDao = db.alertDao()
+
     @Provides fun maintenanceDao(db: JacDriveDatabase): com.jacdrive.core.database.MaintenanceDao = db.maintenanceDao()
 
     @Provides

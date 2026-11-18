@@ -138,4 +138,6 @@
     <string name="health_based_on">Based on the scan of %1$s</string>
     <string name="health_no_deductions">No issues found in the reported data.</string>
     <string name="health_live_excluded">Live sensor checks were not included (no fresh vehicle data).</string>
+    <string name="msg_report_saved">Report saved. Open it in a browser to read, share or print.</string>
+    <string name="session_export">Export report</string>
 </resources>

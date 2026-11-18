@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     val settings: Flow<AppSettings>
     val cockpit: Flow<CockpitPreferences>
+    val alerts: Flow<com.jacdrive.core.model.AlertPreferences>
+
+    suspend fun updateAlerts(transform: (com.jacdrive.core.model.AlertPreferences) -> com.jacdrive.core.model.AlertPreferences)
 
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setSpeedUnit(unit: SpeedUnit)
