@@ -14,6 +14,7 @@ android {
 dependencies {
     implementation(project(":core-ui"))
     implementation(libs.androidx.appcompat)
+    implementation(project(":obd"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)

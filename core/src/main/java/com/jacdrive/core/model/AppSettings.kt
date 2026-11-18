@@ -10,6 +10,10 @@ data class AppSettings(
     val pollingIntervalMs: Long = DEFAULT_POLLING_MS,
     val demoModeEnabled: Boolean = false,
     val onboardingDone: Boolean = false,
+    /** Last OBD adapter the user connected to (MAC address), used for automatic reconnection. */
+    val adapterAddress: String? = null,
+    val adapterName: String? = null,
+    val autoReconnect: Boolean = true,
 ) {
     companion object {
         const val MIN_POLLING_MS = 100L

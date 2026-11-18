@@ -16,6 +16,10 @@ import com.jacdrive.app.navigation.JacDriveApp
 import com.jacdrive.core.model.ThemeMode
 import com.jacdrive.ui.theme.JacDriveTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.lifecycleScope
+import com.jacdrive.obd.service.AutoConnect
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Single activity. Extends AppCompatActivity so per-app language (Arabic/English) switching via
@@ -25,6 +29,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject lateinit var autoConnect: AutoConnect
+
+    override fun onStart() {
+        super.onStart()
+        // Reconnect to the saved adapter once per app launch, if the user enabled it.
+        lifecycleScope.launch { autoConnect.onAppForeground() }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()

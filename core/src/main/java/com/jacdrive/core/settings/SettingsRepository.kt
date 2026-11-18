@@ -21,6 +21,8 @@ interface SettingsRepository {
     suspend fun setPollingInterval(ms: Long)
     suspend fun setDemoMode(enabled: Boolean)
     suspend fun setOnboardingDone()
+    suspend fun setAdapter(address: String?, name: String?)
+    suspend fun setAutoReconnect(enabled: Boolean)
 
     suspend fun setCockpitTheme(id: CockpitThemeId)
     suspend fun setAccentOverride(argb: Long?)

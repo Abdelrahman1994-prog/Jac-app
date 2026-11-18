@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="obd_channel_name">OBD connection</string>
+    <string name="obd_notif_connecting">Connecting to OBD adapter…</string>
+    <string name="obd_notif_connected">Connected to vehicle</string>
+    <string name="obd_notif_retrying">Connection lost · reconnecting</string>
+    <string name="obd_notif_disconnect">Disconnect</string>
+</resources>

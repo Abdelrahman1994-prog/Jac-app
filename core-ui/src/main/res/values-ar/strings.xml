@@ -5,7 +5,7 @@
     <string name="demo_banner_title">الوضع التجريبي · بيانات محاكاة</string>
     <string name="demo_banner_body">القيم يولّدها التطبيق وليست من سيارتك.</string>
     <string name="offline_banner_title">لا يوجد محوّل OBD متصل</string>
-    <string name="offline_banner_body">وصّل محوّل ELM327 لعرض البيانات المباشرة، أو فعّل الوضع التجريبي من الإعدادات.</string>
+    <string name="offline_banner_body">اضغط للاتصال بمحوّل ELM327، أو فعّل الوضع التجريبي من الإعدادات.</string>
 
     <string name="metric_speed">السرعة</string>
     <string name="metric_rpm">دورات المحرك</string>

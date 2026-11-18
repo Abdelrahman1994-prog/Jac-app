@@ -38,6 +38,9 @@ class DataStoreSettingsRepository @Inject constructor(
         val polling = longPreferencesKey("polling_ms")
         val demo = booleanPreferencesKey("demo_mode")
         val onboarding = booleanPreferencesKey("onboarding_done")
+        val adapterAddress = stringPreferencesKey("adapter_address")
+        val adapterName = stringPreferencesKey("adapter_name")
+        val autoReconnect = booleanPreferencesKey("auto_reconnect")
 
         val cockpitTheme = stringPreferencesKey("cockpit_theme")
         val accent = longPreferencesKey("cockpit_accent")
@@ -63,6 +66,9 @@ class DataStoreSettingsRepository @Inject constructor(
                 .coerceIn(AppSettings.MIN_POLLING_MS, AppSettings.MAX_POLLING_MS),
             demoModeEnabled = p[Keys.demo] ?: d.demoModeEnabled,
             onboardingDone = p[Keys.onboarding] ?: d.onboardingDone,
+            adapterAddress = p[Keys.adapterAddress],
+            adapterName = p[Keys.adapterName],
+            autoReconnect = p[Keys.autoReconnect] ?: d.autoReconnect,
         )
     }.distinctUntilChanged()
 
@@ -89,6 +95,13 @@ class DataStoreSettingsRepository @Inject constructor(
 
     override suspend fun setDemoMode(enabled: Boolean) = put(Keys.demo, enabled)
     override suspend fun setOnboardingDone() = put(Keys.onboarding, true)
+    override suspend fun setAdapter(address: String?, name: String?) {
+        dataStore.edit {
+            if (address == null) it.remove(Keys.adapterAddress) else it[Keys.adapterAddress] = address
+            if (name == null) it.remove(Keys.adapterName) else it[Keys.adapterName] = name
+        }
+    }
+    override suspend fun setAutoReconnect(enabled: Boolean) = put(Keys.autoReconnect, enabled)
 
     override suspend fun setCockpitTheme(id: CockpitThemeId) {
         dataStore.edit {

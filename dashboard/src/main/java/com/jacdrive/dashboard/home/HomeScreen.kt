@@ -61,7 +61,7 @@ import com.jacdrive.ui.theme.JacFonts
 import com.jacdrive.ui.theme.JacTheme
 import com.jacdrive.ui.theme.Readout
 
-enum class HomeDestination { COCKPIT, DIAGNOSTICS, PERFORMANCE, TRIPS, MAINTENANCE, VEHICLE, THEMES, SETTINGS }
+enum class HomeDestination { COCKPIT, DIAGNOSTICS, PERFORMANCE, TRIPS, MAINTENANCE, VEHICLE, THEMES, SETTINGS, ADAPTER }
 
 @Composable
 fun HomeScreen(onNavigate: (HomeDestination) -> Unit, viewModel: HomeViewModel = hiltViewModel()) {
@@ -75,7 +75,11 @@ fun HomeScreen(onNavigate: (HomeDestination) -> Unit, viewModel: HomeViewModel =
     ) {
         item { HomeHeader(state) }
         if (state.snapshot.mode != DataMode.LIVE) {
-            item { DataModeBanner(state.snapshot.mode, onAction = { onNavigate(HomeDestination.SETTINGS) }) }
+            item {
+                DataModeBanner(state.snapshot.mode, onAction = {
+                    onNavigate(if (state.snapshot.mode == DataMode.OFFLINE) HomeDestination.ADAPTER else HomeDestination.SETTINGS)
+                })
+            }
         }
         item { CockpitHeroCard(state, now) { onNavigate(HomeDestination.COCKPIT) } }
         item {

@@ -28,6 +28,8 @@
     <string name="cockpit_customize">تخصيص لوحة القيادة</string>
     <string name="cockpit_mode_demo">تجريبي · محاكاة</string>
     <string name="cockpit_mode_offline">لا يوجد محوّل</string>
+    <string name="cockpit_mode_connecting">جارٍ الاتصال…</string>
+    <string name="cockpit_mode_reconnecting">انقطع · إعادة المحاولة</string>
     <string name="cockpit_mode_live">مباشر</string>
     <string name="cockpit_rpm_unit">دورة/دقيقة</string>
     <string name="cockpit_rpm_x1000">×1000 دورة</string>

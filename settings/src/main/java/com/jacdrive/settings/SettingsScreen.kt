@@ -50,6 +50,7 @@ private enum class Language(val tag: String) { SYSTEM(""), ENGLISH("en"), ARABIC
 fun SettingsScreen(
     onBack: (() -> Unit)?,
     onOpenThemeStudio: () -> Unit,
+    onOpenAdapter: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -127,9 +128,10 @@ fun SettingsScreen(
             JacCard {
                 SettingRow(
                     stringResource(R.string.settings_adapter),
-                    subtitle = stringResource(R.string.settings_adapter_sub),
+                    subtitle = app.adapterName?.let { stringResource(R.string.adapter_saved, it) } ?: stringResource(R.string.settings_adapter_sub),
                     icon = Icons.Rounded.Bluetooth,
-                ) { InDevelopmentChip() }
+                    onClick = onOpenAdapter,
+                )
                 RowDivider()
                 PollingIntervalSetting(app.pollingIntervalMs, viewModel::setPollingInterval)
                 RowDivider()

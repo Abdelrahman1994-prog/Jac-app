@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="obd_channel_name">اتصال OBD</string>
+    <string name="obd_notif_connecting">جارٍ الاتصال بمحوّل OBD…</string>
+    <string name="obd_notif_connected">متصل بالسيارة</string>
+    <string name="obd_notif_retrying">انقطع الاتصال · جارٍ إعادة الاتصال</string>
+    <string name="obd_notif_disconnect">قطع الاتصال</string>
+</resources>

@@ -42,6 +42,7 @@ import com.jacdrive.dashboard.home.HomeScreen
 import com.jacdrive.diagnostics.DiagnosticsScreen
 import com.jacdrive.diagnostics.HealthScreen
 import com.jacdrive.maintenance.MaintenanceScreen
+import com.jacdrive.settings.AdapterScreen
 import com.jacdrive.settings.SettingsScreen
 import com.jacdrive.settings.ThemeStudioScreen
 import com.jacdrive.vehicle.VehicleScreen
@@ -131,6 +132,7 @@ private fun JacNavHost(nav: NavHostController, modifier: Modifier) {
                         HomeDestination.VEHICLE -> Routes.VEHICLE
                         HomeDestination.THEMES -> Routes.THEME_STUDIO
                         HomeDestination.SETTINGS -> Routes.SETTINGS
+                        HomeDestination.ADAPTER -> Routes.ADAPTER
                     },
                 ) { launchSingleTop = true }
             })
@@ -150,11 +152,13 @@ private fun JacNavHost(nav: NavHostController, modifier: Modifier) {
                 onBack = back,
                 onOpenMaintenance = { nav.navigate(Routes.MAINTENANCE) { launchSingleTop = true } },
                 onOpenDiagnostics = { nav.navigate(Routes.DIAGNOSTICS) { launchSingleTop = true } },
+                onOpenAdapter = { nav.navigate(Routes.ADAPTER) },
             )
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = back, onOpenThemeStudio = { nav.navigate(Routes.THEME_STUDIO) })
+            SettingsScreen(onBack = back, onOpenThemeStudio = { nav.navigate(Routes.THEME_STUDIO) }, onOpenAdapter = { nav.navigate(Routes.ADAPTER) })
         }
         composable(Routes.THEME_STUDIO) { ThemeStudioScreen(onBack = back) }
+        composable(Routes.ADAPTER) { AdapterScreen(onBack = back) }
     }
 }

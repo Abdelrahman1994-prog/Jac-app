@@ -25,6 +25,7 @@ object Routes {
     const val VEHICLE = "vehicle"
     const val SETTINGS = "settings"
     const val THEME_STUDIO = "settings/themes"
+    const val ADAPTER = "settings/adapter"
 
     /** Routes that take over the whole screen (no navigation chrome). */
     val fullScreen = setOf(STARTUP, COCKPIT)

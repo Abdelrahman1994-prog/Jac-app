@@ -28,6 +28,8 @@
     <string name="cockpit_customize">Customize cockpit</string>
     <string name="cockpit_mode_demo">DEMO · SIMULATED</string>
     <string name="cockpit_mode_offline">NO ADAPTER</string>
+    <string name="cockpit_mode_connecting">CONNECTING…</string>
+    <string name="cockpit_mode_reconnecting">NO LINK · RETRYING</string>
     <string name="cockpit_mode_live">LIVE</string>
     <string name="cockpit_rpm_unit">r/min</string>
     <string name="cockpit_rpm_x1000">x1000 rpm</string>

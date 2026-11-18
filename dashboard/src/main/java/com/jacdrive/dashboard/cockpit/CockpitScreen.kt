@@ -161,7 +161,11 @@ private fun ModePill(state: CockpitUiState, style: CockpitStyle) {
     val demoColor = Color(0xFFB57BFF)
     val (text, color) = when (state.snapshot.mode) {
         DataMode.DEMO -> stringResource(R.string.cockpit_mode_demo) to demoColor
-        DataMode.OFFLINE -> stringResource(R.string.cockpit_mode_offline) to style.textDim
+        DataMode.OFFLINE -> when (state.snapshot.connection) {
+            is ConnectionState.Connecting -> stringResource(R.string.cockpit_mode_connecting) to style.accent
+            is ConnectionState.Failed -> stringResource(R.string.cockpit_mode_reconnecting) to style.warning
+            else -> stringResource(R.string.cockpit_mode_offline) to style.textDim
+        }
         DataMode.LIVE -> {
             val c = state.snapshot.connection
             val name = if (state.visible(DashboardWidget.CONNECTION) && c is ConnectionState.Connected) {

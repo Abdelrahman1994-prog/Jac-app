@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jacdrive.core.database.VehicleProfileEntity
-import com.jacdrive.ui.components.InDevelopmentChip
 import com.jacdrive.ui.components.JacCard
 import com.jacdrive.ui.components.ScreenHeader
 import com.jacdrive.ui.components.SectionHeader
@@ -58,6 +57,7 @@ fun VehicleScreen(
     onBack: (() -> Unit)?,
     onOpenMaintenance: () -> Unit,
     onOpenDiagnostics: () -> Unit,
+    onOpenAdapter: () -> Unit,
     viewModel: VehicleViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -89,7 +89,7 @@ fun VehicleScreen(
             }
             item { SectionHeader(stringResource(R.string.vehicle_adapter)) }
             item {
-                JacCard {
+                JacCard(onClick = onOpenAdapter) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Rounded.Bluetooth, null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
@@ -104,7 +104,7 @@ fun VehicleScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-                        InDevelopmentChip()
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
