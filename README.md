@@ -11,6 +11,14 @@ Target device: Xiaomi Redmi Note 15 (any Android 8.0+ phone works; `minSdk 26`, 
 > engine arrives in a later phase are visibly marked **"In development"** in the app, and
 > nothing in them pretends to work.
 
+![Cockpit – JAC Original](docs/screenshots/theme_jac_original.jpg)
+
+| Racing Red (Arabic RTL) | Cyber Blue · Digital | Sport GT · Sport center |
+|---|---|---|
+| ![](docs/screenshots/rtl_racing_red.jpg) | ![](docs/screenshots/layout_digital.jpg) | ![](docs/screenshots/layout_sport_center.jpg) |
+
+*Rendered from the real Compose code by the screenshot tests, using demo-mode (simulated) values.*
+
 ---
 
 ## Architecture
