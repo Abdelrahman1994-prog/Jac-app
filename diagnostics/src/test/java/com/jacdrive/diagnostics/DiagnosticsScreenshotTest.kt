@@ -31,8 +31,11 @@ class DiagnosticsScreenshotTest {
     @get:Rule val compose = createComposeRule()
     private val db = DtcDatabase(File("src/main/assets/dtc_database.json").readText())
 
-    private fun render(name: String) {
+    private fun render(name: String, rtl: Boolean = false) {
         compose.setContent {
+          androidx.compose.runtime.CompositionLocalProvider(
+            androidx.compose.ui.platform.LocalLayoutDirection provides if (rtl) androidx.compose.ui.unit.LayoutDirection.Rtl else androidx.compose.ui.unit.LayoutDirection.Ltr,
+          ) {
             JacDriveTheme {
                 Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
                     JacCard {
@@ -50,6 +53,7 @@ class DiagnosticsScreenshotTest {
                     }
                 }
             }
+          }
         }
         compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
     }
@@ -57,6 +61,6 @@ class DiagnosticsScreenshotTest {
     @Config(sdk = [34], qualifiers = "w411dp-h891dp-xxhdpi")
     @Test fun english() = render("dtc_en")
 
-    @Config(sdk = [34], qualifiers = "ar-w411dp-h891dp-xxhdpi")
-    @Test fun arabic() = render("dtc_ar")
+    @Config(sdk = [34], qualifiers = "ar-ldrtl-w411dp-h891dp-xxhdpi")
+    @Test fun arabic() = render("dtc_ar", rtl = true)
 }

@@ -6,8 +6,9 @@ timing, trip analytics and maintenance tracking. Arabic and English with full RT
 
 Target device: Xiaomi Redmi Note 15 (any Android 8.0+ phone works; `minSdk 26`, `targetSdk 35`).
 
-> **Status: Phase 2 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
-> ELM327 connection, PID discovery and live data are implemented. Diagnostics (DTC) is Phase 3.
+> **Status: Phase 3 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
+> ELM327 connection, live data, fault-code scanner, bilingual DTC database, diagnostic history and
+> health score are implemented. Performance, trips and maintenance are Phase 4.
 > Screens whose engine arrives in a later phase are visibly marked **"In development"** in the app.
 
 ![Cockpit – Horizon](docs/screenshots/theme_horizon.jpg)
@@ -156,13 +157,41 @@ If something fails in the car, the adapter screen shows the step and reason — 
 enough to diagnose. On HyperOS, set JAC DRIVE's battery saver to **No restrictions** so the link
 survives with the screen off.
 
+## Diagnostics (Phase 3)
+
+Diagnostics → **Scan for codes** (requires a live adapter connection; never runs on demo data):
+
+* Reads `0101` (MIL, confirmed-code count, readiness monitors), then `03` stored, `07` pending and
+  `0A` permanent codes. CAN single/multi-frame (ISO-TP) and legacy protocols are parsed; replies from
+  several ECUs are merged. ECUs that don't implement Mode 0A are shown as *Not supported*, and lists
+  that failed because of communication errors are flagged instead of being shown as "no codes".
+* Every scan is saved (Room v2, migration from v1 validated in tests) with protocol, adapter and
+  odometer. Session detail compares with the previous scan: **new / no longer present / still present**.
+* **Clear codes (Mode 04)** is only possible from a confirmation dialog listing the consequences
+  (doesn't repair, codes return, readiness resets, freeze-frame erased) with an "I understand"
+  checkbox. It is refused while the engine is running (fresh RPM > 300). After clearing, a read-only
+  scan is saved so you can see what came back. Codes are never cleared automatically.
+* **Fault-code database:** `diagnostics/src/main/assets/dtc_database.json` — 106 generic codes with
+  English/Arabic titles, severity, possible causes and inspection steps. Expand it by editing
+  `tools/gen_dtc_database.py` and running `python3 tools/gen_dtc_database.py diagnostics/src/main/assets/dtc_database.json`.
+  Unknown codes are interpreted from their structure (system, generic vs manufacturer-specific)
+  without invented causes. Offline code lookup is on the Diagnostics screen.
+* **Health score:** 100 minus listed deductions — MIL −30; stored −10 each (max −40); pending −5
+  (max −15); permanent −5 (max −10); critical-severity code −20; incomplete readiness −3 (max −12);
+  with fresh real ECU data: coolant > 105 °C −15, abnormal battery voltage −10. Requires a complete
+  scan; unreported items are excluded. Simulated data is never used.
+* Scope: standard OBD-II covers emissions-related powertrain data. ABS, airbags, body and (often)
+  transmission modules use manufacturer protocols and are not diagnosed.
+
+<img src="docs/screenshots/diagnostics_ar.jpg" width="300" alt="Diagnostics in Arabic">
+
 ## Development phases
 
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Architecture, UI/UX, navigation, cockpit, themes, Theme Studio, demo mode, vehicle profile, settings | ✅ Done |
 | 2 | Bluetooth Classic scanning/pairing, ELM327 init (ATZ/ATE0/ATL0/ATS0/ATH0/ATSP0), PID discovery (0100/0120/0140…), live PIDs 010C 010D 0105 0104 0111 010F 010B 012F 010E (+0142, 0146, 0110, 015E), foreground service, auto-reconnect, timeouts, BLE-ready transport, Horizon theme | ✅ Done (vehicle test pending) |
-| 3 | Mode 03/07/0A DTC reading, MIL & readiness (0101), bilingual DTC database, severity/causes/steps, guarded Mode 04 clear, session history & comparison, health score | Planned |
+| 3 | Mode 03/07/0A DTC reading, MIL & readiness (0101), bilingual DTC database, severity/causes/steps, guarded Mode 04 clear, session history & comparison, health score | ✅ Done (vehicle test pending) |
 | 4 | Performance timers + phone G-force, trip recording, charts, CSV export, maintenance intervals/reminders/costs | Planned |
 | 5 | Alert engine with Arabic/English TTS, Android Auto feasibility + compliant implementation if eligible, backup/restore, full test pass, release APK | Planned |
 

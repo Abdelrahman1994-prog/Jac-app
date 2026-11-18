@@ -70,8 +70,11 @@ fun JacCard(
             .border(BorderStroke(1.dp, border), CardShape)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(contentPadding),
-        content = content,
-    )
+    ) {
+        androidx.compose.runtime.CompositionLocalProvider(
+            androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+        ) { content() }
+    }
 }
 
 @Composable
