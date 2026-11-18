@@ -18,7 +18,7 @@
     <string name="metric_map">Manifold pressure</string>
     <string name="metric_timing">Timing advance</string>
     <string name="metric_trip">Trip</string>
-    <string name="metric_avg_fuel">Avg. consumption</string>
+    <string name="metric_avg_fuel">Avg. fuel</string>
     <string name="metric_connection">OBD link</string>
 
     <string name="value_missing">—</string>

@@ -246,12 +246,11 @@ private fun DrawScope.drawNeedle(
         inDanger -> style.critical
         else -> style.accent
     }
-    val tail = Offset(c.x - cos(a).toFloat() * d * 0.06f, c.y - sin(a).toFloat() * d * 0.06f)
+    // Floating pointer: drawn only on the outer ring so it never covers the centre readout.
+    val tail = Offset(c.x + cos(a).toFloat() * length * 0.62f, c.y + sin(a).toFloat() * length * 0.62f)
     val tip = Offset(c.x + cos(a).toFloat() * (length - d * 0.01f), c.y + sin(a).toFloat() * (length - d * 0.01f))
     if (style.gauge.glow && hasValue) {
         drawLine(color.copy(alpha = 0.18f), tail, tip, strokeWidth = d * 0.035f, cap = StrokeCap.Round)
     }
-    drawLine(color, tail, tip, strokeWidth = d * 0.012f, cap = StrokeCap.Round)
-    drawCircle(Color.Black, radius = d * 0.05f, center = c)
-    drawCircle(color, radius = d * 0.05f, center = c, style = Stroke(d * 0.008f))
+    drawLine(color, tail, tip, strokeWidth = d * 0.014f, cap = StrokeCap.Round)
 }

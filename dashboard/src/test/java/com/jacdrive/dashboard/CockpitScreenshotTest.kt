@@ -89,16 +89,21 @@ class CockpitScreenshotTest {
         compose.onRoot().captureRoboImage("build/outputs/roborazzi/$name.png")
     }
 
-    @Test fun allThemesDualDial() {
-        CockpitThemeId.entries.forEach { id ->
-            render("theme_${id.name.lowercase()}", CockpitPreferences(themeId = id, animationsEnabled = false))
-        }
-    }
+    @Test fun themeJacOriginal() = render("theme_jac_original", CockpitPreferences(themeId = CockpitThemeId.JAC_ORIGINAL, animationsEnabled = false))
 
-    @Test fun layouts() {
+    @Test fun themeRacingRed() = render("theme_racing_red", CockpitPreferences(themeId = CockpitThemeId.RACING_RED, animationsEnabled = false))
+
+    @Test fun themeCyberBlue() = render("theme_cyber_blue", CockpitPreferences(themeId = CockpitThemeId.CYBER_BLUE, animationsEnabled = false))
+
+    @Test fun themeCarbonBlack() = render("theme_carbon_black", CockpitPreferences(themeId = CockpitThemeId.CARBON_BLACK, animationsEnabled = false))
+
+    @Test fun themeSportGt() = render("theme_sport_gt", CockpitPreferences(themeId = CockpitThemeId.SPORT_GT, animationsEnabled = false))
+
+    @Test fun layoutSportCenter() =
         render("layout_sport_center", CockpitPreferences(themeId = CockpitThemeId.SPORT_GT, layout = GaugeLayout.SPORT_CENTER, animationsEnabled = false))
+
+    @Test fun layoutDigital() =
         render("layout_digital", CockpitPreferences(themeId = CockpitThemeId.CYBER_BLUE, layout = GaugeLayout.DIGITAL, animationsEnabled = false))
-    }
 
     @Test fun arabicRtl() {
         render("rtl_racing_red", CockpitPreferences(themeId = CockpitThemeId.RACING_RED, animationsEnabled = false), rtl = true)

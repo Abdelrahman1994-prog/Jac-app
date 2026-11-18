@@ -206,10 +206,14 @@ fun MetricReadout(
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
         }
-        Row(verticalAlignment = Alignment.Bottom) {
+        androidx.compose.runtime.CompositionLocalProvider(
+            androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr,
+        ) {
+          Row(verticalAlignment = Alignment.Bottom) {
             Text(value, style = Readout.Medium, color = valueColor)
             Spacer(Modifier.width(4.dp))
             Text(unit, style = Readout.Unit, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
+          }
         }
     }
 }

@@ -52,6 +52,6 @@ object Readout {
     val Large = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontSize = 56.sp, lineHeight = 56.sp)
     val Medium = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 32.sp)
     val Small = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 22.sp)
-    val Unit = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 0.08.em)
+    val Unit = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 0.08.em, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
     val Caption = TextStyle(fontFamily = JacFonts.Body, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, letterSpacing = 0.08.em)
 }

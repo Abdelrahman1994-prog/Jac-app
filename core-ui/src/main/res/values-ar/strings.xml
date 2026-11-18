@@ -18,7 +18,7 @@
     <string name="metric_map">ضغط مشعب السحب</string>
     <string name="metric_timing">تقديم الشرارة</string>
     <string name="metric_trip">الرحلة</string>
-    <string name="metric_avg_fuel">متوسط الاستهلاك</string>
+    <string name="metric_avg_fuel">متوسط الوقود</string>
     <string name="metric_connection">اتصال OBD</string>
 
     <string name="value_missing">—</string>

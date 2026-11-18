@@ -83,7 +83,7 @@ fun CockpitTile(
             )
             FreshnessIndicator(d.freshness, style)
         }
-        Row(verticalAlignment = Alignment.Bottom) {
+        LtrRow {
             val valueText = when {
                 d.text != null -> d.text
                 d.unsupported -> stringResource(R.string.cockpit_na)
@@ -135,13 +135,12 @@ private fun DialCenter(
     unit: String,
     caption: String,
     style: CockpitStyle,
-    heroFraction: Float = 0.26f,
+    heroFraction: Float = 0.22f,
     secondary: String? = null,
 ) {
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         val dial: Dp = if (maxWidth < maxHeight) maxWidth else maxHeight
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(caption.uppercase(), style = Readout.Caption, color = style.textDim)
             Text(
                 value,
                 style = Readout.Hero.copy(fontSize = (dial.value * heroFraction).sp, lineHeight = (dial.value * heroFraction).sp),
@@ -149,6 +148,7 @@ private fun DialCenter(
                 textAlign = TextAlign.Center,
             )
             Text(unit, style = Readout.Unit, color = style.accent)
+            Text(caption.uppercase(), style = Readout.Caption, color = style.textDim)
             if (secondary != null) {
                 Spacer(Modifier.height(4.dp))
                 Text(secondary, style = Readout.Small, color = style.textDim)
@@ -195,11 +195,11 @@ fun RpmDial(
                 unit = center.unit,
                 caption = stringResource(com.jacdrive.ui.R.string.metric_speed),
                 style = style,
-                heroFraction = 0.30f,
+                heroFraction = 0.25f,
                 secondary = rpm.text?.let { "$it rpm" },
             )
         } else {
-            DialCenter(rpm.text ?: "—", stringResource(R.string.cockpit_rpm_unit), stringResource(com.jacdrive.ui.R.string.metric_rpm), style, heroFraction = 0.2f)
+            DialCenter(rpm.text ?: "—", stringResource(R.string.cockpit_rpm_unit), stringResource(com.jacdrive.ui.R.string.metric_rpm), style, heroFraction = 0.18f)
         }
     }
 }
@@ -309,3 +309,13 @@ fun severityFor(widget: DashboardWidget, warnings: Map<Telltale, Severity>): Sev
     else -> null
 }
 
+
+/** Value + unit pairs read left-to-right in both languages ("41 %", "77 °C"). */
+@Composable
+internal fun LtrRow(content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit) {
+    androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr,
+    ) {
+        Row(verticalAlignment = Alignment.Bottom, content = content)
+    }
+}
