@@ -13,7 +13,7 @@ object BluetoothPermissions {
             arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
         } else {
             // Classic discovery on Android 11 and lower requires location.
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
     /** Optional: lets the connection notification be shown on Android 13+. */

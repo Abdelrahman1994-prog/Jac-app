@@ -6,16 +6,15 @@ timing, trip analytics and maintenance tracking. Arabic and English with full RT
 
 Target device: Xiaomi Redmi Note 15 (any Android 8.0+ phone works; `minSdk 26`, `targetSdk 35`).
 
-> **Status: Phase 1 of 5 complete.** Architecture, design system, navigation, the full cockpit with
-> five themes and demo mode are working. Bluetooth/OBD communication is Phase 2. Screens whose
-> engine arrives in a later phase are visibly marked **"In development"** in the app, and
-> nothing in them pretends to work.
+> **Status: Phase 2 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
+> ELM327 connection, PID discovery and live data are implemented. Diagnostics (DTC) is Phase 3.
+> Screens whose engine arrives in a later phase are visibly marked **"In development"** in the app.
 
-![Cockpit – JAC Original](docs/screenshots/theme_jac_original.jpg)
+![Cockpit – Horizon](docs/screenshots/theme_horizon.jpg)
 
-| Racing Red (Arabic RTL) | Cyber Blue · Digital | Sport GT · Sport center |
+| JAC Original | Cyber Blue · Digital | Sport GT · Sport center |
 |---|---|---|
-| ![](docs/screenshots/rtl_racing_red.jpg) | ![](docs/screenshots/layout_digital.jpg) | ![](docs/screenshots/layout_sport_center.jpg) |
+| ![](docs/screenshots/theme_jac_original.jpg) | ![](docs/screenshots/layout_digital.jpg) | ![](docs/screenshots/layout_sport_center.jpg) |
 
 *Rendered from the real Compose code by the screenshot tests, using demo-mode (simulated) values.*
 
@@ -38,7 +37,7 @@ app ──► dashboard ──► vehicle ──┐
 |---|---|
 | `core` | Domain models (`VehicleMetric`, `LiveValue`, `DataSource`, `VehicleSnapshot`, units), settings repository (DataStore), Room database, DI (dispatchers, app scope). No UI. |
 | `core-ui` | Design system: typography (Cairo + Rajdhani), app theme, the five cockpit styles, Canvas gauge renderer (`CircularGauge`, `BarGauge`), cockpit backgrounds, shared components, immersive-mode helper. |
-| `obd` | Live-data pipeline. `VehicleDataRepository` is the single source of truth for every screen. Phase 1: demo simulator + trip integrator. Phase 2 adds the ELM327 transport, PID discovery and SAE J1979 decoding behind the same interface. |
+| `obd` | Live-data pipeline. `VehicleDataRepository` is the single source of truth for every screen. Bluetooth Classic transport (BLE-ready `ObdTransport` interface), ELM327 parser/initialiser, SAE J1979 PID decoder, polling session, connection manager with auto-reconnect, `connectedDevice` foreground service, demo simulator. |
 | `vehicle` | Vehicle profile (Room) with VIN validation. |
 | `dashboard` | Home hub and the full-screen cockpit (3 layouts, warning lamps, freshness). |
 | `diagnostics` | DTC scanner UI and vehicle-health screen (live checks are functional). |
@@ -120,12 +119,49 @@ Arabic RTL and the offline state).
 animation → Home; Settings → enable Demo mode → open Cockpit (rotates to landscape, hides system
 bars); switch theme/layout from the palette button; switch language to العربية (layout mirrors).
 
+## OBD-II link (Phase 2)
+
+Settings → **Bluetooth adapter** (or tap the "No OBD adapter" banner on Home):
+
+1. Plug the ELM327 adapter into the OBD port (under the dashboard, driver side) and switch the ignition **ON**.
+2. Grant the Bluetooth permission, then pair the adapter (PIN usually `1234` or `0000`).
+3. Tap the adapter. The screen shows each step: Bluetooth link → `ATZ` → `ATE0 ATL0 ATS0 ATH0 ATSP0`
+   → protocol search (`0100`) → adapter info (`ATDPN`, `ATI`, `ATRV`) → supported-PID discovery.
+4. Once connected, the cockpit switches to **LIVE**; the adapter screen lists every standard PID as
+   *value*, *Not supported* (ECU bitmap says no) or *No response* (advertised but answers `NO DATA`).
+
+Behaviour:
+* Only PIDs the ECU confirms are polled. Fast values (RPM, speed, throttle, load) every cycle,
+  medium ones every 3rd cycle, slow ones (temperatures, fuel level, voltage) every 15th.
+* 4 consecutive link failures (timeouts / bus errors) = link lost → automatic reconnect with
+  backoff (1 s → 15 s); ignition-off retries every 5–20 s. "Disconnect" always stops retrying.
+* Battery voltage comes from PID `0142` when supported, otherwise from the adapter (`ATRV`, labelled ADAPTER).
+* Trip distance is integrated from real speed. Average consumption uses PID `015E` when available,
+  otherwise a MAF-based estimate (petrol, AFR 14.7, ±10 %).
+* A foreground service with a notification keeps the link alive with the screen off; it has a Disconnect action.
+* Only read-only Mode 01 requests and ELM `AT` setup commands are sent. No CAN frames, no writes.
+
+### Tested vs. untested
+
+| Tested (automated) | Not yet tested — needs your car |
+|---|---|
+| ELM response parsing: errors, `NO DATA`, `?`, `SEARCHING…`, echo, multi-ECU, ISO-TP frames | Real RFCOMM connection to your adapter |
+| SAE J1979 scaling of every PID used | Which PIDs the JAC J7 2026 ECU actually supports |
+| Init sequence, protocol name, ATRV parsing | Protocol/timing behaviour of your specific adapter (genuine vs clone) |
+| Supported-PID discovery incl. next-range chaining | Foreground service behaviour on HyperOS battery optimisation |
+| Unsupported vs not-responding vs link-lost handling | Auto-reconnect after ignition cycles |
+| Stream channel reads to prompt / times out | |
+
+If something fails in the car, the adapter screen shows the step and reason — a screenshot of it is
+enough to diagnose. On HyperOS, set JAC DRIVE's battery saver to **No restrictions** so the link
+survives with the screen off.
+
 ## Development phases
 
 | Phase | Scope | Status |
 |---|---|---|
-| 1 | Architecture, UI/UX, navigation, cockpit, 5 themes, Theme Studio, demo mode, vehicle profile, settings | ✅ Done |
-| 2 | Bluetooth Classic scanning/pairing, ELM327 init (ATZ/ATE0/ATL0/ATS0/ATH0/ATSP0), PID discovery (0100/0120/0140), live PIDs 010C 010D 0105 0104 0111 010F 010B 012F 010E, foreground service, reconnect, timeouts, BLE-ready transport interface | Next |
+| 1 | Architecture, UI/UX, navigation, cockpit, themes, Theme Studio, demo mode, vehicle profile, settings | ✅ Done |
+| 2 | Bluetooth Classic scanning/pairing, ELM327 init (ATZ/ATE0/ATL0/ATS0/ATH0/ATSP0), PID discovery (0100/0120/0140…), live PIDs 010C 010D 0105 0104 0111 010F 010B 012F 010E (+0142, 0146, 0110, 015E), foreground service, auto-reconnect, timeouts, BLE-ready transport, Horizon theme | ✅ Done (vehicle test pending) |
 | 3 | Mode 03/07/0A DTC reading, MIL & readiness (0101), bilingual DTC database, severity/causes/steps, guarded Mode 04 clear, session history & comparison, health score | Planned |
 | 4 | Performance timers + phone G-force, trip recording, charts, CSV export, maintenance intervals/reminders/costs | Planned |
 | 5 | Alert engine with Arabic/English TTS, Android Auto feasibility + compliant implementation if eligible, backup/restore, full test pass, release APK | Planned |

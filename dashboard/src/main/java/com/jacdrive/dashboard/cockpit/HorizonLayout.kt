@@ -42,9 +42,20 @@ import com.jacdrive.ui.gauge.RoadView
 import com.jacdrive.ui.gauge.SubGauge
 import com.jacdrive.ui.theme.Readout
 
-/** Minimal twin-ring cluster with a central road view. Every number comes from [CockpitUiState]. */
+/**
+ * Minimal twin-ring cluster with a central road view. Every number comes from [CockpitUiState].
+ * The instrument panel is never mirrored (speed left, engine speed right, gauges fill left→right),
+ * matching real clusters in Arabic-market vehicles; labels inside remain translated.
+ */
 @Composable
 internal fun HorizonLayout(state: CockpitUiState, style: CockpitStyle, nowMs: Long, warnings: Map<Telltale, Severity>) {
+    androidx.compose.runtime.CompositionLocalProvider(
+        androidx.compose.ui.platform.LocalLayoutDirection provides androidx.compose.ui.unit.LayoutDirection.Ltr,
+    ) { HorizonCluster(state, style, nowMs, warnings) }
+}
+
+@Composable
+private fun HorizonCluster(state: CockpitUiState, style: CockpitStyle, nowMs: Long, warnings: Map<Telltale, Severity>) {
     val snap = state.snapshot
     val speed = snap.display(VehicleMetric.SPEED, state.units, nowMs)
     val rpm = snap.display(VehicleMetric.RPM, state.units, nowMs)
