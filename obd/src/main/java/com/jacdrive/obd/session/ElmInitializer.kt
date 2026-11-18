@@ -15,7 +15,10 @@ data class AdapterInfo(
     val protocolNumber: String?,
     val protocolName: String?,
     val adapterVoltage: Double?,
-)
+) {
+    /** ISO 15765-4 (protocols 6–9) and J1939 use CAN framing for multi-frame replies. */
+    val isCan: Boolean get() = protocolNumber?.uppercase() in setOf("6", "7", "8", "9", "A")
+}
 
 data class InitResult(val adapter: AdapterInfo, val supportedPids: Set<Int>)
 

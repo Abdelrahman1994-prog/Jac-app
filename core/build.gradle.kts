@@ -7,6 +7,8 @@ plugins {
 
 android {
     namespace = "com.jacdrive.core"
+    sourceSets["test"].assets.srcDir("$projectDir/schemas")
+    testOptions.unitTests.isIncludeAndroidResources = true
 }
 
 ksp {
@@ -25,4 +27,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.androidx.test.core)
 }

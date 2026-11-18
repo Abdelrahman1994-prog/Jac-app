@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.jacdrive.core.database.ALL_MIGRATIONS
+import com.jacdrive.core.database.DiagnosticDao
 import com.jacdrive.core.database.JacDriveDatabase
 import com.jacdrive.core.database.VehicleProfileDao
 import com.jacdrive.core.settings.DataStoreSettingsRepository
@@ -56,10 +58,15 @@ object CoreProvidesModule {
 
     @Provides @Singleton
     fun database(@ApplicationContext context: Context): JacDriveDatabase =
-        Room.databaseBuilder(context, JacDriveDatabase::class.java, JacDriveDatabase.NAME).build()
+        Room.databaseBuilder(context, JacDriveDatabase::class.java, JacDriveDatabase.NAME)
+            .addMigrations(*ALL_MIGRATIONS)
+            .build()
 
     @Provides
     fun vehicleProfileDao(db: JacDriveDatabase): VehicleProfileDao = db.vehicleProfileDao()
+
+    @Provides
+    fun diagnosticDao(db: JacDriveDatabase): DiagnosticDao = db.diagnosticDao()
 }
 
 @Module

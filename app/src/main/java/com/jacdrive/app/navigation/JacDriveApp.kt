@@ -40,7 +40,11 @@ import com.jacdrive.dashboard.cockpit.CockpitScreen
 import com.jacdrive.dashboard.home.HomeDestination
 import com.jacdrive.dashboard.home.HomeScreen
 import com.jacdrive.diagnostics.DiagnosticsScreen
+import com.jacdrive.diagnostics.DtcDetailScreen
 import com.jacdrive.diagnostics.HealthScreen
+import com.jacdrive.diagnostics.SessionScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.jacdrive.maintenance.MaintenanceScreen
 import com.jacdrive.settings.AdapterScreen
 import com.jacdrive.settings.SettingsScreen
@@ -141,7 +145,18 @@ private fun JacNavHost(nav: NavHostController, modifier: Modifier) {
             CockpitScreen(onBack = back, onOpenThemeStudio = { nav.navigate(Routes.THEME_STUDIO) })
         }
         composable(Routes.DIAGNOSTICS) {
-            DiagnosticsScreen(onBack = null, onOpenHealth = { nav.navigate(Routes.HEALTH) })
+            DiagnosticsScreen(
+                onBack = null,
+                onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                onOpenCode = { nav.navigate(Routes.dtc(it)) },
+                onOpenSession = { nav.navigate(Routes.session(it)) },
+            )
+        }
+        composable(Routes.DTC, arguments = listOf(navArgument("code") { type = NavType.StringType })) { e ->
+            DtcDetailScreen(code = e.arguments?.getString("code").orEmpty(), onBack = back)
+        }
+        composable(Routes.SESSION, arguments = listOf(navArgument("id") { type = NavType.LongType })) { e ->
+            SessionScreen(id = e.arguments?.getLong("id") ?: 0L, onBack = back, onOpenCode = { nav.navigate(Routes.dtc(it)) })
         }
         composable(Routes.HEALTH) { HealthScreen(onBack = back) }
         composable(Routes.PERFORMANCE) { PerformanceScreen(onBack = back) }

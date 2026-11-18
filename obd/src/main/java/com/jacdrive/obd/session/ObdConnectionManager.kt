@@ -10,6 +10,7 @@ import com.jacdrive.core.settings.SettingsRepository
 import com.jacdrive.obd.bluetooth.AdapterDevice
 import com.jacdrive.obd.bluetooth.ObdTransport
 import com.jacdrive.obd.bluetooth.ObdTransportFactory
+import com.jacdrive.obd.elm.ElmChannel
 import com.jacdrive.obd.elm.ObdException
 import com.jacdrive.obd.elm.ObdFailure
 import com.jacdrive.obd.elm.StreamElmChannel
@@ -67,6 +68,18 @@ class ObdConnectionManager @Inject constructor(
 
     private var job: Job? = null
     private var transport: ObdTransport? = null
+    @Volatile private var channel: StreamElmChannel? = null
+
+    /**
+     * Runs diagnostic requests on the live link. ELM commands are serialised with the polling loop,
+     * so requests never interleave. Returns null when not connected.
+     */
+    suspend fun <T> withChannel(block: suspend (ElmChannel, AdapterInfo) -> T): T? {
+        val ch = channel ?: return null
+        val info = _state.value.adapter ?: return null
+        if (_state.value.connection !is ConnectionState.Connected) return null
+        return block(ch, info)
+    }
 
     fun connect(device: AdapterDevice) {
         job?.cancel()
@@ -119,6 +132,7 @@ class ObdConnectionManager @Inject constructor(
         transport = t
         t.open()
         val channel = StreamElmChannel(t.input, t.output, io)
+        this.channel = channel
 
         val init = ElmInitializer(channel).run { step ->
             _state.update { it.copy(step = step, connection = ConnectionState.Connecting(step.name)) }
@@ -141,6 +155,7 @@ class ObdConnectionManager @Inject constructor(
     }
 
     private fun closeTransport() {
+        channel = null
         transport?.close()
         transport = null
     }

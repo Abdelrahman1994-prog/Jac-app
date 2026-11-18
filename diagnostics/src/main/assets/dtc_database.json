@@ -1,0 +1,2067 @@
+{
+ "version": 1,
+ "causes": {
+  "wiring": {
+   "en": "Damaged wiring or a loose/corroded connector",
+   "ar": "تلف في الأسلاك أو موصل مرتخٍ أو متآكل"
+  },
+  "sensor_faulty": {
+   "en": "Faulty sensor",
+   "ar": "حساس معطل"
+  },
+  "maf_dirty": {
+   "en": "Dirty or contaminated MAF sensor",
+   "ar": "حساس تدفق الهواء (MAF) متسخ"
+  },
+  "air_leak": {
+   "en": "Vacuum or intake air leak",
+   "ar": "تسريب هواء أو فاكيوم في مجرى السحب"
+  },
+  "air_filter": {
+   "en": "Clogged or badly fitted air filter",
+   "ar": "فلتر هواء مسدود أو غير مركّب جيداً"
+  },
+  "map_hose": {
+   "en": "Cracked or disconnected MAP sensor hose",
+   "ar": "خرطوم حساس ضغط المشعب (MAP) مشقوق أو مفصول"
+  },
+  "thermostat": {
+   "en": "Thermostat stuck open or opening too early",
+   "ar": "الثرموستات عالق مفتوحاً أو يفتح مبكراً"
+  },
+  "thermostat_closed": {
+   "en": "Thermostat stuck closed",
+   "ar": "الثرموستات عالق مغلقاً"
+  },
+  "coolant_low": {
+   "en": "Low coolant level or coolant leak",
+   "ar": "انخفاض مستوى سائل التبريد أو وجود تسريب"
+  },
+  "radiator_fan": {
+   "en": "Radiator fan not operating",
+   "ar": "مروحة الرادياتير لا تعمل"
+  },
+  "water_pump": {
+   "en": "Failing water pump",
+   "ar": "طرمبة المياه ضعيفة أو تالفة"
+  },
+  "radiator_blocked": {
+   "en": "Blocked radiator or condenser fins",
+   "ar": "انسداد الرادياتير أو زعانف المكثف"
+  },
+  "spark_plug": {
+   "en": "Worn or fouled spark plug",
+   "ar": "شمعة إشعال (بوجيه) متآكلة أو متسخة"
+  },
+  "ignition_coil": {
+   "en": "Faulty ignition coil",
+   "ar": "كويل إشعال معطل"
+  },
+  "injector": {
+   "en": "Clogged or failing fuel injector",
+   "ar": "بخاخ وقود مسدود أو معطل"
+  },
+  "compression": {
+   "en": "Low compression (valves, piston rings or head gasket)",
+   "ar": "ضغط احتراق منخفض (صبابات أو شنابر أو جوان رأس)"
+  },
+  "fuel_pressure": {
+   "en": "Low fuel pressure (pump, filter or regulator)",
+   "ar": "ضغط وقود منخفض (طرمبة أو فلتر أو منظم)"
+  },
+  "fuel_quality": {
+   "en": "Poor-quality or contaminated fuel",
+   "ar": "وقود رديء أو ملوث"
+  },
+  "o2_sensor": {
+   "en": "Ageing or contaminated oxygen sensor",
+   "ar": "حساس أكسجين قديم أو ملوث"
+  },
+  "o2_heater": {
+   "en": "Open oxygen sensor heater element",
+   "ar": "عنصر تسخين حساس الأكسجين مفتوح (تالف)"
+  },
+  "fuse": {
+   "en": "Blown fuse in the circuit",
+   "ar": "فيوز محروق في الدائرة"
+  },
+  "exhaust_leak": {
+   "en": "Exhaust leak before the oxygen sensor",
+   "ar": "تسريب في العادم قبل حساس الأكسجين"
+  },
+  "catalyst": {
+   "en": "Worn or damaged catalytic converter",
+   "ar": "دبة تلوث (محفز) متآكلة أو تالفة"
+  },
+  "misfire_history": {
+   "en": "Earlier misfires that overheated the catalyst",
+   "ar": "خلل احتراق سابق تسبب في سخونة المحفز"
+  },
+  "purge_valve": {
+   "en": "Faulty EVAP purge valve",
+   "ar": "صمام تنقية أبخرة الوقود (Purge) معطل"
+  },
+  "vent_valve": {
+   "en": "Faulty EVAP vent valve",
+   "ar": "صمام تهوية نظام الأبخرة (Vent) معطل"
+  },
+  "fuel_cap": {
+   "en": "Loose, damaged or missing fuel cap",
+   "ar": "غطاء خزان الوقود مرتخٍ أو تالف أو مفقود"
+  },
+  "evap_hose": {
+   "en": "Cracked EVAP hose or charcoal canister leak",
+   "ar": "خرطوم أبخرة مشقوق أو تسريب في علبة الفحم"
+  },
+  "throttle_body": {
+   "en": "Dirty throttle body",
+   "ar": "بوابة الهواء (الثروتل) متسخة"
+  },
+  "timing_chain": {
+   "en": "Stretched timing chain or incorrect valve timing",
+   "ar": "سلسلة توقيت ممطوطة أو توقيت صبابات غير صحيح"
+  },
+  "vvt_solenoid": {
+   "en": "Faulty camshaft timing (VVT) solenoid",
+   "ar": "بلف توقيت عمود الكامات (VVT) معطل"
+  },
+  "oil_level": {
+   "en": "Low engine oil level or wrong oil grade",
+   "ar": "انخفاض مستوى زيت المحرك أو لزوجة غير مناسبة"
+  },
+  "oil_pump": {
+   "en": "Worn oil pump or blocked oil pick-up",
+   "ar": "طرمبة زيت ضعيفة أو انسداد مصفاة الزيت"
+  },
+  "alternator": {
+   "en": "Alternator or charging-system fault",
+   "ar": "عطل في الدينامو أو نظام الشحن"
+  },
+  "battery": {
+   "en": "Weak battery or poor battery terminals",
+   "ar": "بطارية ضعيفة أو أقطاب بطارية سيئة"
+  },
+  "ground": {
+   "en": "Poor ground connection",
+   "ar": "توصيل أرضي (أرضي/جراوند) سيئ"
+  },
+  "ecu_fault": {
+   "en": "Control module internal fault or software issue",
+   "ar": "عطل داخلي في وحدة التحكم أو مشكلة برمجية"
+  },
+  "can_wiring": {
+   "en": "Damaged CAN bus wiring or connector",
+   "ar": "تلف في أسلاك شبكة CAN أو موصلاتها"
+  },
+  "module_power": {
+   "en": "Module without power or ground",
+   "ar": "الوحدة لا تصلها تغذية كهربائية أو أرضي"
+  },
+  "trans_fluid": {
+   "en": "Low or degraded transmission fluid",
+   "ar": "انخفاض أو تدهور زيت ناقل الحركة"
+  },
+  "trans_internal": {
+   "en": "Internal transmission fault",
+   "ar": "عطل داخلي في ناقل الحركة"
+  },
+  "egr_blocked": {
+   "en": "Carbon-blocked EGR valve or passages",
+   "ar": "انسداد صمام EGR أو ممراته بالكربون"
+  },
+  "reluctor": {
+   "en": "Damaged sensor reluctor (tone) ring",
+   "ar": "تلف في الترس المسنن الخاص بالحساس"
+  },
+  "knock_mount": {
+   "en": "Incorrect knock sensor torque or mounting",
+   "ar": "عزم ربط أو تركيب غير صحيح لحساس الطرق"
+  },
+  "fuel_trim_rich": {
+   "en": "Leaking injector or excessive fuel pressure",
+   "ar": "بخاخ يسرّب أو ضغط وقود زائد"
+  },
+  "turbo_leak": {
+   "en": "Boost leak in intercooler pipes",
+   "ar": "تسريب ضغط التيربو في أنابيب الإنتركولر"
+  },
+  "wastegate": {
+   "en": "Wastegate or boost-control fault",
+   "ar": "عطل في صمام الويست جيت أو التحكم بضغط التيربو"
+  },
+  "brake_switch": {
+   "en": "Misadjusted or faulty brake light switch",
+   "ar": "حساس (مفتاح) لمبة الفرامل غير مضبوط أو تالف"
+  },
+  "fan_relay": {
+   "en": "Faulty cooling fan relay or motor",
+   "ar": "ريليه أو موتور مروحة التبريد معطل"
+  },
+  "pedal_sensor": {
+   "en": "Faulty accelerator pedal position sensor",
+   "ar": "حساس موضع دواسة الوقود معطل"
+  },
+  "speed_sensor": {
+   "en": "Faulty or dirty speed sensor",
+   "ar": "حساس سرعة معطل أو متسخ"
+  }
+ },
+ "steps": {
+  "freeze": {
+   "en": "Note the conditions when the code appeared (speed, temperature, load)",
+   "ar": "سجّل ظروف ظهور العطل (السرعة، الحرارة، الحمل)"
+  },
+  "inspect_wiring": {
+   "en": "Inspect the sensor connector and wiring for damage or corrosion",
+   "ar": "افحص موصل الحساس والأسلاك بحثاً عن تلف أو صدأ"
+  },
+  "check_live": {
+   "en": "Compare the live sensor value with expected values on the Live data screen",
+   "ar": "قارن قيمة الحساس المباشرة بالقيم المتوقعة من شاشة البيانات المباشرة"
+  },
+  "clean_maf": {
+   "en": "Clean the MAF sensor with dedicated MAF cleaner (never touch the element)",
+   "ar": "نظّف حساس MAF ببخاخ مخصص له (دون لمس العنصر الحساس)"
+  },
+  "smoke_test": {
+   "en": "Have a smoke test done to find intake or vacuum leaks",
+   "ar": "أجرِ اختبار دخان لاكتشاف تسريبات الهواء أو الفاكيوم"
+  },
+  "check_air_filter": {
+   "en": "Check the air filter and intake ducting",
+   "ar": "افحص فلتر الهواء ومجاري السحب"
+  },
+  "check_coolant": {
+   "en": "With the engine cold, check the coolant level and look for leaks",
+   "ar": "والمحرك بارد، افحص مستوى سائل التبريد وابحث عن تسريبات"
+  },
+  "stop_overheat": {
+   "en": "Stop safely and let the engine cool. Never open the radiator cap when hot",
+   "ar": "توقف بأمان واترك المحرك يبرد. لا تفتح غطاء الرادياتير وهو ساخن أبداً"
+  },
+  "check_fan": {
+   "en": "Verify the radiator fan switches on when the engine is hot",
+   "ar": "تأكد من تشغيل مروحة الرادياتير عندما يسخن المحرك"
+  },
+  "swap_coil": {
+   "en": "Swap the coil and plug of the affected cylinder with another; see if the misfire follows",
+   "ar": "بدّل الكويل والبوجيه بين الأسطوانة المصابة وأخرى وراقب هل ينتقل العطل"
+  },
+  "check_plugs": {
+   "en": "Inspect spark plugs for wear, gap and fouling",
+   "ar": "افحص شمعات الإشعال من حيث التآكل والمسافة والاتساخ"
+  },
+  "compression_test": {
+   "en": "Have a compression or leak-down test done",
+   "ar": "أجرِ اختبار ضغط الاحتراق (كومبريشن)"
+  },
+  "check_fuel_pressure": {
+   "en": "Measure fuel pressure against the specification",
+   "ar": "قِس ضغط الوقود وقارنه بالمواصفات"
+  },
+  "check_injector": {
+   "en": "Test injector resistance and spray balance",
+   "ar": "افحص مقاومة البخاخات وتوازن الرش"
+  },
+  "check_exhaust": {
+   "en": "Check for exhaust leaks upstream of the sensor",
+   "ar": "افحص وجود تسريب في العادم قبل الحساس"
+  },
+  "check_o2": {
+   "en": "Check the oxygen sensor switching on live data after warm-up",
+   "ar": "راقب تذبذب حساس الأكسجين في البيانات المباشرة بعد الإحماء"
+  },
+  "check_fuse": {
+   "en": "Check the related fuse",
+   "ar": "افحص الفيوز الخاص بالدائرة"
+  },
+  "check_cap": {
+   "en": "Tighten or replace the fuel cap, then drive several cycles",
+   "ar": "اربط غطاء الوقود جيداً أو استبدله ثم قد السيارة عدة دورات"
+  },
+  "inspect_evap": {
+   "en": "Inspect EVAP hoses, purge and vent valves",
+   "ar": "افحص خراطيم نظام الأبخرة وصمامات التنقية والتهوية"
+  },
+  "check_battery": {
+   "en": "Test battery voltage (about 12.6 V engine off, 13.5–14.8 V running) and terminals",
+   "ar": "افحص جهد البطارية (حوالي 12.6 فولت والمحرك مطفأ، و13.5–14.8 فولت أثناء الدوران) والأقطاب"
+  },
+  "check_charging": {
+   "en": "Test alternator output and the drive belt",
+   "ar": "افحص خرج الدينامو وسير التشغيل"
+  },
+  "check_oil": {
+   "en": "Check the engine oil level and condition immediately",
+   "ar": "افحص مستوى وحالة زيت المحرك فوراً"
+  },
+  "stop_oil": {
+   "en": "Stop the engine safely as soon as possible to avoid engine damage",
+   "ar": "أطفئ المحرك بأمان في أسرع وقت لتجنب تلفه"
+  },
+  "check_timing": {
+   "en": "Verify camshaft/crankshaft timing and the VVT solenoid",
+   "ar": "تحقق من توقيت الكامات والكرنك وبلف VVT"
+  },
+  "check_trans_fluid": {
+   "en": "Check transmission fluid level and condition",
+   "ar": "افحص مستوى وحالة زيت ناقل الحركة"
+  },
+  "dealer": {
+   "en": "Have it diagnosed by a JAC service centre with manufacturer tools",
+   "ar": "اعرض السيارة على مركز خدمة JAC للفحص بأجهزة الشركة المصنعة"
+  },
+  "check_can": {
+   "en": "Inspect CAN wiring and the connectors of the affected module",
+   "ar": "افحص أسلاك شبكة CAN وموصلات الوحدة المتأثرة"
+  },
+  "check_module_power": {
+   "en": "Check power and ground supply to the module",
+   "ar": "افحص التغذية الكهربائية والأرضي الواصلين للوحدة"
+  },
+  "software": {
+   "en": "Ask the dealer whether a software update is available",
+   "ar": "اسأل الوكيل عن وجود تحديث برمجي"
+  },
+  "clean_throttle": {
+   "en": "Clean the throttle body and perform an idle relearn",
+   "ar": "نظّف بوابة الهواء وأعد ضبط السرعة البطيئة (Idle relearn)"
+  },
+  "check_cat": {
+   "en": "Compare upstream and downstream O2 sensor signals to judge catalyst efficiency",
+   "ar": "قارن إشارة حساسي الأكسجين قبل وبعد المحفز لتقييم كفاءته"
+  },
+  "fix_misfire_first": {
+   "en": "Repair any misfire codes first to protect the catalytic converter",
+   "ar": "أصلح أعطال خلل الاحتراق أولاً لحماية دبة التلوث"
+  },
+  "clean_egr": {
+   "en": "Inspect and clean the EGR valve and passages",
+   "ar": "افحص ونظّف صمام EGR وممراته"
+  },
+  "check_boost": {
+   "en": "Inspect boost hoses and intercooler pipes for leaks",
+   "ar": "افحص خراطيم التيربو وأنابيب الإنتركولر بحثاً عن تسريب"
+  },
+  "check_brake_switch": {
+   "en": "Check the brake lights work and adjust or replace the brake switch",
+   "ar": "تأكد من عمل لمبات الفرامل واضبط أو استبدل مفتاح الفرامل"
+  },
+  "avoid_hard": {
+   "en": "Avoid hard acceleration and high load until repaired",
+   "ar": "تجنب التسارع القوي والأحمال العالية حتى الإصلاح"
+  }
+ },
+ "codes": [
+  {
+   "code": "P0011",
+   "system": "ENGINE",
+   "severity": "MEDIUM",
+   "en": "Intake camshaft position timing over-advanced (bank 1)",
+   "ar": "توقيت عمود الكامات للسحب متقدم أكثر من اللازم (البنك 1)",
+   "causes": [
+    "oil_level",
+    "vvt_solenoid",
+    "timing_chain"
+   ],
+   "steps": [
+    "check_oil",
+    "check_timing",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0012",
+   "system": "ENGINE",
+   "severity": "MEDIUM",
+   "en": "Intake camshaft position timing over-retarded (bank 1)",
+   "ar": "توقيت عمود الكامات للسحب متأخر أكثر من اللازم (البنك 1)",
+   "causes": [
+    "oil_level",
+    "vvt_solenoid",
+    "timing_chain"
+   ],
+   "steps": [
+    "check_oil",
+    "check_timing",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0016",
+   "system": "ENGINE",
+   "severity": "HIGH",
+   "en": "Crankshaft / camshaft position correlation (bank 1 sensor A)",
+   "ar": "عدم تطابق بين موضع عمود الكرنك وعمود الكامات (البنك 1 الحساس A)",
+   "causes": [
+    "timing_chain",
+    "reluctor",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "check_timing",
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0030",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "HO2S heater control circuit (bank 1 sensor 1)",
+   "ar": "دائرة التحكم بتسخين حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_heater",
+    "fuse",
+    "wiring"
+   ],
+   "steps": [
+    "check_fuse",
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0068",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "MAP/MAF – throttle position correlation",
+   "ar": "عدم تطابق بين MAP/MAF وموضع بوابة الهواء",
+   "causes": [
+    "air_leak",
+    "maf_dirty",
+    "throttle_body"
+   ],
+   "steps": [
+    "smoke_test",
+    "clean_maf",
+    "clean_throttle"
+   ]
+  },
+  {
+   "code": "P0087",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Fuel rail / system pressure too low",
+   "ar": "ضغط مجرى الوقود منخفض جداً",
+   "causes": [
+    "fuel_pressure",
+    "fuel_quality",
+    "wiring"
+   ],
+   "steps": [
+    "check_fuel_pressure",
+    "avoid_hard",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0088",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Fuel rail / system pressure too high",
+   "ar": "ضغط مجرى الوقود مرتفع جداً",
+   "causes": [
+    "fuel_trim_rich",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "check_fuel_pressure",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0100",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Mass air flow (MAF) circuit",
+   "ar": "دائرة حساس تدفق الهواء (MAF)",
+   "causes": [
+    "wiring",
+    "sensor_faulty",
+    "fuse"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live",
+    "check_fuse"
+   ]
+  },
+  {
+   "code": "P0101",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Mass air flow (MAF) circuit range/performance",
+   "ar": "أداء أو نطاق دائرة حساس تدفق الهواء (MAF)",
+   "causes": [
+    "maf_dirty",
+    "air_leak",
+    "air_filter"
+   ],
+   "steps": [
+    "check_air_filter",
+    "clean_maf",
+    "smoke_test"
+   ]
+  },
+  {
+   "code": "P0102",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Mass air flow (MAF) circuit low",
+   "ar": "إشارة حساس تدفق الهواء (MAF) منخفضة",
+   "causes": [
+    "wiring",
+    "maf_dirty",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "clean_maf",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0103",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Mass air flow (MAF) circuit high",
+   "ar": "إشارة حساس تدفق الهواء (MAF) مرتفعة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0105",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Manifold absolute pressure (MAP) circuit",
+   "ar": "دائرة حساس ضغط مشعب السحب (MAP)",
+   "causes": [
+    "wiring",
+    "map_hose",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0106",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "MAP sensor range/performance",
+   "ar": "أداء أو نطاق حساس ضغط مشعب السحب (MAP)",
+   "causes": [
+    "map_hose",
+    "air_leak",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "smoke_test",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0107",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "MAP sensor circuit low",
+   "ar": "إشارة حساس ضغط المشعب (MAP) منخفضة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0108",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "MAP sensor circuit high",
+   "ar": "إشارة حساس ضغط المشعب (MAP) مرتفعة",
+   "causes": [
+    "wiring",
+    "map_hose",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0110",
+   "system": "FUEL_AIR",
+   "severity": "LOW",
+   "en": "Intake air temperature (IAT) sensor circuit",
+   "ar": "دائرة حساس حرارة هواء السحب (IAT)",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0112",
+   "system": "FUEL_AIR",
+   "severity": "LOW",
+   "en": "Intake air temperature sensor circuit low",
+   "ar": "إشارة حساس حرارة هواء السحب منخفضة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0113",
+   "system": "FUEL_AIR",
+   "severity": "LOW",
+   "en": "Intake air temperature sensor circuit high",
+   "ar": "إشارة حساس حرارة هواء السحب مرتفعة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0115",
+   "system": "COOLING",
+   "severity": "MEDIUM",
+   "en": "Engine coolant temperature (ECT) sensor circuit",
+   "ar": "دائرة حساس حرارة سائل التبريد (ECT)",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live",
+    "check_coolant"
+   ]
+  },
+  {
+   "code": "P0116",
+   "system": "COOLING",
+   "severity": "MEDIUM",
+   "en": "Engine coolant temperature sensor range/performance",
+   "ar": "أداء أو نطاق حساس حرارة سائل التبريد",
+   "causes": [
+    "thermostat",
+    "sensor_faulty",
+    "coolant_low"
+   ],
+   "steps": [
+    "check_coolant",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0117",
+   "system": "COOLING",
+   "severity": "MEDIUM",
+   "en": "Engine coolant temperature sensor circuit low",
+   "ar": "إشارة حساس حرارة سائل التبريد منخفضة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0118",
+   "system": "COOLING",
+   "severity": "MEDIUM",
+   "en": "Engine coolant temperature sensor circuit high",
+   "ar": "إشارة حساس حرارة سائل التبريد مرتفعة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live"
+   ]
+  },
+  {
+   "code": "P0120",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle / pedal position sensor A circuit",
+   "ar": "دائرة حساس موضع بوابة الهواء/الدواسة A",
+   "causes": [
+    "wiring",
+    "sensor_faulty",
+    "pedal_sensor"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0121",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle position sensor A range/performance",
+   "ar": "أداء أو نطاق حساس موضع بوابة الهواء A",
+   "causes": [
+    "throttle_body",
+    "sensor_faulty",
+    "wiring"
+   ],
+   "steps": [
+    "clean_throttle",
+    "check_live",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0122",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle position sensor A circuit low",
+   "ar": "إشارة حساس موضع بوابة الهواء A منخفضة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0123",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle position sensor A circuit high",
+   "ar": "إشارة حساس موضع بوابة الهواء A مرتفعة",
+   "causes": [
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0125",
+   "system": "COOLING",
+   "severity": "LOW",
+   "en": "Insufficient coolant temperature for closed-loop fuel control",
+   "ar": "حرارة سائل التبريد غير كافية للتحكم المغلق بالوقود",
+   "causes": [
+    "thermostat",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "check_live",
+    "check_coolant"
+   ]
+  },
+  {
+   "code": "P0128",
+   "system": "COOLING",
+   "severity": "LOW",
+   "en": "Coolant thermostat (coolant temperature below regulating temperature)",
+   "ar": "الثرموستات: حرارة سائل التبريد أقل من حرارة التنظيم",
+   "causes": [
+    "thermostat",
+    "sensor_faulty",
+    "coolant_low"
+   ],
+   "steps": [
+    "check_live",
+    "check_coolant"
+   ]
+  },
+  {
+   "code": "P0130",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit (bank 1 sensor 1)",
+   "ar": "دائرة حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "wiring",
+    "exhaust_leak"
+   ],
+   "steps": [
+    "check_o2",
+    "inspect_wiring",
+    "check_exhaust"
+   ]
+  },
+  {
+   "code": "P0131",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit low voltage (bank 1 sensor 1)",
+   "ar": "جهد منخفض في دائرة حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "exhaust_leak",
+    "air_leak"
+   ],
+   "steps": [
+    "check_o2",
+    "check_exhaust",
+    "smoke_test"
+   ]
+  },
+  {
+   "code": "P0132",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit high voltage (bank 1 sensor 1)",
+   "ar": "جهد مرتفع في دائرة حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "wiring",
+    "fuel_trim_rich"
+   ],
+   "steps": [
+    "check_o2",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0133",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit slow response (bank 1 sensor 1)",
+   "ar": "استجابة بطيئة لحساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "exhaust_leak",
+    "wiring"
+   ],
+   "steps": [
+    "check_o2",
+    "check_exhaust",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0134",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit no activity detected (bank 1 sensor 1)",
+   "ar": "لا يوجد نشاط في حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "o2_heater",
+    "wiring"
+   ],
+   "steps": [
+    "check_o2",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0135",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor heater circuit (bank 1 sensor 1)",
+   "ar": "دائرة تسخين حساس الأكسجين (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_heater",
+    "fuse",
+    "wiring"
+   ],
+   "steps": [
+    "check_fuse",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0136",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit (bank 1 sensor 2)",
+   "ar": "دائرة حساس الأكسجين (البنك 1 الحساس 2)",
+   "causes": [
+    "o2_sensor",
+    "wiring"
+   ],
+   "steps": [
+    "check_o2",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0137",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit low voltage (bank 1 sensor 2)",
+   "ar": "جهد منخفض في حساس الأكسجين (البنك 1 الحساس 2)",
+   "causes": [
+    "o2_sensor",
+    "exhaust_leak"
+   ],
+   "steps": [
+    "check_o2",
+    "check_exhaust"
+   ]
+  },
+  {
+   "code": "P0138",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor circuit high voltage (bank 1 sensor 2)",
+   "ar": "جهد مرتفع في حساس الأكسجين (البنك 1 الحساس 2)",
+   "causes": [
+    "o2_sensor",
+    "wiring"
+   ],
+   "steps": [
+    "check_o2",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0141",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "O2 sensor heater circuit (bank 1 sensor 2)",
+   "ar": "دائرة تسخين حساس الأكسجين (البنك 1 الحساس 2)",
+   "causes": [
+    "o2_heater",
+    "fuse",
+    "wiring"
+   ],
+   "steps": [
+    "check_fuse",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0171",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "System too lean (bank 1)",
+   "ar": "خليط الوقود فقير جداً (البنك 1)",
+   "causes": [
+    "air_leak",
+    "maf_dirty",
+    "fuel_pressure",
+    "injector"
+   ],
+   "steps": [
+    "smoke_test",
+    "clean_maf",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "P0172",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "System too rich (bank 1)",
+   "ar": "خليط الوقود غني جداً (البنك 1)",
+   "causes": [
+    "fuel_trim_rich",
+    "maf_dirty",
+    "air_filter",
+    "o2_sensor"
+   ],
+   "steps": [
+    "check_air_filter",
+    "clean_maf",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "P0201",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Injector circuit / open – cylinder 1",
+   "ar": "دائرة البخاخ مفتوحة – الأسطوانة 1",
+   "causes": [
+    "injector",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_injector"
+   ]
+  },
+  {
+   "code": "P0202",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Injector circuit / open – cylinder 2",
+   "ar": "دائرة البخاخ مفتوحة – الأسطوانة 2",
+   "causes": [
+    "injector",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_injector"
+   ]
+  },
+  {
+   "code": "P0203",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Injector circuit / open – cylinder 3",
+   "ar": "دائرة البخاخ مفتوحة – الأسطوانة 3",
+   "causes": [
+    "injector",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_injector"
+   ]
+  },
+  {
+   "code": "P0204",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Injector circuit / open – cylinder 4",
+   "ar": "دائرة البخاخ مفتوحة – الأسطوانة 4",
+   "causes": [
+    "injector",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_injector"
+   ]
+  },
+  {
+   "code": "P0217",
+   "system": "COOLING",
+   "severity": "CRITICAL",
+   "en": "Engine over-temperature condition",
+   "ar": "ارتفاع خطير في حرارة المحرك",
+   "causes": [
+    "coolant_low",
+    "thermostat_closed",
+    "radiator_fan",
+    "water_pump",
+    "radiator_blocked"
+   ],
+   "steps": [
+    "stop_overheat",
+    "check_coolant",
+    "check_fan",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0219",
+   "system": "ENGINE",
+   "severity": "HIGH",
+   "en": "Engine over-speed condition",
+   "ar": "تجاوز دورات المحرك الحد المسموح",
+   "causes": [
+    "trans_internal",
+    "ecu_fault"
+   ],
+   "steps": [
+    "freeze",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0234",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Turbocharger / supercharger over-boost condition",
+   "ar": "ضغط تيربو زائد عن الحد",
+   "causes": [
+    "wastegate",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "avoid_hard",
+    "check_boost",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0299",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "Turbocharger / supercharger under-boost condition",
+   "ar": "ضغط التيربو أقل من المطلوب",
+   "causes": [
+    "turbo_leak",
+    "wastegate",
+    "air_leak"
+   ],
+   "steps": [
+    "check_boost",
+    "smoke_test",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0300",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Random / multiple cylinder misfire detected",
+   "ar": "خلل احتراق عشوائي أو في عدة أسطوانات",
+   "causes": [
+    "spark_plug",
+    "ignition_coil",
+    "air_leak",
+    "fuel_pressure",
+    "fuel_quality",
+    "compression"
+   ],
+   "steps": [
+    "avoid_hard",
+    "check_plugs",
+    "smoke_test",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "P0301",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Cylinder 1 misfire detected",
+   "ar": "تم اكتشاف خلل في الاحتراق داخل الأسطوانة الأولى",
+   "causes": [
+    "spark_plug",
+    "ignition_coil",
+    "injector",
+    "compression"
+   ],
+   "steps": [
+    "avoid_hard",
+    "swap_coil",
+    "check_plugs",
+    "compression_test"
+   ]
+  },
+  {
+   "code": "P0302",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Cylinder 2 misfire detected",
+   "ar": "تم اكتشاف خلل في الاحتراق داخل الأسطوانة الثانية",
+   "causes": [
+    "spark_plug",
+    "ignition_coil",
+    "injector",
+    "compression"
+   ],
+   "steps": [
+    "avoid_hard",
+    "swap_coil",
+    "check_plugs",
+    "compression_test"
+   ]
+  },
+  {
+   "code": "P0303",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Cylinder 3 misfire detected",
+   "ar": "تم اكتشاف خلل في الاحتراق داخل الأسطوانة الثالثة",
+   "causes": [
+    "spark_plug",
+    "ignition_coil",
+    "injector",
+    "compression"
+   ],
+   "steps": [
+    "avoid_hard",
+    "swap_coil",
+    "check_plugs",
+    "compression_test"
+   ]
+  },
+  {
+   "code": "P0304",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Cylinder 4 misfire detected",
+   "ar": "تم اكتشاف خلل في الاحتراق داخل الأسطوانة الرابعة",
+   "causes": [
+    "spark_plug",
+    "ignition_coil",
+    "injector",
+    "compression"
+   ],
+   "steps": [
+    "avoid_hard",
+    "swap_coil",
+    "check_plugs",
+    "compression_test"
+   ]
+  },
+  {
+   "code": "P0325",
+   "system": "IGNITION",
+   "severity": "MEDIUM",
+   "en": "Knock sensor 1 circuit (bank 1)",
+   "ar": "دائرة حساس الطرق 1 (البنك 1)",
+   "causes": [
+    "wiring",
+    "sensor_faulty",
+    "knock_mount"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0327",
+   "system": "IGNITION",
+   "severity": "MEDIUM",
+   "en": "Knock sensor 1 circuit low (bank 1)",
+   "ar": "إشارة حساس الطرق 1 منخفضة (البنك 1)",
+   "causes": [
+    "wiring",
+    "knock_mount",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0328",
+   "system": "IGNITION",
+   "severity": "MEDIUM",
+   "en": "Knock sensor 1 circuit high (bank 1)",
+   "ar": "إشارة حساس الطرق 1 مرتفعة (البنك 1)",
+   "causes": [
+    "wiring",
+    "sensor_faulty",
+    "fuel_quality"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0335",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Crankshaft position sensor A circuit",
+   "ar": "دائرة حساس موضع عمود الكرنك A",
+   "causes": [
+    "sensor_faulty",
+    "wiring",
+    "reluctor"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0336",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Crankshaft position sensor A range/performance",
+   "ar": "أداء أو نطاق حساس موضع عمود الكرنك A",
+   "causes": [
+    "reluctor",
+    "sensor_faulty",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0340",
+   "system": "IGNITION",
+   "severity": "MEDIUM",
+   "en": "Camshaft position sensor A circuit (bank 1)",
+   "ar": "دائرة حساس موضع عمود الكامات A (البنك 1)",
+   "causes": [
+    "sensor_faulty",
+    "wiring",
+    "timing_chain"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_timing"
+   ]
+  },
+  {
+   "code": "P0341",
+   "system": "IGNITION",
+   "severity": "MEDIUM",
+   "en": "Camshaft position sensor A range/performance (bank 1)",
+   "ar": "أداء أو نطاق حساس موضع عمود الكامات A (البنك 1)",
+   "causes": [
+    "timing_chain",
+    "reluctor",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "check_timing",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0351",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Ignition coil A primary/secondary circuit",
+   "ar": "دائرة كويل الإشعال A",
+   "causes": [
+    "ignition_coil",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "swap_coil"
+   ]
+  },
+  {
+   "code": "P0352",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Ignition coil B primary/secondary circuit",
+   "ar": "دائرة كويل الإشعال B",
+   "causes": [
+    "ignition_coil",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "swap_coil"
+   ]
+  },
+  {
+   "code": "P0353",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Ignition coil C primary/secondary circuit",
+   "ar": "دائرة كويل الإشعال C",
+   "causes": [
+    "ignition_coil",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "swap_coil"
+   ]
+  },
+  {
+   "code": "P0354",
+   "system": "IGNITION",
+   "severity": "HIGH",
+   "en": "Ignition coil D primary/secondary circuit",
+   "ar": "دائرة كويل الإشعال D",
+   "causes": [
+    "ignition_coil",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "swap_coil"
+   ]
+  },
+  {
+   "code": "P0401",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "Exhaust gas recirculation (EGR) flow insufficient",
+   "ar": "تدفق غير كافٍ في نظام إعادة تدوير العادم (EGR)",
+   "causes": [
+    "egr_blocked",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "clean_egr",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0420",
+   "system": "EMISSIONS",
+   "severity": "MEDIUM",
+   "en": "Catalyst system efficiency below threshold (bank 1)",
+   "ar": "كفاءة المحفز (دبة التلوث) أقل من الحد المطلوب (البنك 1)",
+   "causes": [
+    "catalyst",
+    "o2_sensor",
+    "exhaust_leak",
+    "misfire_history"
+   ],
+   "steps": [
+    "fix_misfire_first",
+    "check_exhaust",
+    "check_cat"
+   ]
+  },
+  {
+   "code": "P0440",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "Evaporative emission (EVAP) system malfunction",
+   "ar": "عطل في نظام انبعاثات أبخرة الوقود (EVAP)",
+   "causes": [
+    "fuel_cap",
+    "evap_hose",
+    "purge_valve",
+    "vent_valve"
+   ],
+   "steps": [
+    "check_cap",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0441",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP system incorrect purge flow",
+   "ar": "تدفق تنقية غير صحيح في نظام الأبخرة",
+   "causes": [
+    "purge_valve",
+    "evap_hose"
+   ],
+   "steps": [
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0442",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP system leak detected (small leak)",
+   "ar": "تسريب صغير في نظام أبخرة الوقود",
+   "causes": [
+    "fuel_cap",
+    "evap_hose"
+   ],
+   "steps": [
+    "check_cap",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0443",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP purge control valve circuit",
+   "ar": "دائرة صمام تنقية الأبخرة",
+   "causes": [
+    "purge_valve",
+    "wiring",
+    "fuse"
+   ],
+   "steps": [
+    "check_fuse",
+    "inspect_wiring",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0446",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP vent control circuit",
+   "ar": "دائرة التحكم بتهوية نظام الأبخرة",
+   "causes": [
+    "vent_valve",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0455",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP system leak detected (large leak / no flow)",
+   "ar": "تسريب كبير في نظام أبخرة الوقود",
+   "causes": [
+    "fuel_cap",
+    "evap_hose",
+    "purge_valve"
+   ],
+   "steps": [
+    "check_cap",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0456",
+   "system": "EMISSIONS",
+   "severity": "LOW",
+   "en": "EVAP system leak detected (very small leak)",
+   "ar": "تسريب صغير جداً في نظام أبخرة الوقود",
+   "causes": [
+    "fuel_cap",
+    "evap_hose"
+   ],
+   "steps": [
+    "check_cap",
+    "inspect_evap"
+   ]
+  },
+  {
+   "code": "P0480",
+   "system": "COOLING",
+   "severity": "HIGH",
+   "en": "Cooling fan 1 control circuit",
+   "ar": "دائرة التحكم بمروحة التبريد 1",
+   "causes": [
+    "fan_relay",
+    "fuse",
+    "wiring"
+   ],
+   "steps": [
+    "check_fuse",
+    "check_fan",
+    "inspect_wiring"
+   ]
+  },
+  {
+   "code": "P0500",
+   "system": "SPEED_IDLE",
+   "severity": "MEDIUM",
+   "en": "Vehicle speed sensor A",
+   "ar": "حساس سرعة السيارة A",
+   "causes": [
+    "speed_sensor",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_live",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0505",
+   "system": "SPEED_IDLE",
+   "severity": "MEDIUM",
+   "en": "Idle air control system",
+   "ar": "نظام التحكم في هواء السرعة البطيئة",
+   "causes": [
+    "throttle_body",
+    "air_leak"
+   ],
+   "steps": [
+    "clean_throttle",
+    "smoke_test"
+   ]
+  },
+  {
+   "code": "P0506",
+   "system": "SPEED_IDLE",
+   "severity": "LOW",
+   "en": "Idle control system RPM lower than expected",
+   "ar": "دورات السرعة البطيئة أقل من المتوقع",
+   "causes": [
+    "throttle_body",
+    "air_filter"
+   ],
+   "steps": [
+    "clean_throttle",
+    "check_air_filter"
+   ]
+  },
+  {
+   "code": "P0507",
+   "system": "SPEED_IDLE",
+   "severity": "LOW",
+   "en": "Idle control system RPM higher than expected",
+   "ar": "دورات السرعة البطيئة أعلى من المتوقع",
+   "causes": [
+    "air_leak",
+    "throttle_body"
+   ],
+   "steps": [
+    "smoke_test",
+    "clean_throttle"
+   ]
+  },
+  {
+   "code": "P0521",
+   "system": "ENGINE",
+   "severity": "HIGH",
+   "en": "Engine oil pressure sensor/switch range/performance",
+   "ar": "أداء أو نطاق حساس ضغط زيت المحرك",
+   "causes": [
+    "oil_level",
+    "sensor_faulty",
+    "wiring"
+   ],
+   "steps": [
+    "check_oil",
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0524",
+   "system": "ENGINE",
+   "severity": "CRITICAL",
+   "en": "Engine oil pressure too low",
+   "ar": "ضغط زيت المحرك منخفض جداً",
+   "causes": [
+    "oil_level",
+    "oil_pump",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "stop_oil",
+    "check_oil",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0562",
+   "system": "ELECTRICAL",
+   "severity": "MEDIUM",
+   "en": "System voltage low",
+   "ar": "جهد النظام الكهربائي منخفض",
+   "causes": [
+    "battery",
+    "alternator",
+    "ground"
+   ],
+   "steps": [
+    "check_battery",
+    "check_charging"
+   ]
+  },
+  {
+   "code": "P0563",
+   "system": "ELECTRICAL",
+   "severity": "MEDIUM",
+   "en": "System voltage high",
+   "ar": "جهد النظام الكهربائي مرتفع",
+   "causes": [
+    "alternator",
+    "ground"
+   ],
+   "steps": [
+    "check_charging",
+    "check_battery"
+   ]
+  },
+  {
+   "code": "P0571",
+   "system": "SPEED_IDLE",
+   "severity": "LOW",
+   "en": "Brake switch A circuit",
+   "ar": "دائرة مفتاح الفرامل A",
+   "causes": [
+    "brake_switch",
+    "wiring",
+    "fuse"
+   ],
+   "steps": [
+    "check_brake_switch",
+    "check_fuse"
+   ]
+  },
+  {
+   "code": "P0600",
+   "system": "ECU",
+   "severity": "HIGH",
+   "en": "Serial communication link",
+   "ar": "عطل في خط الاتصال التسلسلي لوحدة التحكم",
+   "causes": [
+    "can_wiring",
+    "ecu_fault",
+    "module_power"
+   ],
+   "steps": [
+    "check_can",
+    "check_module_power",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0601",
+   "system": "ECU",
+   "severity": "HIGH",
+   "en": "Internal control module memory checksum error",
+   "ar": "خطأ في ذاكرة وحدة التحكم الداخلية",
+   "causes": [
+    "ecu_fault"
+   ],
+   "steps": [
+    "software",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0606",
+   "system": "ECU",
+   "severity": "HIGH",
+   "en": "Control module processor fault",
+   "ar": "عطل في معالج وحدة التحكم",
+   "causes": [
+    "ecu_fault",
+    "module_power"
+   ],
+   "steps": [
+    "check_module_power",
+    "software",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0627",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Fuel pump A control circuit / open",
+   "ar": "دائرة التحكم بطرمبة الوقود A مفتوحة",
+   "causes": [
+    "wiring",
+    "fuse",
+    "fuel_pressure"
+   ],
+   "steps": [
+    "check_fuse",
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0650",
+   "system": "ELECTRICAL",
+   "severity": "LOW",
+   "en": "Malfunction indicator lamp (MIL) control circuit",
+   "ar": "دائرة التحكم بلمبة فحص المحرك",
+   "causes": [
+    "wiring",
+    "ecu_fault"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0700",
+   "system": "TRANSMISSION",
+   "severity": "MEDIUM",
+   "en": "Transmission control system (MIL request)",
+   "ar": "طلب من نظام التحكم بناقل الحركة لإضاءة لمبة المحرك",
+   "causes": [
+    "trans_internal",
+    "trans_fluid",
+    "wiring"
+   ],
+   "steps": [
+    "check_trans_fluid",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0715",
+   "system": "TRANSMISSION",
+   "severity": "MEDIUM",
+   "en": "Input/turbine speed sensor A circuit",
+   "ar": "دائرة حساس سرعة الدخل/التوربين A",
+   "causes": [
+    "speed_sensor",
+    "wiring",
+    "trans_fluid"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "check_trans_fluid",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0720",
+   "system": "TRANSMISSION",
+   "severity": "MEDIUM",
+   "en": "Output speed sensor circuit",
+   "ar": "دائرة حساس سرعة الخرج",
+   "causes": [
+    "speed_sensor",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P0741",
+   "system": "TRANSMISSION",
+   "severity": "MEDIUM",
+   "en": "Torque converter clutch circuit performance or stuck off",
+   "ar": "أداء دائرة قابض محول العزم أو عالق مفصولاً",
+   "causes": [
+    "trans_fluid",
+    "trans_internal"
+   ],
+   "steps": [
+    "check_trans_fluid",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P2096",
+   "system": "FUEL_AIR",
+   "severity": "LOW",
+   "en": "Post-catalyst fuel trim system too lean (bank 1)",
+   "ar": "تعديل الوقود بعد المحفز فقير جداً (البنك 1)",
+   "causes": [
+    "exhaust_leak",
+    "air_leak",
+    "o2_sensor"
+   ],
+   "steps": [
+    "check_exhaust",
+    "smoke_test",
+    "check_o2"
+   ]
+  },
+  {
+   "code": "P2097",
+   "system": "FUEL_AIR",
+   "severity": "LOW",
+   "en": "Post-catalyst fuel trim system too rich (bank 1)",
+   "ar": "تعديل الوقود بعد المحفز غني جداً (البنك 1)",
+   "causes": [
+    "o2_sensor",
+    "catalyst",
+    "fuel_trim_rich"
+   ],
+   "steps": [
+    "check_o2",
+    "check_cat"
+   ]
+  },
+  {
+   "code": "P2135",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle/pedal position sensor A/B voltage correlation",
+   "ar": "عدم تطابق جهد حساسي موضع بوابة الهواء/الدواسة A وB",
+   "causes": [
+    "throttle_body",
+    "wiring",
+    "sensor_faulty"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "clean_throttle",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P2138",
+   "system": "FUEL_AIR",
+   "severity": "HIGH",
+   "en": "Throttle/pedal position sensor D/E voltage correlation",
+   "ar": "عدم تطابق جهد حساسي موضع الدواسة D وE",
+   "causes": [
+    "pedal_sensor",
+    "wiring"
+   ],
+   "steps": [
+    "inspect_wiring",
+    "dealer"
+   ]
+  },
+  {
+   "code": "P2187",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "System too lean at idle (bank 1)",
+   "ar": "خليط فقير في السرعة البطيئة (البنك 1)",
+   "causes": [
+    "air_leak",
+    "fuel_pressure",
+    "maf_dirty"
+   ],
+   "steps": [
+    "smoke_test",
+    "clean_maf",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "P2188",
+   "system": "FUEL_AIR",
+   "severity": "MEDIUM",
+   "en": "System too rich at idle (bank 1)",
+   "ar": "خليط غني في السرعة البطيئة (البنك 1)",
+   "causes": [
+    "fuel_trim_rich",
+    "purge_valve",
+    "maf_dirty"
+   ],
+   "steps": [
+    "inspect_evap",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "P2195",
+   "system": "EMISSIONS",
+   "severity": "MEDIUM",
+   "en": "O2 sensor signal stuck lean (bank 1 sensor 1)",
+   "ar": "إشارة حساس الأكسجين عالقة على فقير (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "air_leak",
+    "exhaust_leak"
+   ],
+   "steps": [
+    "check_o2",
+    "smoke_test",
+    "check_exhaust"
+   ]
+  },
+  {
+   "code": "P2196",
+   "system": "EMISSIONS",
+   "severity": "MEDIUM",
+   "en": "O2 sensor signal stuck rich (bank 1 sensor 1)",
+   "ar": "إشارة حساس الأكسجين عالقة على غني (البنك 1 الحساس 1)",
+   "causes": [
+    "o2_sensor",
+    "fuel_trim_rich"
+   ],
+   "steps": [
+    "check_o2",
+    "check_fuel_pressure"
+   ]
+  },
+  {
+   "code": "U0001",
+   "system": "NETWORK",
+   "severity": "HIGH",
+   "en": "High-speed CAN communication bus",
+   "ar": "عطل في شبكة الاتصال CAN عالية السرعة",
+   "causes": [
+    "can_wiring",
+    "module_power"
+   ],
+   "steps": [
+    "check_can",
+    "check_module_power",
+    "dealer"
+   ]
+  },
+  {
+   "code": "U0100",
+   "system": "NETWORK",
+   "severity": "HIGH",
+   "en": "Lost communication with ECM/PCM A",
+   "ar": "فقدان الاتصال مع وحدة التحكم في المحرك",
+   "causes": [
+    "can_wiring",
+    "module_power",
+    "battery"
+   ],
+   "steps": [
+    "check_battery",
+    "check_can",
+    "dealer"
+   ]
+  },
+  {
+   "code": "U0101",
+   "system": "NETWORK",
+   "severity": "HIGH",
+   "en": "Lost communication with TCM",
+   "ar": "فقدان الاتصال مع وحدة التحكم في ناقل الحركة",
+   "causes": [
+    "can_wiring",
+    "module_power"
+   ],
+   "steps": [
+    "check_can",
+    "check_module_power",
+    "dealer"
+   ]
+  },
+  {
+   "code": "U0121",
+   "system": "NETWORK",
+   "severity": "HIGH",
+   "en": "Lost communication with anti-lock brake system (ABS) module",
+   "ar": "فقدان الاتصال مع وحدة الفرامل المانعة للانغلاق (ABS)",
+   "causes": [
+    "can_wiring",
+    "module_power",
+    "fuse"
+   ],
+   "steps": [
+    "check_fuse",
+    "check_can",
+    "dealer"
+   ]
+  },
+  {
+   "code": "U0140",
+   "system": "NETWORK",
+   "severity": "MEDIUM",
+   "en": "Lost communication with body control module",
+   "ar": "فقدان الاتصال مع وحدة التحكم بالهيكل (BCM)",
+   "causes": [
+    "can_wiring",
+    "module_power"
+   ],
+   "steps": [
+    "check_can",
+    "dealer"
+   ]
+  },
+  {
+   "code": "U0155",
+   "system": "NETWORK",
+   "severity": "MEDIUM",
+   "en": "Lost communication with instrument panel cluster",
+   "ar": "فقدان الاتصال مع لوحة العدادات",
+   "causes": [
+    "can_wiring",
+    "module_power"
+   ],
+   "steps": [
+    "check_can",
+    "dealer"
+   ]
+  }
+ ]
+}
