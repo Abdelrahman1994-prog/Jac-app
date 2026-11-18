@@ -6,6 +6,7 @@ import androidx.car.app.CarAppService
 import androidx.car.app.Screen
 import androidx.car.app.Session
 import androidx.car.app.validation.HostValidator
+import com.jacdrive.app.R
 import com.jacdrive.core.database.AlertDao
 import com.jacdrive.core.database.DiagnosticDao
 import com.jacdrive.core.settings.SettingsRepository
@@ -35,7 +36,7 @@ class JacDriveCarAppService : CarAppService() {
             HostValidator.ALLOW_ALL_HOSTS_VALIDATOR // debug builds: Desktop Head Unit testing
         } else {
             HostValidator.Builder(applicationContext)
-                .addAllowedHosts(androidx.car.app.R.array.hosts_allowlist_sample)
+                .addAllowedHosts(R.array.car_hosts_allowlist)
                 .build()
         }
 

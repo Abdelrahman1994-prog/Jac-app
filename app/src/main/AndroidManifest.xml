@@ -34,7 +34,10 @@
              app is installed from Google Play, e.g. Internal App Sharing. See docs/ANDROID_AUTO.md. -->
         <service
             android:name=".auto.JacDriveCarAppService"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <!-- Must be exported so the Android Auto host can bind; callers are verified by
+                 HostValidator against the allowlist in res/values/car_hosts.xml. -->
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
                 <category android:name="androidx.car.app.category.IOT" />
