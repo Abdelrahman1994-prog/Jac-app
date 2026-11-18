@@ -61,6 +61,11 @@ android {
         compose = true
         buildConfig = true
     }
+    // The app switches between Arabic and English at runtime (UI and voice alerts), so every
+    // language must be present even when installed from an App Bundle.
+    bundle {
+        language { enableSplit = false }
+    }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
