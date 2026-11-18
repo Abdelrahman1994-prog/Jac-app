@@ -97,7 +97,7 @@ class TripTrackerTest {
 
     @Test fun csvHasHeaderBomAndRows() {
         val csv = TripCsv.build(listOf(trip(0, 12.345, 600, 1.0)), TimeZone.getTimeZone("UTC"))
-        assertTrue(csv.startsWith("﻿start,end,distance_km"))
+        assertTrue(csv.startsWith("\uFEFFstart,end,distance_km"))
         assertTrue(csv.contains("1970-01-01 00:00:00,1970-01-01 00:10:00,12.35,10.0,10.0,74.1,90,2000,1.00,8.1,ECU_FUEL_RATE"))
     }
 }

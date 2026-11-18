@@ -47,12 +47,15 @@ internal val JacTypography: Typography = Typography().let { base ->
     )
 }
 
-/** Styles for instrument readouts, independent of the Material type scale. */
+/**
+ * Styles for instrument readouts, independent of the Material type scale. Numeric styles are always
+ * laid out left-to-right so "35.4 km" or "21 %" never flip in Arabic.
+ */
 object Readout {
-    val Hero = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontSize = 96.sp, lineHeight = 96.sp)
-    val Large = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontSize = 56.sp, lineHeight = 56.sp)
-    val Medium = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 32.sp)
-    val Small = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 22.sp)
+    val Hero = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontSize = 96.sp, lineHeight = 96.sp, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
+    val Large = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontSize = 56.sp, lineHeight = 56.sp, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
+    val Medium = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 32.sp, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
+    val Small = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 22.sp, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
     val Unit = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 0.08.em, textDirection = androidx.compose.ui.text.style.TextDirection.Ltr)
     val Caption = TextStyle(fontFamily = JacFonts.Body, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, letterSpacing = 0.08.em)
 }

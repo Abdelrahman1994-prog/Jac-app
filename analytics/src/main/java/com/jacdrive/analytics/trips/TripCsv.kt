@@ -8,7 +8,7 @@ import java.util.TimeZone
 
 /** CSV export (RFC 4180, UTF-8 with BOM so spreadsheet apps detect the encoding). */
 object TripCsv {
-    private const val BOM = "﻿"
+    private const val BOM = "\uFEFF"
 
     fun build(trips: List<TripEntity>, zone: TimeZone = TimeZone.getDefault()): String {
         val fmt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply { timeZone = zone }

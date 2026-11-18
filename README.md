@@ -6,9 +6,10 @@ timing, trip analytics and maintenance tracking. Arabic and English with full RT
 
 Target device: Xiaomi Redmi Note 15 (any Android 8.0+ phone works; `minSdk 26`, `targetSdk 35`).
 
-> **Status: Phase 3 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
-> ELM327 connection, live data, fault-code scanner, bilingual DTC database, diagnostic history and
-> health score are implemented. Performance, trips and maintenance are Phase 4.
+> **Status: Phase 4 of 5 complete.** Cockpit (6 themes, 4 layouts), demo mode, Bluetooth Classic
+> ELM327 connection, live data, fault-code scanner, bilingual DTC database, diagnostic history,
+> health score, trip recording and analytics, performance timers and maintenance management are
+> implemented. Voice alerts, backup/restore and the Android Auto decision are Phase 5.
 > Screens whose engine arrives in a later phase are visibly marked **"In development"** in the app.
 
 ![Cockpit – Horizon](docs/screenshots/theme_horizon.jpg)
@@ -185,6 +186,31 @@ Diagnostics → **Scan for codes** (requires a live adapter connection; never ru
 
 <img src="docs/screenshots/diagnostics_ar.jpg" width="300" alt="Diagnostics in Arabic">
 
+## Trips, performance and maintenance (Phase 4)
+
+**Trips** are recorded automatically in the background while the adapter is connected — only from
+live ECU data, never demo data. A trip starts when the engine runs (RPM > 300) and ends 90 s after
+the engine stops or the link is lost (short drops continue the same trip). Distance is integrated
+from ECU speed; fuel from PID `015E` or a labelled MAF estimate. Trips under 0.2 km and 60 s are
+discarded; in-progress trips are checkpointed every 30 s. The Trips screen shows 7-day, 30-day and
+12-month bar charts (distance, average speed, consumption), a trip list/detail, and exports CSV
+(UTF-8 with BOM, opens correctly in Excel/Sheets).
+
+**Performance** — track use only, gated by an explicit acknowledgement:
+* 0–60, 0–100 and 60–120 km/h timers from ECU speed, with crossing times interpolated between
+  samples (accuracy roughly ±0.1–0.2 s, limited by the 1 km/h speed resolution and polling rate).
+  0–x needs a standstill first; lifting off or 60 s timeout aborts.
+* G-force from the phone's linear-acceleration and gravity sensors, projected onto the road plane
+  (phone mounted upright, screen facing the driver). Shown as a G-ball with longitudinal/lateral g.
+* Rolling 60 s graphs of RPM, throttle and engine load (separate scales, no dual axis).
+* Session max/average speed; runs can be saved, best time per test is highlighted.
+
+**Maintenance**: the ten standard items plus custom items. Intervals (km and/or months, whichever
+first) and the last service are entered by you from the owner's manual — none are pre-filled. Status
+is OK / due soon (10 % of interval, min 1000 km / 30 days) / overdue. Each service is logged with
+date, odometer, cost and notes; totals for this year and all time. A daily WorkManager job sends one
+notification per item when it becomes due soon or overdue (never repeated for the same due point).
+
 ## Development phases
 
 | Phase | Scope | Status |
@@ -192,7 +218,7 @@ Diagnostics → **Scan for codes** (requires a live adapter connection; never ru
 | 1 | Architecture, UI/UX, navigation, cockpit, themes, Theme Studio, demo mode, vehicle profile, settings | ✅ Done |
 | 2 | Bluetooth Classic scanning/pairing, ELM327 init (ATZ/ATE0/ATL0/ATS0/ATH0/ATSP0), PID discovery (0100/0120/0140…), live PIDs 010C 010D 0105 0104 0111 010F 010B 012F 010E (+0142, 0146, 0110, 015E), foreground service, auto-reconnect, timeouts, BLE-ready transport, Horizon theme | ✅ Done (vehicle test pending) |
 | 3 | Mode 03/07/0A DTC reading, MIL & readiness (0101), bilingual DTC database, severity/causes/steps, guarded Mode 04 clear, session history & comparison, health score | ✅ Done (vehicle test pending) |
-| 4 | Performance timers + phone G-force, trip recording, charts, CSV export, maintenance intervals/reminders/costs | Planned |
+| 4 | Performance timers + phone G-force, trip recording, charts, CSV export, maintenance intervals/reminders/costs | ✅ Done (vehicle test pending) |
 | 5 | Alert engine with Arabic/English TTS, Android Auto feasibility + compliant implementation if eligible, backup/restore, full test pass, release APK | Planned |
 
 ## Android Auto – current position (to be finalised in Phase 5)

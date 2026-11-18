@@ -98,7 +98,7 @@ fun BarChart(
                     drawPath(path, c)
                 }
             }
-            Text(formatValue(max), style = Readout.Caption, color = ink, modifier = Modifier.padding(top = 2.dp))
+            Text(formatValue(max), style = Readout.Caption.copy(textDirection = androidx.compose.ui.text.style.TextDirection.Ltr), color = ink, modifier = Modifier.padding(top = 2.dp))
         }
         Row(Modifier.fillMaxWidth().padding(top = 4.dp)) {
             data.forEachIndexed { i, d ->
