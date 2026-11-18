@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diag_title">الفحص</string>
+    <string name="diag_subtitle">فحص أعطال OBD-II القياسي</string>
+    <string name="diag_mil">لمبة فحص المحرك (MIL)</string>
+    <string name="diag_not_read">لم تتم القراءة بعد</string>
+    <string name="diag_mil_hint">وصّل محوّل OBD وابدأ الفحص لقراءة حالة لمبة المحرك.</string>
+    <string name="diag_mil_hint_live">ابدأ الفحص لقراءة حالة لمبة المحرك ورموز الأعطال.</string>
+    <string name="diag_scan">فحص الأعطال</string>
+    <string name="diag_clear">مسح</string>
+    <string name="diag_scan_requires_adapter">يتطلب الفحص محوّل OBD-II متصلاً. لا تُعرض رموز أعطال من البيانات التجريبية أبداً.</string>
+    <string name="diag_scan_ready">المحوّل متصل.</string>
+    <string name="diag_codes">رموز الأعطال</string>
+    <string name="diag_stored">الأعطال المخزنة</string>
+    <string name="diag_stored_sub">أعطال مؤكدة (Mode 03)</string>
+    <string name="diag_pending">الأعطال المعلّقة</string>
+    <string name="diag_pending_sub">اكتُشفت في دورة القيادة الحالية أو السابقة (Mode 07)</string>
+    <string name="diag_permanent">الأعطال الدائمة</string>
+    <string name="diag_permanent_sub">لا يمكن مسحها بأداة الفحص (Mode 0A إن كان مدعوماً)</string>
+    <string name="diag_health">صحة السيارة</string>
+    <string name="diag_health_sub">فحوصات مباشرة من بيانات حساسات موثوقة</string>
+    <string name="diag_history">سجل الأعطال</string>
+    <string name="diag_history_empty">لا توجد جلسات فحص بعد</string>
+    <string name="diag_history_empty_sub">تُحفظ كل عملية فحص هنا لتتمكن من مقارنة الجلسات مع الوقت.</string>
+    <string name="diag_scope_note">يتيح OBD-II القياسي الوصول إلى بيانات مجموعة نقل الحركة المتعلقة بالانبعاثات. أنظمة ABS والوسائد الهوائية وناقل الحركة ووحدات التحكم بالهيكل تستخدم عادةً بروتوكولات خاصة بالشركة المصنعة ولا يفحصها هذا التطبيق.</string>
+
+    <string name="health_title">صحة السيارة</string>
+    <string name="health_score">مؤشر الصحة</string>
+    <string name="health_score_needs">يُحسب المؤشر فقط من اتصال مباشر مع فحص مكتمل لرموز الأعطال وجاهزية الأنظمة. لا يتم تقديره أبداً من بيانات ناقصة أو محاكاة.</string>
+    <string name="health_live_checks">فحوصات مباشرة</string>
+    <string name="health_normal">طبيعي</string>
+    <string name="health_attention">يحتاج انتباه</string>
+    <string name="health_critical">حرج</string>
+    <string name="health_warming">قيد الإحماء</string>
+    <string name="health_unknown">لا توجد بيانات</string>
+    <string name="health_method">طريقة حساب المؤشر</string>
+    <string name="health_method_body">يبدأ المؤشر من 100. تُخصم نقاط عند: إضاءة لمبة فحص المحرك، ولكل رمز عطل مخزن أو معلّق، ولأنظمة جاهزية الانبعاثات غير المكتملة، ولحرارة سائل التبريد فوق 105 درجة مئوية، ولجهد البطارية خارج نطاق الشحن الطبيعي. العناصر التي لا تُبلغ عنها وحدة التحكم تُستبعد ولا تُعتبر سليمة. تُعرض كل نقطة مخصومة مع المؤشر.</string>
+    <string name="health_scope_body">تعتمد الفحوصات المباشرة على إرشادات عامة للمحركات وليست مواصفات مصنع JAC. القراءة الطبيعية لا تغني عن الفحص لدى مختص.</string>
+</resources>

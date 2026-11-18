@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mnt_title">Maintenance</string>
+    <string name="mnt_subtitle">Service intervals, history and costs</string>
+    <string name="mnt_manual_note">Set each interval from your JAC J7 owner\'s manual or service booklet. JAC DRIVE does not pre-fill intervals it cannot verify.</string>
+    <string name="mnt_items">Service items</string>
+    <string name="mnt_interval_not_set">Interval not set</string>
+    <string name="mnt_add_custom">Add custom item</string>
+    <string name="mnt_engine_oil">Engine oil</string>
+    <string name="mnt_oil_filter">Oil filter</string>
+    <string name="mnt_air_filter">Air filter</string>
+    <string name="mnt_cabin_filter">Cabin filter</string>
+    <string name="mnt_spark_plugs">Spark plugs</string>
+    <string name="mnt_brake_pads">Brake pads</string>
+    <string name="mnt_coolant">Coolant</string>
+    <string name="mnt_transmission">Transmission fluid</string>
+    <string name="mnt_battery">Battery</string>
+    <string name="mnt_tires">Tyres</string>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="diag_title">Diagnostics</string>
+    <string name="diag_subtitle">Standard OBD-II fault scan</string>
+    <string name="diag_mil">Check-engine lamp (MIL)</string>
+    <string name="diag_not_read">Not read yet</string>
+    <string name="diag_mil_hint">Connect an OBD adapter and run a scan to read the MIL status.</string>
+    <string name="diag_mil_hint_live">Run a scan to read the MIL status and fault codes.</string>
+    <string name="diag_scan">Scan for codes</string>
+    <string name="diag_clear">Clear</string>
+    <string name="diag_scan_requires_adapter">Scanning requires a connected OBD-II adapter. Fault codes are never shown from demo data.</string>
+    <string name="diag_scan_ready">Adapter connected.</string>
+    <string name="diag_codes">Fault codes</string>
+    <string name="diag_stored">Stored codes</string>
+    <string name="diag_stored_sub">Confirmed faults (Mode 03)</string>
+    <string name="diag_pending">Pending codes</string>
+    <string name="diag_pending_sub">Detected in the current or last drive cycle (Mode 07)</string>
+    <string name="diag_permanent">Permanent codes</string>
+    <string name="diag_permanent_sub">Cannot be cleared by a scan tool (Mode 0A, if supported)</string>
+    <string name="diag_health">Vehicle health</string>
+    <string name="diag_health_sub">Live checks from validated sensor data</string>
+    <string name="diag_history">Fault history</string>
+    <string name="diag_history_empty">No diagnostic sessions yet</string>
+    <string name="diag_history_empty_sub">Every scan is saved here so you can compare sessions over time.</string>
+    <string name="diag_scope_note">Standard OBD-II gives access to emissions-related powertrain data. ABS, airbag, transmission and body control modules usually use manufacturer protocols and are not diagnosed by this app.</string>
+
+    <string name="health_title">Vehicle health</string>
+    <string name="health_score">Health score</string>
+    <string name="health_score_needs">The score is calculated only from a live connection plus a completed fault-code and readiness scan. It is never estimated from missing or simulated data.</string>
+    <string name="health_live_checks">Live checks</string>
+    <string name="health_normal">Normal</string>
+    <string name="health_attention">Attention</string>
+    <string name="health_critical">Critical</string>
+    <string name="health_warming">Warming up</string>
+    <string name="health_unknown">No data</string>
+    <string name="health_method">How the score works</string>
+    <string name="health_method_body">The score starts at 100. Points are deducted for: the check-engine lamp being on, each stored and pending fault code, incomplete emissions readiness monitors, coolant temperature above 105 °C, and battery voltage outside the normal charging range. Items the ECU does not report are excluded rather than assumed healthy. Each deduction is listed with the score.</string>
+    <string name="health_scope_body">Live checks use generic engine guidelines, not JAC factory specifications. A normal reading does not replace a professional inspection.</string>
+</resources>

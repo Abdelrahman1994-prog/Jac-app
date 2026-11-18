@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_language">اللغة</string>
+    <string name="settings_language_system">لغة النظام</string>
+    <string name="settings_appearance">المظهر</string>
+    <string name="settings_theme_mode">سمة التطبيق</string>
+    <string name="settings_dark">داكن</string>
+    <string name="settings_light">فاتح</string>
+    <string name="settings_system">النظام</string>
+    <string name="settings_cockpit_themes">ثيمات لوحة القيادة</string>
+    <string name="settings_cockpit_themes_sub">الثيمات ولون التمييز والتخطيط والخلفية والعناصر</string>
+    <string name="settings_units">الوحدات</string>
+    <string name="settings_speed">السرعة والمسافة</string>
+    <string name="settings_temperature">درجة الحرارة</string>
+    <string name="settings_obd">OBD-II</string>
+    <string name="settings_adapter">محوّل البلوتوث</string>
+    <string name="settings_adapter_sub">البحث عن محوّل ELM327 وإقرانه والاتصال به</string>
+    <string name="settings_polling">فترة الاستعلام</string>
+    <string name="settings_polling_value">%1$d مللي ثانية بين الطلبات</string>
+    <string name="settings_polling_hint">الفترات الأقصر تجعل العدادات أكثر سلاسة لكنها تزيد الحمل على المحوّل. كثير من محوّلات ELM327 تعمل بثبات بين 200 و500 مللي ثانية.</string>
+    <string name="settings_demo">الوضع التجريبي</string>
+    <string name="settings_demo_sub">عرض بيانات محاكاة موضّحة بوضوح عند عدم توصيل محوّل</string>
+    <string name="settings_alerts">التنبيهات</string>
+    <string name="settings_alerts_voice">التنبيهات الذكية والصوتية</string>
+    <string name="settings_alerts_voice_sub">الحدود، والصوت بالعربية والإنجليزية، والسجل</string>
+    <string name="settings_data">البيانات</string>
+    <string name="settings_backup">النسخ الاحتياطي والاستعادة</string>
+    <string name="settings_backup_sub">حفظ سجلاتك في ملف واستعادتها</string>
+    <string name="settings_export">تصدير التقارير</string>
+    <string name="settings_export_sub">تقارير الفحص وملفات CSV للرحلات</string>
+    <string name="settings_about">حول التطبيق</string>
+    <string name="settings_version">الإصدار</string>
+    <string name="settings_safety">السلامة ونطاق العمل</string>
+    <string name="settings_safety_body">‏JAC DRIVE تطبيق مرافق للمراقبة والفحص، ويقرأ بيانات OBD-II القياسية فقط. لا يتحكم أبداً في التوجيه أو الفرامل، ولا يعدّل إعدادات وحدة التحكم في المحرك، ولا يعطّل أنظمة السلامة، ولا يمسح رموز الأعطال دون تأكيد صريح منك.\n\nلا تستخدم الهاتف أثناء القيادة. يجب إجراء اختبارات التسارع فقط في أماكن قانونية ومُتحكَّم بها، وليس على الطرق العامة أبداً.</string>
+    <string name="settings_licenses">تراخيص البرمجيات المفتوحة</string>
+    <string name="settings_licenses_body">الخطوط: Cairo (© The Cairo Project Authors) وRajdhani (© Indian Type Foundry)، وكلاهما مرخّص بموجب SIL Open Font License 1.1.\n\nالمكتبات: AndroidX وJetpack Compose وKotlin coroutines وDagger Hilt وRoom — بموجب Apache License 2.0.</string>
+    <string name="settings_ok">حسناً</string>
+
+    <string name="studio_title">استوديو الثيمات</string>
+    <string name="studio_sub">خصّص لوحة القيادة الخاصة بك</string>
+    <string name="studio_preview">معاينة</string>
+    <string name="studio_theme">الثيم</string>
+    <string name="studio_accent">لون التمييز</string>
+    <string name="studio_accent_default">افتراضي الثيم</string>
+    <string name="studio_layout">تخطيط العدادات</string>
+    <string name="studio_background">الخلفية</string>
+    <string name="studio_behaviour">السلوك</string>
+    <string name="studio_animations">الحركة والانتقالات</string>
+    <string name="studio_animations_sub">حركة ناعمة للمؤشرات والأشرطة وإطارات متحركة</string>
+    <string name="studio_keep_on">إبقاء الشاشة مضاءة في لوحة القيادة</string>
+    <string name="studio_redline">الخط الأحمر لعداد الدورات</string>
+    <string name="studio_redline_value">%1$d دورة/دقيقة</string>
+    <string name="studio_redline_hint">اجعله مطابقاً للخط الأحمر الموجود على عداد الدورات في سيارتك.</string>
+    <string name="studio_widgets">عناصر لوحة القيادة</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trips_title">Trips</string>
+    <string name="trips_subtitle">Driving history and statistics</string>
+    <string name="trips_day">Today</string>
+    <string name="trips_week">This week</string>
+    <string name="trips_month">This month</string>
+    <string name="trips_distance">Distance</string>
+    <string name="trips_time">Driving time</string>
+    <string name="trips_avg_speed">Avg. speed</string>
+    <string name="trips_consumption">Consumption</string>
+    <string name="trips_history">History</string>
+    <string name="trips_empty">No trips recorded</string>
+    <string name="trips_empty_sub">Trips will be recorded from real OBD data while an adapter is connected. Demo data is never saved as a trip.</string>
+    <string name="trips_export">Export CSV</string>
+
+    <string name="perf_title">Performance</string>
+    <string name="perf_warning_title">Track use only</string>
+    <string name="perf_warning_body">Acceleration tests must only be performed in legal, controlled environments such as a closed track — never on public roads. Keep your eyes on the road; the timer runs hands-free.</string>
+    <string name="perf_timers">Acceleration timers (km/h)</string>
+    <string name="perf_arm">Arm timer</string>
+    <string name="perf_session">Session</string>
+    <string name="perf_max_speed">Max speed</string>
+    <string name="perf_avg_speed">Avg. speed</string>
+    <string name="perf_gforce">Peak G</string>
+    <string name="perf_note">Timers use ECU vehicle speed; G-force uses the phone\'s accelerometer and requires the phone to be firmly mounted.</string>
+</resources>

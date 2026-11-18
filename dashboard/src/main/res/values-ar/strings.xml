@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_dashboard">لوحة القيادة</string>
+    <string name="nav_diagnostics">الفحص</string>
+    <string name="nav_performance">الأداء</string>
+    <string name="nav_trips">الرحلات</string>
+    <string name="nav_maintenance">الصيانة</string>
+    <string name="nav_vehicle">السيارة</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <string name="home_live_overview">نظرة مباشرة</string>
+    <string name="home_quick_access">وصول سريع</string>
+    <string name="home_demo">تجريبي</string>
+    <string name="home_offline">غير متصل</string>
+    <string name="home_cockpit_title">قمرة القيادة الرقمية</string>
+    <string name="home_cockpit_sub">عدادات بملء الشاشة بالوضع الأفقي · %1$s</string>
+    <string name="home_launch">تشغيل</string>
+    <string name="home_diag_sub">رموز الأعطال ولمبة المحرك وصحة السيارة</string>
+    <string name="home_perf_sub">مؤقتات التسارع وقوة التسارع G</string>
+    <string name="home_trips_sub">سجل القيادة والإحصائيات</string>
+    <string name="home_maint_sub">مواعيد الصيانة والتكاليف</string>
+    <string name="home_vehicle_sub">بيانات السيارة والعداد والمحوّل</string>
+    <string name="home_themes">الثيمات</string>
+    <string name="home_themes_sub">شكل العدادات والألوان والتخطيط</string>
+    <string name="home_settings_sub">اللغة والوحدات وOBD والبيانات</string>
+
+    <string name="cockpit_customize">تخصيص لوحة القيادة</string>
+    <string name="cockpit_mode_demo">تجريبي · محاكاة</string>
+    <string name="cockpit_mode_offline">لا يوجد محوّل</string>
+    <string name="cockpit_mode_live">مباشر</string>
+    <string name="cockpit_rpm_unit">دورة/دقيقة</string>
+    <string name="cockpit_na">غير متاح</string>
+    <string name="cockpit_theme">الثيم</string>
+    <string name="cockpit_layout">تخطيط العدادات</string>
+    <string name="cockpit_animations">الحركة والانتقالات</string>
+    <string name="cockpit_more_customization">مزيد من التخصيص…</string>
+    <string name="telltale_coolant">حرارة المحرك مرتفعة</string>
+    <string name="telltale_battery">جهد البطارية غير طبيعي</string>
+    <string name="telltale_overrev">دورات المحرك فوق الخط الأحمر</string>
+</resources>

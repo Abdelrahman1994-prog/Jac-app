@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trips_title">الرحلات</string>
+    <string name="trips_subtitle">سجل القيادة والإحصائيات</string>
+    <string name="trips_day">اليوم</string>
+    <string name="trips_week">هذا الأسبوع</string>
+    <string name="trips_month">هذا الشهر</string>
+    <string name="trips_distance">المسافة</string>
+    <string name="trips_time">مدة القيادة</string>
+    <string name="trips_avg_speed">متوسط السرعة</string>
+    <string name="trips_consumption">الاستهلاك</string>
+    <string name="trips_history">السجل</string>
+    <string name="trips_empty">لا توجد رحلات مسجلة</string>
+    <string name="trips_empty_sub">ستُسجَّل الرحلات من بيانات OBD الحقيقية أثناء توصيل المحوّل. لا تُحفظ البيانات التجريبية كرحلات أبداً.</string>
+    <string name="trips_export">تصدير CSV</string>
+
+    <string name="perf_title">الأداء</string>
+    <string name="perf_warning_title">للحلبات فقط</string>
+    <string name="perf_warning_body">يجب إجراء اختبارات التسارع فقط في أماكن قانونية ومُتحكَّم بها مثل الحلبات المغلقة — وليس على الطرق العامة أبداً. أبقِ عينيك على الطريق؛ المؤقت يعمل دون لمس.</string>
+    <string name="perf_timers">مؤقتات التسارع (كم/س)</string>
+    <string name="perf_arm">تجهيز المؤقت</string>
+    <string name="perf_session">الجلسة</string>
+    <string name="perf_max_speed">السرعة القصوى</string>
+    <string name="perf_avg_speed">متوسط السرعة</string>
+    <string name="perf_gforce">أقصى G</string>
+    <string name="perf_note">تعتمد المؤقتات على سرعة السيارة من وحدة التحكم؛ وتعتمد قوة G على حساس التسارع في الهاتف وتتطلب تثبيت الهاتف جيداً.</string>
+</resources>

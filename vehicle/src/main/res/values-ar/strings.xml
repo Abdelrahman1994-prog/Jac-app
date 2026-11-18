@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_title">سيارتي</string>
+    <string name="vehicle_edit">تعديل بيانات السيارة</string>
+    <string name="vehicle_odometer">عداد المسافة</string>
+    <string name="vehicle_model">الطراز</string>
+    <string name="vehicle_name">اسم السيارة</string>
+    <string name="vehicle_year">سنة الصنع</string>
+    <string name="vehicle_trim">الفئة</string>
+    <string name="vehicle_mileage">المسافة المقطوعة الحالية</string>
+    <string name="vehicle_fuel">نوع الوقود</string>
+    <string name="vehicle_engine">المحرك</string>
+    <string name="vehicle_engine_hint">مثلاً كما هو مذكور في دليل المالك</string>
+    <string name="vehicle_transmission">ناقل الحركة</string>
+    <string name="vehicle_vin">رقم الهيكل (VIN)</string>
+    <string name="vehicle_vin_optional">رقم الهيكل VIN (اختياري)</string>
+    <string name="vehicle_vin_error">رقم الهيكل مكوّن من 17 خانة ولا يحتوي على الأحرف I أو O أو Q</string>
+    <string name="vehicle_not_set">غير محدد</string>
+    <string name="vehicle_adapter">محوّل OBD</string>
+    <string name="vehicle_adapter_none">لا يوجد محوّل مقترن</string>
+    <string name="vehicle_adapter_hint">محوّلات ELM327 عبر البلوتوث مدعومة</string>
+    <string name="vehicle_records">السجلات</string>
+    <string name="vehicle_maintenance_records">سجل الصيانة</string>
+    <string name="vehicle_diagnostic_history">سجل الفحص والأعطال</string>
+    <string name="vehicle_spec_note">تُترك المواصفات الفنية فارغة حتى تقوم بإدخالها. لا يفترض JAC DRIVE أي قيم غير موثقة.</string>
+    <string name="fuel_petrol">بنزين</string>
+    <string name="fuel_diesel">ديزل</string>
+    <string name="fuel_hybrid">هجين</string>
+    <string name="fuel_electric">كهربائي</string>
+    <string name="save">حفظ</string>
+    <string name="cancel">إلغاء</string>
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">رجوع</string>
+    <string name="in_development">قيد التطوير</string>
+    <string name="demo_banner_title">الوضع التجريبي · بيانات محاكاة</string>
+    <string name="demo_banner_body">القيم يولّدها التطبيق وليست من سيارتك.</string>
+    <string name="offline_banner_title">لا يوجد محوّل OBD متصل</string>
+    <string name="offline_banner_body">وصّل محوّل ELM327 لعرض البيانات المباشرة، أو فعّل الوضع التجريبي من الإعدادات.</string>
+
+    <string name="metric_speed">السرعة</string>
+    <string name="metric_rpm">دورات المحرك</string>
+    <string name="metric_coolant">سائل التبريد</string>
+    <string name="metric_battery">البطارية</string>
+    <string name="metric_load">حمل المحرك</string>
+    <string name="metric_throttle">دواسة الوقود</string>
+    <string name="metric_fuel">مستوى الوقود</string>
+    <string name="metric_intake">هواء السحب</string>
+    <string name="metric_map">ضغط مشعب السحب</string>
+    <string name="metric_timing">تقديم الشرارة</string>
+    <string name="metric_trip">الرحلة</string>
+    <string name="metric_avg_fuel">متوسط الاستهلاك</string>
+    <string name="metric_connection">اتصال OBD</string>
+
+    <string name="value_missing">—</string>
+    <string name="value_unsupported">غير مدعوم</string>
+    <string name="value_no_data">لا توجد بيانات</string>
+    <string name="value_stale">قديمة</string>
+    <string name="source_simulated">محاكاة</string>
+
+    <string name="theme_jac_original">JAC الأصلي</string>
+    <string name="theme_racing_red">السباق الأحمر</string>
+    <string name="theme_cyber_blue">الأزرق السيبراني</string>
+    <string name="theme_carbon_black">الكربون الأسود</string>
+    <string name="theme_sport_gt">سبورت GT</string>
+    <string name="layout_dual">عدادان</string>
+    <string name="layout_sport">رياضي مركزي</string>
+    <string name="layout_digital">رقمي</string>
+    <string name="bg_theme_default">افتراضي الثيم</string>
+    <string name="bg_black">أسود خالص</string>
+    <string name="bg_gradient">تدرّج لوني</string>
+    <string name="bg_carbon">ألياف الكربون</string>
+    <string name="bg_grid">شبكة</string>
+</resources>

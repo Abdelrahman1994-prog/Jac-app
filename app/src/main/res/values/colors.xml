@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="jac_background">#FF06080B</color>
+    <color name="jac_accent">#FF36C2FF</color>
+    <color name="jac_redline">#FFFF3B4E</color>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_title">My vehicle</string>
+    <string name="vehicle_edit">Edit vehicle</string>
+    <string name="vehicle_odometer">Odometer</string>
+    <string name="vehicle_model">Model</string>
+    <string name="vehicle_name">Vehicle name</string>
+    <string name="vehicle_year">Model year</string>
+    <string name="vehicle_trim">Trim</string>
+    <string name="vehicle_mileage">Current mileage</string>
+    <string name="vehicle_fuel">Fuel type</string>
+    <string name="vehicle_engine">Engine</string>
+    <string name="vehicle_engine_hint">e.g. as printed in your owner\'s manual</string>
+    <string name="vehicle_transmission">Transmission</string>
+    <string name="vehicle_vin">VIN</string>
+    <string name="vehicle_vin_optional">VIN (optional)</string>
+    <string name="vehicle_vin_error">A VIN has 17 characters and never contains I, O or Q</string>
+    <string name="vehicle_not_set">Not set</string>
+    <string name="vehicle_adapter">OBD adapter</string>
+    <string name="vehicle_adapter_none">No adapter paired</string>
+    <string name="vehicle_adapter_hint">Bluetooth ELM327 adapters are supported</string>
+    <string name="vehicle_records">Records</string>
+    <string name="vehicle_maintenance_records">Maintenance records</string>
+    <string name="vehicle_diagnostic_history">Diagnostic history</string>
+    <string name="vehicle_spec_note">Technical specifications are left blank until you enter them. JAC DRIVE does not assume undocumented values.</string>
+    <string name="fuel_petrol">Petrol</string>
+    <string name="fuel_diesel">Diesel</string>
+    <string name="fuel_hybrid">Hybrid</string>
+    <string name="fuel_electric">Electric</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>

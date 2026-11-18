@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">System</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_mode">App theme</string>
+    <string name="settings_dark">Dark</string>
+    <string name="settings_light">Light</string>
+    <string name="settings_system">System</string>
+    <string name="settings_cockpit_themes">Cockpit themes</string>
+    <string name="settings_cockpit_themes_sub">Themes, accent colour, layout, background and widgets</string>
+    <string name="settings_units">Units</string>
+    <string name="settings_speed">Speed and distance</string>
+    <string name="settings_temperature">Temperature</string>
+    <string name="settings_obd">OBD-II</string>
+    <string name="settings_adapter">Bluetooth adapter</string>
+    <string name="settings_adapter_sub">Scan, pair and connect an ELM327 adapter</string>
+    <string name="settings_polling">Polling interval</string>
+    <string name="settings_polling_value">%1$d ms between requests</string>
+    <string name="settings_polling_hint">Shorter intervals give smoother gauges but load the adapter more. Many ELM327 clones are reliable at 200–500 ms.</string>
+    <string name="settings_demo">Demo mode</string>
+    <string name="settings_demo_sub">Show clearly-labelled simulated data when no adapter is connected</string>
+    <string name="settings_alerts">Alerts</string>
+    <string name="settings_alerts_voice">Smart alerts and voice</string>
+    <string name="settings_alerts_voice_sub">Thresholds, Arabic/English voice and history</string>
+    <string name="settings_data">Data</string>
+    <string name="settings_backup">Backup and restore</string>
+    <string name="settings_backup_sub">Save your records to a file and restore them</string>
+    <string name="settings_export">Export reports</string>
+    <string name="settings_export_sub">Diagnostic reports and trip CSV</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_safety">Safety and scope</string>
+    <string name="settings_safety_body">JAC DRIVE is a monitoring and diagnostics companion. It reads standard OBD-II data only. It never controls steering or braking, never modifies ECU settings, never disables safety systems and never clears fault codes without your explicit confirmation.\n\nDo not interact with the phone while driving. Acceleration tests must only be performed in legal, controlled environments, never on public roads.</string>
+    <string name="settings_licenses">Open-source licences</string>
+    <string name="settings_licenses_body">Fonts: Cairo (© The Cairo Project Authors) and Rajdhani (© Indian Type Foundry), both under the SIL Open Font License 1.1.\n\nLibraries: AndroidX, Jetpack Compose, Kotlin coroutines, Dagger Hilt and Room — Apache License 2.0.</string>
+    <string name="settings_ok">OK</string>
+
+    <string name="studio_title">Theme studio</string>
+    <string name="studio_sub">Personalise your cockpit</string>
+    <string name="studio_preview">PREVIEW</string>
+    <string name="studio_theme">Theme</string>
+    <string name="studio_accent">Accent colour</string>
+    <string name="studio_accent_default">Theme default</string>
+    <string name="studio_layout">Gauge layout</string>
+    <string name="studio_background">Background</string>
+    <string name="studio_behaviour">Behaviour</string>
+    <string name="studio_animations">Animations</string>
+    <string name="studio_animations_sub">Smooth needles, bars and animated bezels</string>
+    <string name="studio_keep_on">Keep screen on in cockpit</string>
+    <string name="studio_redline">Tachometer redline</string>
+    <string name="studio_redline_value">%1$d rpm</string>
+    <string name="studio_redline_hint">Match the redline printed on your vehicle\'s own tachometer.</string>
+    <string name="studio_widgets">Cockpit widgets</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mnt_title">الصيانة</string>
+    <string name="mnt_subtitle">مواعيد الصيانة والسجل والتكاليف</string>
+    <string name="mnt_manual_note">حدّد كل فترة صيانة من دليل مالك JAC J7 أو كتيّب الصيانة. لا يملأ JAC DRIVE فترات لا يمكنه التحقق منها.</string>
+    <string name="mnt_items">عناصر الصيانة</string>
+    <string name="mnt_interval_not_set">لم تُحدد الفترة</string>
+    <string name="mnt_add_custom">إضافة عنصر مخصص</string>
+    <string name="mnt_engine_oil">زيت المحرك</string>
+    <string name="mnt_oil_filter">فلتر الزيت</string>
+    <string name="mnt_air_filter">فلتر الهواء</string>
+    <string name="mnt_cabin_filter">فلتر المكيف</string>
+    <string name="mnt_spark_plugs">شمعات الإشعال (البواجي)</string>
+    <string name="mnt_brake_pads">تيل الفرامل</string>
+    <string name="mnt_coolant">سائل التبريد</string>
+    <string name="mnt_transmission">زيت ناقل الحركة</string>
+    <string name="mnt_battery">البطارية</string>
+    <string name="mnt_tires">الإطارات</string>
+</resources>
