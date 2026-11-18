@@ -22,4 +22,17 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2)
+/** v2 → v3: trips, performance runs and maintenance (Phase 4). SQL taken from the exported schema. */
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `trip` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `startMs` INTEGER NOT NULL, `endMs` INTEGER NOT NULL, `distanceKm` REAL NOT NULL, `durationS` INTEGER NOT NULL, `movingS` INTEGER NOT NULL, `maxSpeedKmh` REAL NOT NULL, `avgRpm` REAL, `fuelUsedL` REAL, `fuelSource` TEXT, `completed` INTEGER NOT NULL)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_trip_startMs` ON `trip` (`startMs`)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `performance_run` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `timestampMs` INTEGER NOT NULL, `type` TEXT NOT NULL, `timeS` REAL NOT NULL, `peakG` REAL, `maxSpeedKmh` REAL NOT NULL)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_performance_run_type` ON `performance_run` (`type`)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `maintenance_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `builtInKey` TEXT, `customName` TEXT, `intervalKm` INTEGER, `intervalMonths` INTEGER, `lastServiceKm` INTEGER, `lastServiceDateMs` INTEGER, `enabled` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL)")
+        db.execSQL("CREATE TABLE IF NOT EXISTS `maintenance_record` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `itemId` INTEGER NOT NULL, `dateMs` INTEGER NOT NULL, `odometerKm` INTEGER, `cost` REAL, `notes` TEXT, FOREIGN KEY(`itemId`) REFERENCES `maintenance_item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_maintenance_record_itemId` ON `maintenance_record` (`itemId`)")
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

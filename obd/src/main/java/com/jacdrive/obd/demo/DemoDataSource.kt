@@ -38,6 +38,7 @@ class DemoDataSource @Inject constructor() {
                 put(VehicleMetric.INTAKE_MANIFOLD_PRESSURE, v(s.mapKpa))
                 put(VehicleMetric.TIMING_ADVANCE, v(s.timingAdvanceDeg))
                 put(VehicleMetric.AMBIENT_TEMP, v(24.0))
+                put(VehicleMetric.FUEL_RATE, v(s.fuelRateLph))
                 put(VehicleMetric.TRIP_DISTANCE, v(trip.distanceKm))
                 trip.averageConsumption()?.let { put(VehicleMetric.AVG_FUEL_CONSUMPTION, v(it)) }
             }

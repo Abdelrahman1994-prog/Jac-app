@@ -18,6 +18,8 @@ enum class VehicleMetric(val metricUnit: String, val staleAfterMs: Long) {
     AMBIENT_TEMP("°C", 60_000),
     TRIP_DISTANCE("km", 10_000),
     AVG_FUEL_CONSUMPTION("L/100km", 30_000),
+    /** Instantaneous fuel flow: ECU PID 5E, or CALCULATED from MAF (petrol estimate). */
+    FUEL_RATE("L/h", 5_000),
 }
 
 /** Where a value originated. Simulated values must never be presented as real. */

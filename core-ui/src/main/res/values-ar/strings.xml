@@ -20,6 +20,7 @@
     <string name="metric_ambient">الحرارة الخارجية</string>
     <string name="metric_trip">الرحلة</string>
     <string name="metric_avg_fuel">متوسط الوقود</string>
+    <string name="metric_fuel_rate">معدل استهلاك الوقود</string>
     <string name="metric_connection">اتصال OBD</string>
 
     <string name="value_missing">—</string>

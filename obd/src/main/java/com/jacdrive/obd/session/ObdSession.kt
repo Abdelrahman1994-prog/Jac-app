@@ -73,6 +73,9 @@ class ObdSession(
             add(VehicleMetric.TRIP_DISTANCE)
             if (hasFuelFlow) add(VehicleMetric.AVG_FUEL_CONSUMPTION)
         }
+        if (hasFuelFlow) {
+            add(VehicleMetric.FUEL_RATE)
+        }
     }
 
     fun run(): Flow<SessionUpdate> = flow {
@@ -136,6 +139,10 @@ class ObdSession(
 
             // Derived values, only from fresh real readings.
             val now = clock()
+            fuelRateLph(raw)?.let { rate ->
+                val src = if (ObdPid.FUEL_RATE in raw) DataSource.ECU else DataSource.CALCULATED
+                values[VehicleMetric.FUEL_RATE] = LiveValue(rate, now, src)
+            }
             values[VehicleMetric.SPEED]?.takeIf { now - it.timestampMs < 2_000 }?.let { speed ->
                 trip.add(speed.value, now, fuelRateLph(raw))
                 values[VehicleMetric.TRIP_DISTANCE] = LiveValue(trip.distanceKm, now, DataSource.CALCULATED)

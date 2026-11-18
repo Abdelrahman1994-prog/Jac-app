@@ -24,6 +24,7 @@ fun VehicleMetric.labelRes(): Int = when (this) {
     VehicleMetric.AMBIENT_TEMP -> R.string.metric_ambient
     VehicleMetric.TRIP_DISTANCE -> R.string.metric_trip
     VehicleMetric.AVG_FUEL_CONSUMPTION -> R.string.metric_avg_fuel
+    VehicleMetric.FUEL_RATE -> R.string.metric_fuel_rate
 }
 
 @StringRes
@@ -50,6 +51,7 @@ fun VehicleMetric.format(value: Double, units: DisplayUnits): String = when (thi
     VehicleMetric.TIMING_ADVANCE -> Num.one(value)
     VehicleMetric.TRIP_DISTANCE -> Num.one(UnitConverter.distance(value, units.speed))
     VehicleMetric.AVG_FUEL_CONSUMPTION -> Num.one(value)
+    VehicleMetric.FUEL_RATE -> Num.one(value)
 }
 
 fun VehicleMetric.unitLabel(units: DisplayUnits): String = when (this) {

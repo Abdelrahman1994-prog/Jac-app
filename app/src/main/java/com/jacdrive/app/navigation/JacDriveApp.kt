@@ -33,8 +33,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jacdrive.analytics.PerformanceScreen
-import com.jacdrive.analytics.TripsScreen
+import com.jacdrive.analytics.performance.PerformanceScreen
+import com.jacdrive.analytics.trips.TripDetailScreen
+import com.jacdrive.analytics.trips.TripsScreen
+import com.jacdrive.maintenance.MaintenanceItemScreen
 import com.jacdrive.app.StartupScreen
 import com.jacdrive.dashboard.cockpit.CockpitScreen
 import com.jacdrive.dashboard.home.HomeDestination
@@ -160,8 +162,14 @@ private fun JacNavHost(nav: NavHostController, modifier: Modifier) {
         }
         composable(Routes.HEALTH) { HealthScreen(onBack = back) }
         composable(Routes.PERFORMANCE) { PerformanceScreen(onBack = back) }
-        composable(Routes.TRIPS) { TripsScreen(onBack = null) }
-        composable(Routes.MAINTENANCE) { MaintenanceScreen(onBack = null) }
+        composable(Routes.TRIPS) { TripsScreen(onBack = null, onOpenTrip = { nav.navigate(Routes.trip(it)) }) }
+        composable(Routes.TRIP, arguments = listOf(navArgument("id") { type = NavType.LongType })) { e ->
+            TripDetailScreen(id = e.arguments?.getLong("id") ?: 0L, onBack = back)
+        }
+        composable(Routes.MAINTENANCE) { MaintenanceScreen(onBack = null, onOpenItem = { nav.navigate(Routes.maintenanceItem(it)) }) }
+        composable(Routes.MAINTENANCE_ITEM, arguments = listOf(navArgument("id") { type = NavType.LongType })) { e ->
+            MaintenanceItemScreen(id = e.arguments?.getLong("id") ?: 0L, onBack = back)
+        }
         composable(Routes.VEHICLE) {
             VehicleScreen(
                 onBack = back,

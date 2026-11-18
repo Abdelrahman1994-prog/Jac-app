@@ -65,6 +65,12 @@ object CoreProvidesModule {
     @Provides
     fun vehicleProfileDao(db: JacDriveDatabase): VehicleProfileDao = db.vehicleProfileDao()
 
+    @Provides fun tripDao(db: JacDriveDatabase): com.jacdrive.core.database.TripDao = db.tripDao()
+
+    @Provides fun performanceDao(db: JacDriveDatabase): com.jacdrive.core.database.PerformanceDao = db.performanceDao()
+
+    @Provides fun maintenanceDao(db: JacDriveDatabase): com.jacdrive.core.database.MaintenanceDao = db.maintenanceDao()
+
     @Provides
     fun diagnosticDao(db: JacDriveDatabase): DiagnosticDao = db.diagnosticDao()
 }
