@@ -2,4 +2,33 @@
 <resources>
     <string name="app_name">JAC DRIVE</string>
     <string name="startup_tagline">قمرة القيادة الذكية</string>
+    <string name="car_link">اتصال OBD</string>
+    <string name="car_coolant">سائل التبريد</string>
+    <string name="car_battery">البطارية</string>
+    <string name="car_engine">المحرك</string>
+    <string name="car_fuel">مستوى الوقود</string>
+    <string name="car_mil">لمبة المحرك</string>
+    <string name="car_mil_on">مضاءة — افحص من الهاتف والسيارة متوقفة</string>
+    <string name="car_mil_off">مطفأة</string>
+    <string name="car_mil_unknown">لم تُقرأ بعد</string>
+    <string name="car_connected">متصل · %1$s</string>
+    <string name="car_connecting">جارٍ الاتصال…</string>
+    <string name="car_reconnecting">انقطع · إعادة الاتصال</string>
+    <string name="car_not_connected">غير متصل</string>
+    <string name="car_demo">تجريبي · بيانات محاكاة</string>
+    <string name="car_sim">محاكاة</string>
+    <string name="car_stale">قديمة</string>
+    <string name="car_not_supported">غير مدعوم</string>
+    <string name="car_faults">الأعطال</string>
+    <string name="car_alerts">التنبيهات</string>
+    <string name="car_no_scan">لا يوجد فحص بعد. افحص من الهاتف والسيارة متوقفة.</string>
+    <string name="car_no_codes">لا توجد أعطال في آخر فحص.</string>
+    <string name="car_no_alerts">لا توجد تنبيهات.</string>
+    <string name="car_alert_coolant">حرارة المحرك مرتفعة</string>
+    <string name="car_alert_battery_low">جهد البطارية منخفض</string>
+    <string name="car_alert_battery_high">جهد البطارية مرتفع</string>
+    <string name="car_alert_rpm">دورات المحرك مرتفعة</string>
+    <string name="car_alert_mil">لمبة فحص المحرك مضاءة</string>
+    <string name="car_alert_link">انقطع المحوّل</string>
+    <string name="car_alert_maintenance">موعد صيانة</string>
 </resources>

@@ -2,4 +2,33 @@
 <resources>
     <string name="app_name">JAC DRIVE</string>
     <string name="startup_tagline">ULTIMATE SMART COCKPIT</string>
+    <string name="car_link">OBD link</string>
+    <string name="car_coolant">Coolant</string>
+    <string name="car_battery">Battery</string>
+    <string name="car_engine">Engine</string>
+    <string name="car_fuel">Fuel level</string>
+    <string name="car_mil">Check engine</string>
+    <string name="car_mil_on">ON — scan on the phone when parked</string>
+    <string name="car_mil_off">Off</string>
+    <string name="car_mil_unknown">Not read yet</string>
+    <string name="car_connected">Connected · %1$s</string>
+    <string name="car_connecting">Connecting…</string>
+    <string name="car_reconnecting">Link lost · reconnecting</string>
+    <string name="car_not_connected">Not connected</string>
+    <string name="car_demo">DEMO · simulated data</string>
+    <string name="car_sim">SIM</string>
+    <string name="car_stale">old</string>
+    <string name="car_not_supported">Not supported</string>
+    <string name="car_faults">Faults</string>
+    <string name="car_alerts">Alerts</string>
+    <string name="car_no_scan">No scan yet. Scan from the phone while parked.</string>
+    <string name="car_no_codes">No fault codes in the last scan.</string>
+    <string name="car_no_alerts">No alerts.</string>
+    <string name="car_alert_coolant">Engine temperature high</string>
+    <string name="car_alert_battery_low">Battery voltage low</string>
+    <string name="car_alert_battery_high">Battery voltage high</string>
+    <string name="car_alert_rpm">High engine speed</string>
+    <string name="car_alert_mil">Check-engine lamp on</string>
+    <string name="car_alert_link">Adapter disconnected</string>
+    <string name="car_alert_maintenance">Maintenance due</string>
 </resources>

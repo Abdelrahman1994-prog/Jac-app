@@ -30,6 +30,23 @@
             </intent-filter>
         </activity>
 
+        <!-- Android Auto: template-based screen (Car App Library). Runs on a real car only when the
+             app is installed from Google Play, e.g. Internal App Sharing. See docs/ANDROID_AUTO.md. -->
+        <service
+            android:name=".auto.JacDriveCarAppService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.IOT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1" />
+
         <!-- WorkManager is initialised on demand with the Hilt worker factory. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
