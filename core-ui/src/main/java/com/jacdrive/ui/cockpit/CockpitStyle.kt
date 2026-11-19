@@ -46,23 +46,24 @@ data class CockpitStyle(
 
 object CockpitStyles {
 
+    /** Matched to the JAC J7 instrument cluster: deep navy, electric cyan, blue glow. */
     val JacOriginal = CockpitStyle(
         id = CockpitThemeId.JAC_ORIGINAL,
-        backgroundTop = Color(0xFF0C1522),
-        backgroundBottom = Color(0xFF030508),
+        backgroundTop = Color(0xFF0B1E40),
+        backgroundBottom = Color(0xFF030814),
         defaultBackground = DashboardBackground.GRADIENT,
-        panel = Color(0x14FFFFFF),
-        panelBorder = Color(0x22A9D8FF),
-        accent = Color(0xFF36C2FF),
-        accentSecondary = Color(0xFF1A6DFF),
-        text = Color(0xFFF2F7FC),
-        textDim = Color(0xFF8193A8),
-        track = Color(0x1FFFFFFF),
-        tick = Color(0xFFB9C7D6),
+        panel = Color(0x1A1C6CFF),
+        panelBorder = Color(0x5540D0FF),
+        accent = Color(0xFF40D0FF),
+        accentSecondary = Color(0xFF1C6CFF),
+        text = Color(0xFFEAF8FF),
+        textDim = Color(0xFF7098C4),
+        track = Color(0xFF10284A),
+        tick = Color(0xFF96D7FF),
         ok = Color(0xFF2EE59D),
         warning = Color(0xFFFFB020),
-        critical = Color(0xFFFF3B4E),
-        gauge = GaugeStyle(sweepDegrees = 240f, arcWidthFraction = 0.035f, segmented = false, showNeedle = true, glow = true),
+        critical = Color(0xFFFF4658),
+        gauge = GaugeStyle(sweepDegrees = 250f, arcWidthFraction = 0.04f, segmented = true, segmentCount = 50, showNeedle = true, glow = true),
     )
 
     val RacingRed = CockpitStyle(
