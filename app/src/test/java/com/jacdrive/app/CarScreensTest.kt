@@ -1,7 +1,7 @@
 package com.jacdrive.app
 
-import androidx.car.app.model.ListTemplate
-import androidx.car.app.model.Row
+import androidx.car.app.model.GridItem
+import androidx.car.app.model.GridTemplate
 import androidx.car.app.testing.TestCarContext
 import androidx.test.core.app.ApplicationProvider
 import com.jacdrive.app.auto.CarDeps
@@ -73,23 +73,32 @@ class CarScreensTest {
         )
     }
 
-    @Test fun liveScreenRespectsDrivingRowLimitAndShowsRealValues() {
+    @Test fun liveScreenShowsGaugeGridOfSupportedValues() {
         val carContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext())
-        val t = LiveScreen(carContext, deps(live())).onGetTemplate() as ListTemplate
-        val rows = t.singleList!!.items.map { it as Row }
-        assertEquals(6, rows.size)
-        val text = rows.joinToString { r -> r.title.toString() + ":" + r.texts.joinToString { it.toString() } }
+        val t = LiveScreen(carContext, deps(live())).onGetTemplate() as GridTemplate
+        val items = t.singleList!!.items.map { it as GridItem }
+        // Only the 4 supported metrics are shown, each with a rendered gauge image.
+        assertEquals(4, items.size)
+        assertTrue(items.all { it.image != null })
+        val text = items.joinToString { "${it.title}:${it.text}" }
         assertTrue(text, text.contains("14.1 V"))
         assertTrue(text, text.contains("2100 rpm"))
-        assertTrue(text, text.contains("Not supported")) // fuel level not in supported set
+        assertTrue(text, !text.contains("Fuel"))
         assertEquals(2, t.actionStrip!!.actions.size)
+    }
+
+    @Test fun gaugeBitmapRendersEmptyAndFull() {
+        val empty = com.jacdrive.app.auto.GaugeBitmap.render(null, android.graphics.Color.CYAN)
+        val full = com.jacdrive.app.auto.GaugeBitmap.render(1f, android.graphics.Color.CYAN, dangerFrom = 0.75f)
+        assertEquals(256, empty.width)
+        assertEquals(256, full.height)
     }
 
     @Test fun demoDataIsLabelledOnTheCarScreen() {
         val carContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext())
         val demo = live().copy(mode = DataMode.DEMO, values = live().values.mapValues { it.value.copy(source = DataSource.SIMULATED) })
-        val t = LiveScreen(carContext, deps(demo)).onGetTemplate() as ListTemplate
-        val text = t.singleList!!.items.joinToString { r -> (r as Row).texts.joinToString { it.toString() } }
+        val t = LiveScreen(carContext, deps(demo)).onGetTemplate() as GridTemplate
+        val text = t.singleList!!.items.joinToString { (it as GridItem).text.toString() } + t.title
         assertTrue(text, text.contains("DEMO") && text.contains("SIM"))
     }
 

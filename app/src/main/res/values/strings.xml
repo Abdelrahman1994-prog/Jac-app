@@ -31,4 +31,10 @@
     <string name="car_alert_mil">Check-engine lamp on</string>
     <string name="car_alert_link">Adapter disconnected</string>
     <string name="car_alert_maintenance">Maintenance due</string>
+    <string name="car_rpm">Engine speed</string>
+    <string name="car_speed">Speed</string>
+    <string name="car_load">Engine load</string>
+    <string name="car_throttle">Throttle</string>
+    <string name="car_intake">Intake air</string>
+    <string name="car_mil_on_short">CHECK ENGINE</string>
 </resources>

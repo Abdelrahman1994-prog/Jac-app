@@ -4,7 +4,6 @@ import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
-import androidx.car.app.model.CarColor
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.ListTemplate
 import androidx.car.app.model.Row
@@ -27,20 +26,25 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * Live vehicle data as a template list (max 6 rows, the driving limit). Values refresh at most
- * every 2 s; the host may throttle further. Speed is deliberately not shown — the car's own
- * cluster already displays it.
+ * Live gauges on the car screen. Android Auto templates don't allow free drawing, so each value
+ * is a grid item whose image is a gauge rendered as a bitmap, with the value as the item title.
+ * The number of items follows the host's grid limit (typically 6 while driving); refreshes are
+ * capped at one every 2 s, and the host may throttle further. Demo data is labelled.
  */
 class LiveScreen(carContext: CarContext, private val deps: CarDeps) : Screen(carContext) {
 
     private var snapshot: VehicleSnapshot = deps.vehicleData.snapshot.value
     private var tempUnit = TemperatureUnit.CELSIUS
+    private var speedUnit = com.jacdrive.core.model.SpeedUnit.KMH
+    private var redline = 6000
     private var dirty = false
 
     init {
         lifecycleScope.launch {
             val s = deps.settings.settings.first()
             tempUnit = s.temperatureUnit
+            speedUnit = s.speedUnit
+            redline = deps.settings.cockpit.first().redlineRpm
             launch { deps.vehicleData.snapshot.collect { snapshot = it; dirty = true } }
             while (true) {
                 delay(REFRESH_MS)
@@ -49,54 +53,77 @@ class LiveScreen(carContext: CarContext, private val deps: CarDeps) : Screen(car
         }
     }
 
+    private data class Gauge(val label: Int, val metric: VehicleMetric, val fraction: (Double) -> Float, val text: (Double) -> String, val danger: Float? = null, val warn: (Double) -> Boolean = { false })
+
     override fun onGetTemplate(): Template {
         val s = snapshot
         val now = System.currentTimeMillis()
         val sim = s.mode == DataMode.DEMO
-        fun value(m: VehicleMetric, fmt: (Double) -> String): String {
-            val v = s[m]
-            return when {
-                s.isUnsupported(m) -> str(R.string.car_not_supported)
-                v == null || v.freshness(m, now) == Freshness.MISSING -> "—"
-                v.freshness(m, now) == Freshness.STALE -> "${fmt(v.value)} · ${str(R.string.car_stale)}"
-                else -> fmt(v.value) + if (sim) " · ${str(R.string.car_sim)}" else ""
+        val tempLabel = if (tempUnit == TemperatureUnit.CELSIUS) "°C" else "°F"
+        val gauges = listOf(
+            Gauge(R.string.car_rpm, VehicleMetric.RPM, { (it / 8000).toFloat() }, { "${Num.int(it)} rpm" }, danger = redline / 8000f),
+            Gauge(R.string.car_speed, VehicleMetric.SPEED, { (UnitConverter.speed(it, speedUnit) / UnitConverter.speedScaleMax(speedUnit)).toFloat() },
+                { "${Num.int(UnitConverter.speed(it, speedUnit))} ${if (speedUnit == com.jacdrive.core.model.SpeedUnit.KMH) "km/h" else "mph"}" }),
+            Gauge(R.string.car_coolant, VehicleMetric.COOLANT_TEMP, { ((it - 40) / 90).toFloat() }, { "${Num.int(UnitConverter.temperature(it, tempUnit))} $tempLabel" }, danger = (105f - 40f) / 90f, warn = { it >= 105 }),
+            Gauge(R.string.car_battery, VehicleMetric.BATTERY_VOLTAGE, { ((it - 10) / 6).toFloat() }, { "${Num.one(it)} V" }, warn = { it < 12.0 || it > 15.2 }),
+            Gauge(R.string.car_load, VehicleMetric.ENGINE_LOAD, { (it / 100).toFloat() }, { "${Num.int(it)} %" }),
+            Gauge(R.string.car_fuel, VehicleMetric.FUEL_LEVEL, { (it / 100).toFloat() }, { "${Num.int(it)} %" }, warn = { it < 10 }),
+            Gauge(R.string.car_throttle, VehicleMetric.THROTTLE_POSITION, { (it / 100).toFloat() }, { "${Num.int(it)} %" }),
+            Gauge(R.string.car_intake, VehicleMetric.INTAKE_AIR_TEMP, { ((it + 10) / 90).toFloat() }, { "${Num.int(UnitConverter.temperature(it, tempUnit))} $tempLabel" }),
+        )
+        val limit = runCatching {
+            carContext.getCarService(androidx.car.app.constraints.ConstraintManager::class.java)
+                .getContentLimit(androidx.car.app.constraints.ConstraintManager.CONTENT_LIMIT_TYPE_GRID)
+        }.getOrDefault(6).coerceIn(1, gauges.size)
+
+        val items = ItemList.Builder()
+        // Gauges the ECU reports as unsupported are left out so supported ones get the space.
+        gauges.filterNot { s.isUnsupported(it.metric) }.take(limit).forEach { g ->
+            val v = s[g.metric]
+            val fresh = v != null && v.freshness(g.metric, now) == Freshness.LIVE
+            val stale = v != null && v.freshness(g.metric, now) == Freshness.STALE
+            val color = when {
+                v != null && g.warn(v.value) -> android.graphics.Color.rgb(255, 176, 32)
+                sim -> android.graphics.Color.rgb(181, 123, 255)
+                else -> android.graphics.Color.rgb(54, 194, 255)
             }
+            val bmp = GaugeBitmap.render(if (fresh || stale) g.fraction(v!!.value) else null, color, g.danger)
+            val title = when {
+                v == null -> "—"
+                else -> g.text(v.value)
+            }
+            val subtitle = buildString {
+                append(str(g.label))
+                if (sim) append(" · ").append(str(R.string.car_sim))
+                if (stale) append(" · ").append(str(R.string.car_stale))
+            }
+            items.addItem(
+                androidx.car.app.model.GridItem.Builder()
+                    .setTitle(title)
+                    .setText(subtitle)
+                    .setImage(
+                        androidx.car.app.model.CarIcon.Builder(androidx.core.graphics.drawable.IconCompat.createWithBitmap(bmp)).build(),
+                        androidx.car.app.model.GridItem.IMAGE_TYPE_LARGE,
+                    )
+                    .build(),
+            )
         }
-        val connection = when {
+
+        val status = when {
             sim -> str(R.string.car_demo)
-            s.connection is ConnectionState.Connected -> str(R.string.car_connected, (s.connection as ConnectionState.Connected).adapterName)
+            s.connection is ConnectionState.Connected -> {
+                val base = str(R.string.car_connected, (s.connection as ConnectionState.Connected).adapterName)
+                if (s.milOn == true) "$base · ${str(R.string.car_mil_on_short)}" else base
+            }
             s.connection is ConnectionState.Connecting -> str(R.string.car_connecting)
             s.connection is ConnectionState.Failed -> str(R.string.car_reconnecting)
             else -> str(R.string.car_not_connected)
         }
-        val tempLabel = if (tempUnit == TemperatureUnit.CELSIUS) "°C" else "°F"
-        val coolant = s[VehicleMetric.COOLANT_TEMP]?.value
-        val list = ItemList.Builder()
-            .addItem(row(R.string.car_link, connection))
-            .addItem(
-                Row.Builder().setTitle(str(R.string.car_coolant))
-                    .addText(colored(value(VehicleMetric.COOLANT_TEMP) { "${Num.int(UnitConverter.temperature(it, tempUnit))} $tempLabel" }, coolant != null && coolant >= 105))
-                    .build(),
-            )
-            .addItem(row(R.string.car_battery, value(VehicleMetric.BATTERY_VOLTAGE) { "${Num.one(it)} V" }))
-            .addItem(row(R.string.car_engine, value(VehicleMetric.RPM) { "${Num.int(it)} rpm" } + "  ·  " + value(VehicleMetric.ENGINE_LOAD) { "${Num.int(it)} %" }))
-            .addItem(row(R.string.car_fuel, value(VehicleMetric.FUEL_LEVEL) { "${Num.int(it)} %" }))
-            .addItem(
-                Row.Builder().setTitle(str(R.string.car_mil))
-                    .addText(
-                        when (s.milOn) {
-                            true -> colored(str(R.string.car_mil_on), true)
-                            false -> androidx.car.app.model.CarText.create(str(R.string.car_mil_off))
-                            null -> androidx.car.app.model.CarText.create(str(R.string.car_mil_unknown))
-                        },
-                    ).build(),
-            )
-            .build()
 
-        return ListTemplate.Builder()
-            .setTitle("JAC DRIVE")
+        return androidx.car.app.model.GridTemplate.Builder()
+            .setTitle(status)
             .setHeaderAction(Action.APP_ICON)
-            .setSingleList(list)
+            .setSingleList(items.build())
             .setActionStrip(
                 ActionStrip.Builder()
                     .addAction(Action.Builder().setTitle(str(R.string.car_faults)).setOnClickListener { screenManager.push(FaultsScreen(carContext, deps)) }.build())
@@ -113,14 +140,6 @@ class LiveScreen(carContext: CarContext, private val deps: CarDeps) : Screen(car
     }
 
     private fun str(id: Int, vararg args: Any) = carContext.getString(id, *args)
-    private fun row(title: Int, text: String) = Row.Builder().setTitle(str(title)).addText(text).build()
-
-    private fun colored(text: String, alert: Boolean): androidx.car.app.model.CarText {
-        if (!alert) return androidx.car.app.model.CarText.create(text)
-        val span = android.text.SpannableString(text)
-        span.setSpan(androidx.car.app.model.ForegroundCarColorSpan.create(CarColor.RED), 0, text.length, android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-        return androidx.car.app.model.CarText.create(span)
-    }
 
     private companion object {
         const val REFRESH_MS = 2_000L

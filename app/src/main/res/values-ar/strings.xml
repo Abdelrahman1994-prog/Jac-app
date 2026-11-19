@@ -31,4 +31,10 @@
     <string name="car_alert_mil">لمبة فحص المحرك مضاءة</string>
     <string name="car_alert_link">انقطع المحوّل</string>
     <string name="car_alert_maintenance">موعد صيانة</string>
+    <string name="car_rpm">دورات المحرك</string>
+    <string name="car_speed">السرعة</string>
+    <string name="car_load">حمل المحرك</string>
+    <string name="car_throttle">دواسة الوقود</string>
+    <string name="car_intake">هواء السحب</string>
+    <string name="car_mil_on_short">لمبة المحرك مضاءة</string>
 </resources>
