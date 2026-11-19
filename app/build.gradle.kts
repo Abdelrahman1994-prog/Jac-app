@@ -18,14 +18,14 @@ val keystoreProps = Properties().apply {
 
 android {
     namespace = "com.jacdrive.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.jacdrive.app"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 6
-        versionName = "1.1.0"
+        targetSdk = 36
+        versionCode = 7
+        versionName = "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
