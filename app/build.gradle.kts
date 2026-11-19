@@ -24,8 +24,8 @@ android {
         applicationId = "com.jacdrive.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.3.0"
+        versionCode = 10
+        versionName = "1.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -67,6 +67,8 @@ android {
         language { enableSplit = false }
     }
     testOptions.unitTests.isIncludeAndroidResources = true
+    // Native-graphics (gauge rendering) and legacy Robolectric tests can't share one JVM.
+    testOptions.unitTests.all { it.forkEvery = 1 }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }

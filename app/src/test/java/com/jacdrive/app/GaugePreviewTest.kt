@@ -43,5 +43,9 @@ class GaugePreviewTest {
         // Host controls occupy the top-right corner; draw in the remaining area.
         r.draw(android.graphics.Canvas(bmp), android.graphics.Rect(0, 90, 1280, 720), frame)
         File("build/outputs/gauges/cockpit_surface.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        // Portrait head unit (JAC J7): tall surface.
+        val tall = android.graphics.Bitmap.createBitmap(800, 1066, android.graphics.Bitmap.Config.ARGB_8888)
+        r.draw(android.graphics.Canvas(tall), android.graphics.Rect(0, 80, 800, 1066), frame.copy(milOn = true, coolant = 107f, coolantHot = true))
+        File("build/outputs/gauges/cockpit_surface_portrait.png").outputStream().use { tall.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 }
