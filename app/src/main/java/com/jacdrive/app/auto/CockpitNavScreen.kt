@@ -55,6 +55,8 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
         runCatching { ResourcesCompat.getFont(carContext, com.jacdrive.ui.R.font.rajdhani_light) }.getOrNull(),
     )
     private var lastDraw = 0L
+    private var roadPhase = 0f
+    private val drawing = java.util.concurrent.atomic.AtomicBoolean(false)
 
     init {
         lifecycle.addObserver(object : DefaultLifecycleObserver {
@@ -67,10 +69,27 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             speedUnit = s.speedUnit
             tempUnit = s.temperatureUnit
             redline = deps.settings.cockpit.first().redlineRpm
-            deps.vehicleData.snapshot.collect { snap ->
-                snapshot = snap
+            launch {
+                deps.vehicleData.snapshot.collect { snap ->
+                    snapshot = snap
+                    val now = System.currentTimeMillis()
+                    if (now - lastDraw >= 100) { lastDraw = now; render() }
+                }
+            }
+            // Road animation: lane marks advance with the real vehicle speed (about 25 fps while
+            // moving). Nothing animates when the car is stopped or there is no speed data.
+            var last = System.currentTimeMillis()
+            while (true) {
+                kotlinx.coroutines.delay(FRAME_MS)
                 val now = System.currentTimeMillis()
-                if (now - lastDraw >= 100) { lastDraw = now; render() }
+                val kmh = snapshot[VehicleMetric.SPEED]?.takeIf { it.freshness(VehicleMetric.SPEED, now) == Freshness.LIVE }?.value ?: 0.0
+                if (kmh > 0.5) {
+                    // One full dash cycle per ~3.6 m travelled.
+                    roadPhase = ((roadPhase + (kmh / 3.6 * (now - last) / 1000.0 / DASH_METERS).toFloat()) % 1f)
+                    lastDraw = now
+                    render()
+                }
+                last = now
             }
         }
     }
@@ -82,9 +101,10 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
 
     private fun render() {
         val container = surface ?: return
+        if (!drawing.compareAndSet(false, true)) return // previous frame still drawing: skip
         val frame = frame()
         lifecycleScope.launch {
-            withContext(drawer) {
+            try { withContext(drawer) {
                 val s = container.surface ?: return@withContext
                 if (!s.isValid) return@withContext
                 val canvas = runCatching { s.lockHardwareCanvas() }.getOrNull() ?: return@withContext
@@ -94,7 +114,7 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
                 } finally {
                     s.unlockCanvasAndPost(canvas)
                 }
-            }
+            } } finally { drawing.set(false) }
         }
     }
 
@@ -126,6 +146,11 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             status = status,
             demo = s.mode == DataMode.DEMO,
             milOn = s.milOn == true,
+            throttle = v(VehicleMetric.THROTTLE_POSITION)?.toFloat(),
+            intake = v(VehicleMetric.INTAKE_AIR_TEMP)?.let { UnitConverter.temperature(it, tempUnit).toFloat() },
+            trip = v(VehicleMetric.TRIP_DISTANCE)?.let { "%.1f %s".format(UnitConverter.distance(it, speedUnit), if (speedUnit == SpeedUnit.KMH) "km" else "mi") },
+            avgFuel = v(VehicleMetric.AVG_FUEL_CONSUMPTION)?.let { "%.1f L/100km".format(it) },
+            roadPhase = roadPhase,
             labels = CockpitFrame.Labels(
                 rpm = carContext.getString(R.string.car_rpm_x1000),
                 coolant = carContext.getString(R.string.car_coolant),
@@ -134,8 +159,17 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
                 load = carContext.getString(R.string.car_load),
                 demo = carContext.getString(R.string.car_demo),
                 mil = carContext.getString(R.string.car_mil_on_short),
+                throttle = carContext.getString(R.string.car_throttle),
+                intake = carContext.getString(R.string.car_intake),
+                trip = carContext.getString(R.string.car_trip),
+                avgFuel = carContext.getString(R.string.car_avg_fuel),
             ),
         )
+    }
+
+    private companion object {
+        const val FRAME_MS = 40L
+        const val DASH_METERS = 3.6
     }
 
     override fun onGetTemplate(): Template = NavigationTemplate.Builder()

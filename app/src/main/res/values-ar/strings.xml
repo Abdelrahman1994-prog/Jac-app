@@ -38,4 +38,6 @@
     <string name="car_intake">هواء السحب</string>
     <string name="car_mil_on_short">لمبة المحرك مضاءة</string>
     <string name="car_rpm_x1000">×1000 دورة</string>
+    <string name="car_trip">الرحلة</string>
+    <string name="car_avg_fuel">المتوسط</string>
 </resources>

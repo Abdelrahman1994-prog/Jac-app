@@ -38,4 +38,6 @@
     <string name="car_intake">Intake air</string>
     <string name="car_mil_on_short">CHECK ENGINE</string>
     <string name="car_rpm_x1000">x1000 rpm</string>
+    <string name="car_trip">Trip</string>
+    <string name="car_avg_fuel">Avg</string>
 </resources>
