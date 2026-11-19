@@ -275,8 +275,9 @@ An ordinary phone app does **not** appear on the car screen. Android Auto only s
 with the Car App Library (or media/messaging APIs) that fit one of Google's supported categories
 (media, messaging/calling, navigation, points of interest, IoT for controlling external devices, weather, and parked-only games — verified November 2026) and that render only through
 Google's driver-safety templates. A custom instrument cluster with free-form gauges cannot be drawn
-on the Android Auto screen, and JAC DRIVE will not use mirroring or other workarounds. For the owner's personal use, JAC DRIVE includes a **template-based Android Auto screen** (live data,
-faults and alerts, under the IoT category). It's installed through Google Play **Internal App Sharing**,
+on the Android Auto screen, and JAC DRIVE will not use mirroring or other workarounds. For the owner's personal use, JAC DRIVE draws the **full cockpit on the Android Auto screen** by declaring
+the navigation category (the only category that gets a drawing surface). That declaration isn't accurate,
+so this build must never be published publicly. It's installed through Google Play **Internal App Sharing**,
 because Android Auto only runs Car App Library apps installed from Play. It isn't meant for public
 release. The full cockpit stays on the phone, and voice alerts play through the car speakers. Steps:
 [`docs/ANDROID_AUTO.md`](docs/ANDROID_AUTO.md). The `core`/`obd` modules have no phone-UI dependencies so they can also be reused for a

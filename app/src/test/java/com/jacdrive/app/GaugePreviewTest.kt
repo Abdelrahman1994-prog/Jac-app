@@ -26,4 +26,22 @@ class GaugePreviewTest {
             "fuel" to GaugeBitmap.render(null, blue),
         ).forEach { (n, b) -> File(dir, "$n.png").outputStream().use { b.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) } }
     }
+
+    @Test fun writeCockpitSurfacePreview() {
+        val bmp = android.graphics.Bitmap.createBitmap(1280, 720, android.graphics.Bitmap.Config.ARGB_8888)
+        val ctx = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val r = com.jacdrive.app.auto.CockpitRenderer(
+            androidx.core.content.res.ResourcesCompat.getFont(ctx, com.jacdrive.ui.R.font.rajdhani_bold),
+            androidx.core.content.res.ResourcesCompat.getFont(ctx, com.jacdrive.ui.R.font.rajdhani_light),
+        )
+        val frame = com.jacdrive.app.auto.CockpitFrame(
+            speed = 92f, speedMax = 240f, speedUnit = "km/h", rpm = 2350f, redline = 6000f,
+            coolant = 91f, coolantUnit = "°C", coolantHot = false, battery = 14.1f, batteryBad = false,
+            fuel = 64f, load = 38f, status = "Connected · OBDII", demo = false, milOn = false,
+            labels = com.jacdrive.app.auto.CockpitFrame.Labels("x1000 rpm", "Coolant", "Battery", "Fuel level", "Engine load", "DEMO", "CHECK ENGINE"),
+        )
+        // Host controls occupy the top-right corner; draw in the remaining area.
+        r.draw(android.graphics.Canvas(bmp), android.graphics.Rect(0, 90, 1280, 720), frame)
+        File("build/outputs/gauges/cockpit_surface.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+    }
 }

@@ -42,7 +42,7 @@ class JacDriveCarAppService : CarAppService() {
 
     override fun onCreateSession(): Session = object : Session() {
         override fun onCreateScreen(intent: Intent): Screen =
-            LiveScreen(carContext, CarDeps(vehicleData, settings, diagnosticDao, dtc, alertDao))
+            CockpitNavScreen(carContext, CarDeps(vehicleData, settings, diagnosticDao, dtc, alertDao))
     }
 }
 

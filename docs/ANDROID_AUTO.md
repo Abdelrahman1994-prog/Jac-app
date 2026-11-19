@@ -35,25 +35,27 @@ JAC DRIVE is a **vehicle monitoring and diagnostics** app. That isn't one of the
 * A full digital instrument cluster needs custom drawing, which the templates don't allow on
   Android Auto even inside a supported category.
 
-**Decision (updated):** the owner asked for an Android Auto screen for **personal use only**.
-JAC DRIVE now includes a **template-based Android Auto interface** (Car App Library), declared
-under the IoT category, for distribution to the owner's own phone through Google Play's
-**Internal App Sharing**. That's the official way to run a Car App Library app on a real car
-without public review. It is **not** intended for public release: a public listing would be
-expected to fail review under the category rules above.
+**Decision (personal build, at the owner's request):** the owner wanted the full cockpit on
+the JAC J7 screen, for **personal use only**. Android Auto gives a freely drawable surface only to
+**navigation** apps. This build therefore declares `androidx.car.app.category.NAVIGATION` and
+draws the cockpit (two large gauges plus coolant, battery, fuel and load) on the map surface of a
+`NavigationTemplate`.
 
-What's shown on the car screen (Google's templates enforce their driver-distraction limits):
+> ⚠️ This category declaration is **not accurate** for this app. It must stay on Internal App
+> Sharing or internal testing for the owner's own phone. Publishing it publicly would violate Google
+> Play policy and could put the developer account at risk. Google may also change Android Auto so
+> this stops working.
 
-* **Live data** (6 rows, the driving limit, refreshed at most every 2 s): OBD link status, coolant,
-  battery, RPM and load, fuel level, check-engine lamp. Demo data is labelled DEMO/SIM. Speed
-  isn't repeated, because the car's own cluster shows it.
-* **Faults:** codes from the latest phone scan, with titles in the app language. Read-only:
-  scanning and clearing stay on the phone, while parked.
-* **Alerts:** the most recent alerts.
+Side effects:
+* Android Auto runs one navigation app at a time, so opening JAC DRIVE on the car screen replaces
+  Google Maps until you switch back.
+* The host's own controls overlay part of the surface. The cockpit is drawn only inside the
+  visible area the host reports.
 
-The full custom cockpit (drawn gauges, themes) can't be shown on Android Auto. That isn't
-possible with templates, and JAC DRIVE doesn't use screen mirroring or other workarounds.
-The full cockpit stays on the phone.
+Driving-safety choices: no interaction is needed, the numerals are large, nothing blinks, it
+redraws only when new data arrives (at most about 10 times per second), and demo data is labelled.
+Faults and alerts open as standard list templates. Scanning and clearing stay on the phone, while
+parked.
 
 ### Why Internal App Sharing is needed
 

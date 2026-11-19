@@ -87,6 +87,17 @@ class CarScreensTest {
         assertEquals(2, t.actionStrip!!.actions.size)
     }
 
+    @Test fun navigationTemplateIsValid() {
+        val carContext = TestCarContext.createCarContext(ApplicationProvider.getApplicationContext())
+        val screen = com.jacdrive.app.auto.CockpitNavScreen(carContext, deps(live()))
+        val t = screen.onGetTemplate() as androidx.car.app.navigation.model.NavigationTemplate
+        assertEquals(2, t.actionStrip!!.actions.size)
+        val f = screen.frame()
+        assertEquals(2100f, f.rpm!!, 0.01f)
+        assertTrue(f.coolantHot)
+        assertTrue(f.milOn)
+    }
+
     @Test fun gaugeBitmapRendersEmptyAndFull() {
         val empty = com.jacdrive.app.auto.GaugeBitmap.render(null, android.graphics.Color.CYAN)
         val full = com.jacdrive.app.auto.GaugeBitmap.render(1f, android.graphics.Color.CYAN, dangerFrom = 0.75f)

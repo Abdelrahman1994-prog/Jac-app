@@ -37,4 +37,5 @@
     <string name="car_throttle">Throttle</string>
     <string name="car_intake">Intake air</string>
     <string name="car_mil_on_short">CHECK ENGINE</string>
+    <string name="car_rpm_x1000">x1000 rpm</string>
 </resources>
