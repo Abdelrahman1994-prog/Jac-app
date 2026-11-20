@@ -14,6 +14,7 @@ class JacDriveApplication : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var tripRecorder: TripRecorder
     @Inject lateinit var alertCenter: com.jacdrive.obd.alerts.AlertCenter
+    @Inject lateinit var liveHistory: com.jacdrive.obd.history.LiveHistory
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -24,6 +25,8 @@ class JacDriveApplication : Application(), Configuration.Provider {
         tripRecorder.start()
         // Voice/notification alerts from live data (never from demo data).
         alertCenter.start()
+        // Rolling 10-minute history for the dashboard trend chart and the Live Data screen.
+        liveHistory.start()
         // Daily maintenance check (notifies once per item when it becomes due).
         MaintenanceReminderWorker.schedule(this)
     }

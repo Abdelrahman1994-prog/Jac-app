@@ -35,19 +35,19 @@ private fun darkScheme(accent: Color): ColorScheme = darkColorScheme(
     secondaryContainer = Color(0xFF1C222B),
     onSecondaryContainer = Color(0xFFDCE3EE),
     tertiary = Color(0xFFFFB020),
-    background = Color(0xFF06080B),
-    onBackground = Color(0xFFE8ECF2),
-    surface = Color(0xFF0B0E13),
-    onSurface = Color(0xFFE8ECF2),
-    surfaceVariant = Color(0xFF151A21),
-    onSurfaceVariant = Color(0xFF8D97A6),
-    surfaceContainerLowest = Color(0xFF040507),
-    surfaceContainerLow = Color(0xFF0D1116),
-    surfaceContainer = Color(0xFF11161C),
-    surfaceContainerHigh = Color(0xFF161C23),
-    surfaceContainerHighest = Color(0xFF1C232B),
-    outline = Color(0xFF2B333E),
-    outlineVariant = Color(0xFF1D232B),
+    background = Color(0xFF040812),
+    onBackground = Color(0xFFE8F1FF),
+    surface = Color(0xFF070D1A),
+    onSurface = Color(0xFFE8F1FF),
+    surfaceVariant = Color(0xFF122036),
+    onSurfaceVariant = Color(0xFF8AA0BF),
+    surfaceContainerLowest = Color(0xFF03060D),
+    surfaceContainerLow = Color(0xFF0A1222),
+    surfaceContainer = Color(0xFF0E1830),
+    surfaceContainerHigh = Color(0xFF13203A),
+    surfaceContainerHighest = Color(0xFF1A2946),
+    outline = Color(0xFF2A3A57),
+    outlineVariant = Color(0xFF1A2640),
     error = Color(0xFFFF4D5E),
 )
 
@@ -100,6 +100,9 @@ fun JacDriveTheme(
         )
     }
 }
+
+/** Accent used everywhere in Sport mode (replaces the blue/cyan accent). */
+val SportAccent = Color(0xFFFF4D2E)
 
 object JacTheme {
     val status: StatusColors @Composable get() = LocalStatusColors.current

@@ -45,4 +45,6 @@ data class CockpitPreferences(
     /** RPM where the tachometer red zone starts. User configurable, no undocumented default assumed as fact. */
     val redlineRpm: Int = 6000,
     val keepScreenOn: Boolean = true,
+    /** Sport mode: aggressive red/orange accents and stronger gauge illumination. */
+    val sportMode: Boolean = false,
 )

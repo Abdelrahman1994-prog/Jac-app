@@ -50,6 +50,7 @@ class DataStoreSettingsRepository @Inject constructor(
         val hiddenWidgets = stringSetPreferencesKey("cockpit_hidden_widgets")
         val redline = intPreferencesKey("cockpit_redline")
         val keepScreenOn = booleanPreferencesKey("cockpit_keep_screen_on")
+        val sport = booleanPreferencesKey("cockpit_sport")
 
         val voice = booleanPreferencesKey("alert_voice")
         val voiceLang = stringPreferencesKey("alert_voice_lang")
@@ -94,6 +95,7 @@ class DataStoreSettingsRepository @Inject constructor(
             visibleWidgets = DashboardWidget.entries.filterNot { it.name in hidden }.toSet(),
             redlineRpm = p[Keys.redline] ?: d.redlineRpm,
             keepScreenOn = p[Keys.keepScreenOn] ?: d.keepScreenOn,
+            sportMode = p[Keys.sport] ?: d.sportMode,
         )
     }.distinctUntilChanged()
 
@@ -181,6 +183,7 @@ class DataStoreSettingsRepository @Inject constructor(
 
     override suspend fun setRedlineRpm(rpm: Int) = put(Keys.redline, rpm.coerceIn(3000, 9000))
     override suspend fun setKeepScreenOn(enabled: Boolean) = put(Keys.keepScreenOn, enabled)
+    override suspend fun setSportMode(enabled: Boolean) = put(Keys.sport, enabled)
 
     private suspend fun <T> put(key: Preferences.Key<T>, value: T) {
         dataStore.edit { it[key] = value }

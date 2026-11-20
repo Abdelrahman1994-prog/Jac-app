@@ -35,4 +35,5 @@ interface SettingsRepository {
     suspend fun setWidgetVisible(widget: DashboardWidget, visible: Boolean)
     suspend fun setRedlineRpm(rpm: Int)
     suspend fun setKeepScreenOn(enabled: Boolean)
+    suspend fun setSportMode(enabled: Boolean)
 }

@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
             }
             JacDriveTheme(themeMode = state.themeMode, accent = Color(state.accentArgb)) {
-                JacDriveApp()
+                JacDriveApp(sportMode = state.sportMode, onSport = viewModel::setSport)
             }
         }
     }

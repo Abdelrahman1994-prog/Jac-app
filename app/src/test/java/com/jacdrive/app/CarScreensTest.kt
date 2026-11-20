@@ -134,5 +134,6 @@ class CarScreensTest {
         override suspend fun setWidgetVisible(widget: com.jacdrive.core.model.DashboardWidget, visible: Boolean) = Unit
         override suspend fun setRedlineRpm(rpm: Int) = Unit
         override suspend fun setKeepScreenOn(enabled: Boolean) = Unit
+        override suspend fun setSportMode(enabled: Boolean) = Unit
     }
 }

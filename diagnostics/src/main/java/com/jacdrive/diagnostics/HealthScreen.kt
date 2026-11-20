@@ -40,7 +40,7 @@ import com.jacdrive.ui.theme.Readout
 import kotlinx.coroutines.delay
 
 @Composable
-fun HealthScreen(onBack: () -> Unit, viewModel: DiagnosticsViewModel = hiltViewModel()) {
+fun HealthScreen(onBack: (() -> Unit)?, viewModel: DiagnosticsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val now by produceState(System.currentTimeMillis()) {
         while (true) { value = System.currentTimeMillis(); delay(1_000) }

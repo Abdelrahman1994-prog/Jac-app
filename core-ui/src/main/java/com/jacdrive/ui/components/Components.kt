@@ -32,6 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,7 +50,10 @@ import com.jacdrive.ui.theme.Readout
 
 val CardShape = RoundedCornerShape(22.dp)
 
-/** Elevated panel with a subtle top-lit border, the base surface of every screen. */
+/**
+ * Glass panel: translucent fill over the navy background, top-lit gradient border and an optional
+ * coloured glow ([highlight]) for warning/active states. Base surface of every screen.
+ */
 @Composable
 fun JacCard(
     modifier: Modifier = Modifier,
@@ -57,17 +62,29 @@ fun JacCard(
     highlight: Color? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val dark = MaterialTheme.colorScheme.background.luminance() < 0.2f
+    val edge = highlight ?: if (dark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
     val border = Brush.verticalGradient(
         listOf(
-            (highlight ?: MaterialTheme.colorScheme.onSurface).copy(alpha = if (highlight != null) 0.45f else 0.10f),
-            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.03f),
+            edge.copy(alpha = if (highlight != null) 0.85f else if (dark) 0.38f else 0.12f),
+            edge.copy(alpha = if (highlight != null) 0.30f else 0.06f),
         ),
     )
+    val fill = if (dark) {
+        Brush.verticalGradient(
+            listOf(
+                (highlight ?: Color(0xFF6FA8FF)).copy(alpha = if (highlight != null) 0.16f else 0.09f),
+                Color(0xFF0A1428).copy(alpha = 0.72f),
+            ),
+        )
+    } else {
+        Brush.verticalGradient(listOf(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.surfaceContainer))
+    }
     Column(
         modifier
             .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .border(BorderStroke(1.dp, border), CardShape)
+            .background(fill)
+            .border(BorderStroke(if (highlight != null) 1.5.dp else 1.dp, border), CardShape)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(contentPadding),
     ) {
@@ -76,6 +93,19 @@ fun JacCard(
         ) { content() }
     }
 }
+
+/** Navy cockpit backdrop with a soft blue (or sport red) glow, used behind every screen in dark mode. */
+fun Modifier.appBackground(dark: Boolean, glow: Color): Modifier =
+    if (!dark) this else this.drawBehind {
+        drawRect(Brush.verticalGradient(listOf(Color(0xFF0A1730), Color(0xFF040812), Color(0xFF02040A))))
+        drawRect(
+            Brush.radialGradient(
+                listOf(glow.copy(alpha = 0.22f), Color.Transparent),
+                center = androidx.compose.ui.geometry.Offset(size.width * 0.5f, size.height * 0.12f),
+                radius = size.maxDimension * 0.6f,
+            ),
+        )
+    }
 
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: @Composable (() -> Unit)? = null) {
