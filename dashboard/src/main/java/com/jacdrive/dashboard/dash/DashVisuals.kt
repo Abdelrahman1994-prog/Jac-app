@@ -196,79 +196,130 @@ fun HeroScene(speedKmh: Float, palette: DashPalette, animate: Boolean, modifier:
         }
         // Slight body motion while driving.
         val bob = if (speed > 1f) kotlin.math.sin(travelled * 2.1f) * h * 0.003f * (speed / 120f).coerceAtMost(1f) else 0f
-        drawCarRear(Offset(w / 2, h * 0.74f + bob), w * 0.21f, palette, braking || speedKmh < 0.5f)
+        drawCarRear(Offset(w / 2, h * 0.75f + bob), w * 0.23f, palette, braking || speedKmh < 0.5f)
     }
 }
 
-/** Original stylised SUV seen from behind, driving into the scene. */
+/**
+ * Liftback sedan seen from behind, modelled on the JAC J7's proportions: low fastback roof with a
+ * long rear screen, silver C-pillar trim, ducktail lip, full-width LED light bar with boomerang
+ * clusters, bumper reflectors and a single exhaust. No manufacturer logo is drawn.
+ */
 private fun DrawScope.drawCarRear(c: Offset, cw: Float, p: DashPalette, brakesOn: Boolean) {
-    val ch = cw * 0.66f
+    val ch = cw * 0.60f
     val l = c.x - cw / 2
     val t = c.y - ch / 2
-    val tail = Color(0xFFFF2A2A)
-    // Ground glow (accent) and red tail-light reflection on the road.
-    drawOval(Brush.radialGradient(listOf(p.glow.copy(alpha = 0.40f), Color.Transparent), center = Offset(c.x, t + ch), radius = cw * 0.75f), Offset(l - cw * 0.25f, t + ch * 0.82f), Size(cw * 1.5f, ch * 0.4f))
-    drawOval(Brush.radialGradient(listOf(tail.copy(alpha = if (brakesOn) 0.45f else 0.22f), Color.Transparent), center = Offset(c.x, t + ch * 1.02f), radius = cw * 0.6f), Offset(l - cw * 0.1f, t + ch * 0.9f), Size(cw * 1.2f, ch * 0.3f))
-    drawOval(Color.Black.copy(alpha = 0.65f), Offset(l - cw * 0.02f, t + ch * 0.90f), Size(cw * 1.04f, ch * 0.14f))
+    fun x(f: Float) = l + cw * f
+    fun y(f: Float) = t + ch * f
+    val tail = Color(0xFFFF2236)
+    val lit = if (brakesOn) 1f else 0.78f
+    val paintTop = Color(0xFF8C97A8)
+    val paintMid = Color(0xFF4A5363)
+    val paintLow = Color(0xFF262C37)
+
+    // Ground: accent glow, red light on the road, shadow.
+    drawOval(Brush.radialGradient(listOf(p.glow.copy(alpha = 0.40f), Color.Transparent), center = Offset(c.x, y(1f)), radius = cw * 0.75f), Offset(x(-0.25f), y(0.82f)), Size(cw * 1.5f, ch * 0.4f))
+    drawOval(Brush.radialGradient(listOf(tail.copy(alpha = if (brakesOn) 0.45f else 0.22f), Color.Transparent), center = Offset(c.x, y(1.02f)), radius = cw * 0.6f), Offset(x(-0.1f), y(0.9f)), Size(cw * 1.2f, ch * 0.3f))
+    drawOval(Color.Black.copy(alpha = 0.7f), Offset(x(-0.02f), y(0.90f)), Size(cw * 1.04f, ch * 0.14f))
     // Tyres.
-    drawRoundRect(Color(0xFF080B11), Offset(l + cw * 0.03f, t + ch * 0.74f), Size(cw * 0.16f, ch * 0.24f), CornerRadius(cw * 0.035f))
-    drawRoundRect(Color(0xFF080B11), Offset(l + cw * 0.81f, t + ch * 0.74f), Size(cw * 0.16f, ch * 0.24f), CornerRadius(cw * 0.035f))
-    // Roof and rear glass.
-    val cabin = Path().apply {
-        moveTo(l + cw * 0.12f, t + ch * 0.44f)
-        lineTo(l + cw * 0.20f, t + ch * 0.10f)
-        quadraticTo(l + cw * 0.5f, t + ch * 0.03f, l + cw * 0.80f, t + ch * 0.10f)
-        lineTo(l + cw * 0.88f, t + ch * 0.44f)
-        close()
-    }
-    drawPath(cabin, Brush.verticalGradient(listOf(Color(0xFFDCE3EC), Color(0xFFF2F5FA)), startY = t, endY = t + ch * 0.44f))
-    val glass = Path().apply {
-        moveTo(l + cw * 0.19f, t + ch * 0.40f)
-        lineTo(l + cw * 0.25f, t + ch * 0.17f)
-        quadraticTo(l + cw * 0.5f, t + ch * 0.12f, l + cw * 0.75f, t + ch * 0.17f)
-        lineTo(l + cw * 0.81f, t + ch * 0.40f)
-        close()
-    }
-    drawPath(glass, Brush.verticalGradient(listOf(Color(0xFF223652), Color(0xFF0A1220)), startY = t + ch * 0.12f, endY = t + ch * 0.40f))
-    drawLine(Color.White.copy(alpha = 0.18f), Offset(l + cw * 0.62f, t + ch * 0.17f), Offset(l + cw * 0.70f, t + ch * 0.38f), strokeWidth = cw * 0.012f)
-    // Roof spoiler with the high-mounted stop light.
-    drawRoundRect(Color(0xFF1A2232), Offset(l + cw * 0.22f, t + ch * 0.075f), Size(cw * 0.56f, ch * 0.05f), CornerRadius(ch * 0.025f))
-    drawLine(tail.copy(alpha = if (brakesOn) 1f else 0.35f), Offset(c.x - cw * 0.08f, t + ch * 0.10f), Offset(c.x + cw * 0.08f, t + ch * 0.10f), strokeWidth = ch * 0.018f, cap = StrokeCap.Round)
-    // Tailgate / lower body.
+    drawRoundRect(Color(0xFF07090E), Offset(x(0.04f), y(0.76f)), Size(cw * 0.15f, ch * 0.22f), CornerRadius(cw * 0.03f))
+    drawRoundRect(Color(0xFF07090E), Offset(x(0.81f), y(0.76f)), Size(cw * 0.15f, ch * 0.22f), CornerRadius(cw * 0.03f))
+
+    // Body: narrow fastback cabin flowing into wide rear haunches.
     val body = Path().apply {
-        moveTo(l + cw * 0.05f, t + ch * 0.44f)
-        quadraticTo(l + cw * 0.5f, t + ch * 0.40f, l + cw * 0.95f, t + ch * 0.44f)
-        quadraticTo(l + cw * 1.0f, t + ch * 0.48f, l + cw * 0.99f, t + ch * 0.64f)
-        lineTo(l + cw * 0.97f, t + ch * 0.86f)
-        quadraticTo(l + cw * 0.96f, t + ch * 0.92f, l + cw * 0.88f, t + ch * 0.92f)
-        lineTo(l + cw * 0.12f, t + ch * 0.92f)
-        quadraticTo(l + cw * 0.04f, t + ch * 0.92f, l + cw * 0.03f, t + ch * 0.86f)
-        lineTo(l + cw * 0.01f, t + ch * 0.64f)
-        quadraticTo(l, t + ch * 0.48f, l + cw * 0.05f, t + ch * 0.44f)
+        moveTo(x(0.30f), y(0.04f))
+        quadraticTo(x(0.5f), y(0.0f), x(0.70f), y(0.04f))           // roof
+        quadraticTo(x(0.86f), y(0.20f), x(0.95f), y(0.38f))          // right C-pillar
+        quadraticTo(x(1.01f), y(0.46f), x(0.995f), y(0.62f))         // right haunch
+        lineTo(x(0.975f), y(0.86f))
+        quadraticTo(x(0.965f), y(0.92f), x(0.89f), y(0.92f))
+        lineTo(x(0.11f), y(0.92f))
+        quadraticTo(x(0.035f), y(0.92f), x(0.025f), y(0.86f))
+        lineTo(x(0.005f), y(0.62f))
+        quadraticTo(x(-0.01f), y(0.46f), x(0.05f), y(0.38f))         // left haunch
+        quadraticTo(x(0.14f), y(0.20f), x(0.30f), y(0.04f))          // left C-pillar
         close()
     }
-    drawPath(body, Brush.verticalGradient(listOf(Color(0xFFF4F7FB), Color(0xFFB9C3D1)), startY = t + ch * 0.42f, endY = t + ch * 0.92f))
-    // Full-width LED tail-light bar with glow (brighter while braking).
-    val barY = t + ch * 0.52f
-    val glowA = if (brakesOn) 0.55f else 0.28f
-    drawLine(tail.copy(alpha = glowA), Offset(l + cw * 0.06f, barY), Offset(l + cw * 0.94f, barY), strokeWidth = ch * 0.14f, cap = StrokeCap.Round)
-    drawLine(Color(0xFF3A0A0E), Offset(l + cw * 0.06f, barY), Offset(l + cw * 0.94f, barY), strokeWidth = ch * 0.06f, cap = StrokeCap.Round)
-    drawLine(tail.copy(alpha = if (brakesOn) 1f else 0.75f), Offset(l + cw * 0.08f, barY), Offset(l + cw * 0.92f, barY), strokeWidth = ch * 0.022f, cap = StrokeCap.Round)
-    for (side in listOf(-1f, 1f)) {
-        val x0 = c.x + side * cw * 0.30f
-        val x1 = c.x + side * cw * 0.46f
-        drawLine(tail, Offset(x0, barY), Offset(x1, barY + ch * 0.02f), strokeWidth = ch * 0.05f, cap = StrokeCap.Round)
-        drawLine(Color(0xFFFFC2C2), Offset(x0 + side * cw * 0.02f, barY), Offset(x1 - side * cw * 0.02f, barY + ch * 0.02f), strokeWidth = ch * 0.012f, cap = StrokeCap.Round)
+    drawPath(body, Brush.verticalGradient(listOf(paintTop, paintMid, paintLow), startY = y(0f), endY = y(0.92f)))
+    // Accent rim light on the body edge so the dark paint reads on a dark scene.
+    drawPath(body, Brush.verticalGradient(listOf(p.accent.copy(alpha = 0.55f), Color.Transparent), startY = y(0f), endY = y(0.7f)), style = Stroke(cw * 0.006f))
+
+    // Long, raked rear screen.
+    val glass = Path().apply {
+        moveTo(x(0.33f), y(0.075f))
+        quadraticTo(x(0.5f), y(0.045f), x(0.67f), y(0.075f))
+        lineTo(x(0.84f), y(0.33f))
+        quadraticTo(x(0.5f), y(0.36f), x(0.16f), y(0.33f))
+        close()
     }
-    // Badge area, plate, bumper, reflectors, diffuser.
-    drawRoundRect(Color(0xFF9AA6B8), Offset(c.x - cw * 0.05f, t + ch * 0.59f), Size(cw * 0.10f, ch * 0.025f), CornerRadius(ch * 0.01f))
-    drawRoundRect(Color(0xFFE9EEF5), Offset(c.x - cw * 0.12f, t + ch * 0.655f), Size(cw * 0.24f, ch * 0.08f), CornerRadius(ch * 0.01f))
-    drawRoundRect(Color(0xFF2A3446), Offset(c.x - cw * 0.12f, t + ch * 0.655f), Size(cw * 0.24f, ch * 0.08f), CornerRadius(ch * 0.01f), style = Stroke(ch * 0.008f))
-    drawRoundRect(Color(0xFF151C28), Offset(l + cw * 0.08f, t + ch * 0.78f), Size(cw * 0.84f, ch * 0.10f), CornerRadius(ch * 0.04f))
+    drawPath(glass, Brush.verticalGradient(listOf(Color(0xFF2A3B57), Color(0xFF0B111C)), startY = y(0.05f), endY = y(0.35f)))
+    drawLine(Color.White.copy(alpha = 0.16f), Offset(x(0.60f), y(0.09f)), Offset(x(0.70f), y(0.31f)), strokeWidth = cw * 0.012f)
+    // Roof spoiler at the top of the screen and shark-fin antenna.
+    drawLine(Color(0xFF0D121B), Offset(x(0.34f), y(0.07f)), Offset(x(0.66f), y(0.07f)), strokeWidth = ch * 0.03f, cap = StrokeCap.Round)
+    drawPath(Path().apply { moveTo(x(0.485f), y(0.03f)); lineTo(x(0.5f), y(-0.025f)); lineTo(x(0.515f), y(0.03f)); close() }, Color(0xFF151B26))
+    // Silver C-pillar trim sweeping down to the trunk lip.
+    val trimColor = Color(0xFFE4E9F0)
     for (side in listOf(-1f, 1f)) {
-        drawLine(tail.copy(alpha = 0.7f), Offset(c.x + side * cw * 0.34f, t + ch * 0.80f), Offset(c.x + side * cw * 0.42f, t + ch * 0.80f), strokeWidth = ch * 0.015f, cap = StrokeCap.Round)
+        val sx = { f: Float -> c.x + side * cw * f }
+        drawPath(
+            Path().apply { moveTo(sx(0.21f), y(0.045f)); quadraticTo(sx(0.36f), y(0.16f), sx(0.44f), y(0.36f)) },
+            trimColor, style = Stroke(ch * 0.016f, cap = StrokeCap.Round),
+        )
     }
-    drawLine(Color(0xFF8A96A8), Offset(c.x - cw * 0.22f, t + ch * 0.855f), Offset(c.x + cw * 0.22f, t + ch * 0.855f), strokeWidth = ch * 0.012f, cap = StrokeCap.Round)
+    // Ducktail lip across the trunk.
+    drawPath(
+        Path().apply { moveTo(x(0.08f), y(0.385f)); quadraticTo(x(0.5f), y(0.355f), x(0.92f), y(0.385f)) },
+        Color(0xFF0D121B), style = Stroke(ch * 0.025f, cap = StrokeCap.Round),
+    )
+    drawPath(
+        Path().apply { moveTo(x(0.12f), y(0.37f)); quadraticTo(x(0.5f), y(0.343f), x(0.88f), y(0.37f)) },
+        trimColor.copy(alpha = 0.7f), style = Stroke(ch * 0.008f, cap = StrokeCap.Round),
+    )
+
+    // Full-width LED light bar with boomerang clusters at the ends.
+    val barY = y(0.47f)
+    drawLine(tail.copy(alpha = if (brakesOn) 0.5f else 0.25f), Offset(x(0.06f), barY), Offset(x(0.94f), barY), strokeWidth = ch * 0.12f, cap = StrokeCap.Round)
+    drawLine(Color(0xFF2A0710), Offset(x(0.10f), barY), Offset(x(0.90f), barY), strokeWidth = ch * 0.030f, cap = StrokeCap.Round)
+    drawLine(tail.copy(alpha = lit), Offset(x(0.12f), barY), Offset(x(0.88f), barY), strokeWidth = ch * 0.012f, cap = StrokeCap.Round)
+    for (side in listOf(-1f, 1f)) {
+        val sx = { f: Float -> c.x + side * cw * f }
+        // Cluster housing: tall at the outer corner, tapering towards the centre.
+        val cluster = Path().apply {
+            moveTo(sx(0.50f), y(0.41f))
+            lineTo(sx(0.47f), y(0.535f))
+            lineTo(sx(0.30f), y(0.505f))
+            lineTo(sx(0.24f), y(0.485f))
+            lineTo(sx(0.24f), y(0.455f))
+            lineTo(sx(0.31f), y(0.435f))
+            close()
+        }
+        drawPath(cluster, Color(0xFF3A0610))
+        // Outer red lamp.
+        val red = Path().apply {
+            moveTo(sx(0.49f), y(0.425f)); lineTo(sx(0.465f), y(0.52f)); lineTo(sx(0.39f), y(0.505f)); lineTo(sx(0.40f), y(0.44f)); close()
+        }
+        drawPath(red, tail.copy(alpha = lit))
+        // Clear inner section (reverse lamp area) with red outline.
+        val clear = Path().apply {
+            moveTo(sx(0.38f), y(0.445f)); lineTo(sx(0.375f), y(0.505f)); lineTo(sx(0.29f), y(0.49f)); lineTo(sx(0.29f), y(0.455f)); close()
+        }
+        drawPath(clear, Color(0xFFD9DDE4).copy(alpha = 0.85f))
+        drawPath(clear, tail.copy(alpha = lit), style = Stroke(ch * 0.008f))
+        // Bright LED edge.
+        drawLine(Color(0xFFFFC4CA).copy(alpha = lit), Offset(sx(0.48f), y(0.44f)), Offset(sx(0.41f), y(0.45f)), strokeWidth = ch * 0.010f, cap = StrokeCap.Round)
+        // Bumper reflectors.
+        val refl = Path().apply {
+            moveTo(sx(0.46f), y(0.66f)); lineTo(sx(0.45f), y(0.72f)); lineTo(sx(0.34f), y(0.735f)); lineTo(sx(0.34f), y(0.69f)); close()
+        }
+        drawPath(refl, tail.copy(alpha = 0.75f))
+    }
+    // Plain badge (no logo), plate recess, diffuser and exhaust.
+    drawOval(Color(0xFFCDD4DE), Offset(c.x - cw * 0.045f, barY - ch * 0.022f), Size(cw * 0.09f, ch * 0.044f), style = Stroke(ch * 0.007f))
+    drawRoundRect(Color(0xFF1A202B), Offset(c.x - cw * 0.14f, y(0.58f)), Size(cw * 0.28f, ch * 0.13f), CornerRadius(ch * 0.02f))
+    drawRoundRect(Color(0xFFE9EEF5), Offset(c.x - cw * 0.12f, y(0.595f)), Size(cw * 0.24f, ch * 0.095f), CornerRadius(ch * 0.01f))
+    drawRoundRect(Color(0xFF0C1018), Offset(x(0.10f), y(0.80f)), Size(cw * 0.80f, ch * 0.10f), CornerRadius(ch * 0.04f))
+    drawOval(Color(0xFF9AA4B4), Offset(x(0.24f), y(0.83f)), Size(cw * 0.07f, ch * 0.05f))
+    drawOval(Color(0xFF05070B), Offset(x(0.25f), y(0.84f)), Size(cw * 0.05f, ch * 0.03f))
 }
 
 /** Simple engine outline icon (no engine glyph exists in the Material set). */
