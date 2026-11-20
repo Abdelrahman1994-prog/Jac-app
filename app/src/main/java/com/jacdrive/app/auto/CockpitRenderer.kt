@@ -31,6 +31,10 @@ data class CockpitFrame(
     val avgFuel: String? = null,
     /** 0..1 position of the moving lane marks; advanced with real vehicle speed. */
     val roadPhase: Float = 0f,
+    /** Metres travelled (from real speed); moves road lights and streaks. */
+    val travelled: Float = 0f,
+    /** Real speed dropping fast or car stopped: brake lights bright. */
+    val braking: Boolean = false,
 ) {
     data class Labels(
         val rpm: String, val coolant: String, val battery: String, val fuel: String, val load: String,
@@ -251,88 +255,212 @@ class CockpitRenderer(private val bold: Typeface?, private val light: Typeface?)
         text(c, m.label.uppercase(), cx, cy + d / 2 + labelSize * 0.9f, labelSize, dim, bold, Paint.Align.CENTER)
     }
 
-    /** Perspective road; lane marks move with [CockpitFrame.roadPhase]. Illustrative only. */
+    private val windows = java.util.Random(7).let { r -> List(220) { floatArrayOf(r.nextFloat(), r.nextFloat(), r.nextFloat()) } }
+    private val buildings = java.util.Random(3).let { r -> List(24) { r.nextFloat() } }
+
+    /**
+     * Night city, perspective road and the car seen from behind (same scene as the phone dashboard).
+     * Lane marks, road lights and streaks move with the real speed. Illustrative only.
+     */
     private fun road(c: Canvas, r: RectF, f: CockpitFrame) {
         val w = r.width()
         val h = r.height()
         val vx = r.centerX()
-        val vy = r.top + h * 0.04f
-        val half = w * 0.42f
-        // Road surface.
-        val surface = Path().apply {
-            moveTo(vx - w * 0.015f, vy); lineTo(vx + w * 0.015f, vy)
-            lineTo(vx + half, r.bottom); lineTo(vx - half, r.bottom); close()
-        }
-        // Skyline / equaliser bars on the horizon (static decoration, like the cluster).
+        val horizon = r.top + h * 0.40f
+        val radius = min(w, h) * 0.08f
+        c.save()
+        c.clipPath(Path().apply { addRoundRect(r, radius, radius, Path.Direction.CW) })
         p.reset(); p.isAntiAlias = true
-        val bars = 34
-        for (i in 0 until bars) {
-            val bx = r.left + w * 0.1f + (w * 0.8f) * i / (bars - 1)
-            val bh = h * (0.04f + 0.12f * (((i * 37 + 11) % 17) / 16f)) * (1f - kotlin.math.abs(i - bars / 2f) / bars)
-            p.color = Color.argb(70, 64, 208, 255)
-            c.drawRect(bx - w * 0.004f, vy - bh, bx + w * 0.004f, vy, p)
+        // Sky with a glow on the horizon.
+        p.shader = LinearGradient(0f, r.top, 0f, horizon, Color.rgb(7, 21, 48), Color.rgb(11, 35, 80), Shader.TileMode.CLAMP)
+        c.drawRect(r.left, r.top, r.right, horizon, p)
+        p.shader = RadialGradient(vx, horizon, w * 0.45f, Color.argb(90, 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawRect(r.left, r.top, r.right, horizon, p)
+        // Skyline with lit windows (static: far away).
+        val n = buildings.size
+        val bw = w / n
+        fun bh(i: Int): Float {
+            val centre = 1f - kotlin.math.abs(i - n / 2f) / (n / 2f)
+            return (horizon - r.top) * (0.25f + 0.65f * buildings[i] * (0.4f + 0.6f * centre))
         }
-        p.shader = LinearGradient(0f, vy, 0f, r.bottom, Color.argb(30, 28, 108, 255), Color.argb(160, 28, 108, 255), Shader.TileMode.CLAMP)
-        c.drawPath(surface, p); p.shader = null
-        // Edges.
-        p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = w * 0.008f
-        p.shader = LinearGradient(0f, vy, 0f, r.bottom, Color.argb(0, 64, 208, 255), Color.argb(255, 120, 225, 255), Shader.TileMode.CLAMP)
-        c.drawLine(vx - w * 0.015f, vy, vx - half, r.bottom, p)
-        c.drawLine(vx + w * 0.015f, vy, vx + half, r.bottom, p)
         p.shader = null
-        // Moving centre dashes.
-        val n = 7
         for (i in 0 until n) {
-            val t0 = ((i + f.roadPhase) / n)
-            val t1 = (t0 + 0.045f).coerceAtMost(1f)
-            val y0 = vy + (r.bottom - vy) * t0.pow(2.2f)
-            val y1 = vy + (r.bottom - vy) * t1.pow(2.2f)
-            p.color = Color.argb((50 + 190 * t0).toInt().coerceAtMost(255), 210, 240, 255)
-            p.strokeWidth = w * (0.003f + 0.012f * t0)
-            c.drawLine(vx, y0, vx, y1, p)
+            p.color = Color.rgb(10, 26, 54)
+            c.drawRect(r.left + i * bw + bw * 0.08f, horizon - bh(i), r.left + i * bw + bw * 0.92f, horizon, p)
         }
-        car(c, vx, r.bottom - h * 0.22f, min(w * 0.24f, h * 0.55f))
+        for (wv in windows) {
+            val bi = (wv[0] * n).toInt().coerceIn(0, n - 1)
+            if (wv[2] <= 0.45f) continue
+            val wy = horizon - bh(bi) * (0.05f + 0.9f * wv[1])
+            val wx = r.left + bi * bw + bw * (0.2f + 0.6f * ((wv[0] * n) % 1f))
+            p.color = if (wv[2] > 0.9f) Color.argb((100 + 120 * wv[2]).toInt(), 255, 232, 168) else Color.argb((60 + 140 * (wv[2] - 0.45f)).toInt(), 64, 208, 255)
+            c.drawRect(wx, wy, wx + w * 0.004f, wy + w * 0.006f, p)
+        }
+        // Ground and road.
+        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.rgb(5, 11, 23), Color.rgb(2, 5, 12), Shader.TileMode.CLAMP)
+        c.drawRect(r.left, horizon, r.right, r.bottom, p)
+        val surface = Path().apply {
+            moveTo(vx - w * 0.02f, horizon); lineTo(vx + w * 0.02f, horizon)
+            lineTo(vx + w * 0.32f, r.bottom); lineTo(vx - w * 0.32f, r.bottom); close()
+        }
+        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.rgb(14, 26, 48), Color.rgb(22, 35, 60), Shader.TileMode.CLAMP)
+        c.drawPath(surface, p); p.shader = null
+        p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = w * 0.004f
+        p.color = accent; c.drawLine(vx - w * 0.02f, horizon, vx - w * 0.32f, r.bottom, p)
+        p.color = accentDeep; c.drawLine(vx + w * 0.02f, horizon, vx + w * 0.32f, r.bottom, p)
+        fun yAt(t: Float) = horizon + (r.bottom - horizon) * t * t
+        fun xAt(lane: Float, t: Float) = vx + lane * (w * 0.02f + w * 0.30f * t * t)
+        // Two dashed lane lines.
+        val dashes = 6
+        for (lane in floatArrayOf(-0.33f, 0.33f)) {
+            for (i in 0 until dashes) {
+                val t0 = (i + f.roadPhase) / dashes
+                val t1 = (t0 + 0.06f).coerceAtMost(1f)
+                p.color = Color.argb((30 + 150 * t0).toInt(), 255, 255, 255)
+                p.strokeWidth = w * (0.0015f + 0.007f * t0)
+                c.drawLine(xAt(lane, t0), yAt(t0), xAt(lane, t1), yAt(t1), p)
+            }
+        }
+        // Road lights passing on both sides (one every 25 m).
+        val polePhase = (f.travelled / 25f) % 1f
+        for (i in 0 until 4) {
+            val t = (i + polePhase) / 4
+            val y = yAt(t)
+            val hgt = (r.bottom - horizon) * 0.12f + h * 0.55f * t * t
+            for (side in floatArrayOf(-1f, 1f)) {
+                val x = xAt(side * 1.08f, t)
+                p.style = Paint.Style.STROKE; p.strokeWidth = w * (0.001f + 0.004f * t)
+                p.color = Color.argb((80 + 150 * t).toInt(), 38, 53, 79)
+                c.drawLine(x, y, x, y - hgt, p)
+                val lx = x - side * hgt * 0.12f
+                val ly = y - hgt
+                val gr = w * (0.008f + 0.03f * t)
+                p.style = Paint.Style.FILL
+                p.shader = RadialGradient(lx, ly, gr, Color.argb((140 * t).toInt(), 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+                c.drawCircle(lx, ly, gr, p); p.shader = null
+                p.color = Color.argb((100 + 155 * t).toInt(), 255, 255, 255)
+                c.drawCircle(lx, ly, w * (0.0015f + 0.004f * t), p)
+            }
+        }
+        // Speed streaks above 40 km/h.
+        val streak = (((f.speed ?: 0f) - 40f) / 100f).coerceIn(0f, 1f)
+        if (streak > 0f) {
+            p.style = Paint.Style.STROKE; p.strokeWidth = w * 0.003f
+            for (k in 0 until 6) {
+                val t = ((k / 6f) + (f.travelled / 6f) % 1f) % 1f
+                val side = if (k % 2 == 0) -1f else 1f
+                val t1 = (t + 0.18f).coerceAtMost(1f)
+                p.color = Color.argb((90 * streak * t).toInt(), 64, 208, 255)
+                c.drawLine(xAt(side * 0.75f, t), yAt(t), xAt(side * 0.75f, t1), yAt(t1), p)
+            }
+        }
+        p.style = Paint.Style.FILL
+        val moving = (f.speed ?: 0f) > 1f
+        val bob = if (moving) sin(f.travelled * 2.1f) * h * 0.004f * ((f.speed ?: 0f) / 120f).coerceAtMost(1f) else 0f
+        car(c, vx, r.bottom - h * 0.20f + bob, min(w * 0.30f, h * 0.62f), f.braking || !moving)
+        c.restore()
+        p.reset(); p.isAntiAlias = true; p.style = Paint.Style.STROKE; p.strokeWidth = w * 0.003f
+        p.color = Color.argb(110, 64, 208, 255)
+        c.drawRoundRect(r, radius, radius, p)
     }
 
-    private fun car(c: Canvas, cx: Float, cy: Float, cw: Float) {
-        val ch = cw * 0.78f
+    /** JAC J7-style liftback seen from behind (no manufacturer logo). Mirrors the phone drawing. */
+    private fun car(c: Canvas, cx: Float, cy: Float, cw: Float, brakes: Boolean) {
+        val ch = cw * 0.60f
         val l = cx - cw / 2
         val t = cy - ch / 2
+        fun x(f: Float) = l + cw * f
+        fun y(f: Float) = t + ch * f
+        val tail = Color.rgb(255, 34, 54)
+        val lit = if (brakes) 255 else 200
         p.reset(); p.isAntiAlias = true
-        p.shader = RadialGradient(cx, t + ch, cw * 0.8f, Color.argb(110, 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
-        c.drawOval(RectF(l - cw * 0.25f, t + ch * 0.8f, l + cw * 1.25f, t + ch * 1.25f), p); p.shader = null
-        p.color = Color.argb(150, 0, 0, 0); c.drawOval(RectF(l - cw * 0.04f, t + ch * 0.88f, l + cw * 1.04f, t + ch * 1.08f), p)
-        p.color = Color.rgb(11, 14, 18)
-        c.drawRoundRect(RectF(l + cw * 0.04f, t + ch * 0.78f, l + cw * 0.22f, t + ch), cw * 0.03f, cw * 0.03f, p)
-        c.drawRoundRect(RectF(l + cw * 0.78f, t + ch * 0.78f, l + cw * 0.96f, t + ch), cw * 0.03f, cw * 0.03f, p)
+        // Ground glow, red light on the road, shadow.
+        p.shader = RadialGradient(cx, y(1f), cw * 0.75f, Color.argb(100, 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawOval(RectF(x(-0.25f), y(0.82f), x(1.25f), y(1.22f)), p)
+        p.shader = RadialGradient(cx, y(1.02f), cw * 0.6f, Color.argb(if (brakes) 115 else 56, 255, 34, 54), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawOval(RectF(x(-0.1f), y(0.9f), x(1.1f), y(1.2f)), p); p.shader = null
+        p.color = Color.argb(180, 0, 0, 0); c.drawOval(RectF(x(-0.02f), y(0.90f), x(1.02f), y(1.04f)), p)
+        // Tyres.
+        p.color = Color.rgb(7, 9, 14)
+        c.drawRoundRect(RectF(x(0.04f), y(0.76f), x(0.19f), y(0.98f)), cw * 0.03f, cw * 0.03f, p)
+        c.drawRoundRect(RectF(x(0.81f), y(0.76f), x(0.96f), y(0.98f)), cw * 0.03f, cw * 0.03f, p)
+        // Body.
         val body = Path().apply {
-            moveTo(l + cw * 0.04f, t + ch * 0.42f); lineTo(l + cw * 0.96f, t + ch * 0.42f)
-            quadTo(l + cw, t + ch * 0.46f, l + cw, t + ch * 0.56f); lineTo(l + cw * 0.98f, t + ch * 0.84f)
-            quadTo(l + cw * 0.97f, t + ch * 0.9f, l + cw * 0.9f, t + ch * 0.9f); lineTo(l + cw * 0.1f, t + ch * 0.9f)
-            quadTo(l + cw * 0.03f, t + ch * 0.9f, l + cw * 0.02f, t + ch * 0.84f); lineTo(l, t + ch * 0.56f)
-            quadTo(l, t + ch * 0.46f, l + cw * 0.04f, t + ch * 0.42f); close()
+            moveTo(x(0.30f), y(0.04f))
+            quadTo(x(0.5f), y(0.0f), x(0.70f), y(0.04f))
+            quadTo(x(0.86f), y(0.20f), x(0.95f), y(0.38f))
+            quadTo(x(1.01f), y(0.46f), x(0.995f), y(0.62f))
+            lineTo(x(0.975f), y(0.86f))
+            quadTo(x(0.965f), y(0.92f), x(0.89f), y(0.92f))
+            lineTo(x(0.11f), y(0.92f))
+            quadTo(x(0.035f), y(0.92f), x(0.025f), y(0.86f))
+            lineTo(x(0.005f), y(0.62f))
+            quadTo(x(-0.01f), y(0.46f), x(0.05f), y(0.38f))
+            quadTo(x(0.14f), y(0.20f), x(0.30f), y(0.04f))
+            close()
         }
-        p.shader = LinearGradient(0f, t + ch * 0.42f, 0f, t + ch * 0.9f, Color.rgb(250, 252, 255), Color.rgb(176, 188, 204), Shader.TileMode.CLAMP)
+        p.shader = LinearGradient(0f, y(0f), 0f, y(0.92f), intArrayOf(Color.rgb(140, 151, 168), Color.rgb(74, 83, 99), Color.rgb(38, 44, 55)), null, Shader.TileMode.CLAMP)
         c.drawPath(body, p)
-        val cabin = Path().apply {
-            moveTo(l + cw * 0.14f, t + ch * 0.44f); lineTo(l + cw * 0.24f, t + ch * 0.08f)
-            quadTo(l + cw * 0.26f, t + ch * 0.02f, l + cw * 0.32f, t + ch * 0.02f); lineTo(l + cw * 0.68f, t + ch * 0.02f)
-            quadTo(l + cw * 0.74f, t + ch * 0.02f, l + cw * 0.76f, t + ch * 0.08f); lineTo(l + cw * 0.86f, t + ch * 0.44f); close()
-        }
-        p.shader = LinearGradient(0f, t, 0f, t + ch * 0.44f, Color.rgb(232, 238, 246), Color.rgb(250, 252, 255), Shader.TileMode.CLAMP)
-        c.drawPath(cabin, p); p.shader = null
+        p.style = Paint.Style.STROKE; p.strokeWidth = cw * 0.006f
+        p.shader = LinearGradient(0f, y(0f), 0f, y(0.7f), Color.argb(140, 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawPath(body, p); p.shader = null; p.style = Paint.Style.FILL
+        // Rear screen.
         val glass = Path().apply {
-            moveTo(l + cw * 0.22f, t + ch * 0.36f); lineTo(l + cw * 0.29f, t + ch * 0.10f)
-            lineTo(l + cw * 0.71f, t + ch * 0.10f); lineTo(l + cw * 0.78f, t + ch * 0.36f); close()
+            moveTo(x(0.33f), y(0.075f)); quadTo(x(0.5f), y(0.045f), x(0.67f), y(0.075f))
+            lineTo(x(0.84f), y(0.33f)); quadTo(x(0.5f), y(0.36f), x(0.16f), y(0.33f)); close()
         }
-        p.color = Color.rgb(20, 30, 44); c.drawPath(glass, p)
-        // Tail lamps.
-        p.color = red
-        c.drawRoundRect(RectF(l + cw * 0.05f, t + ch * 0.49f, l + cw * 0.25f, t + ch * 0.535f), ch * 0.02f, ch * 0.02f, p)
-        c.drawRoundRect(RectF(l + cw * 0.75f, t + ch * 0.49f, l + cw * 0.95f, t + ch * 0.535f), ch * 0.02f, ch * 0.02f, p)
-        p.strokeWidth = ch * 0.012f; c.drawLine(l + cw * 0.25f, t + ch * 0.51f, l + cw * 0.75f, t + ch * 0.51f, p)
-        p.color = Color.rgb(150, 160, 175)
-        c.drawRoundRect(RectF(cx - cw * 0.14f, t + ch * 0.62f, cx + cw * 0.14f, t + ch * 0.72f), ch * 0.02f, ch * 0.02f, p)
+        p.shader = LinearGradient(0f, y(0.05f), 0f, y(0.35f), Color.rgb(42, 59, 87), Color.rgb(11, 17, 28), Shader.TileMode.CLAMP)
+        c.drawPath(glass, p); p.shader = null
+        p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND
+        p.color = Color.argb(40, 255, 255, 255); p.strokeWidth = cw * 0.012f
+        c.drawLine(x(0.60f), y(0.09f), x(0.70f), y(0.31f), p)
+        // Roof spoiler, silver C-pillar trim, ducktail lip.
+        p.color = Color.rgb(13, 18, 27); p.strokeWidth = ch * 0.03f
+        c.drawLine(x(0.34f), y(0.07f), x(0.66f), y(0.07f), p)
+        p.color = Color.rgb(228, 233, 240); p.strokeWidth = ch * 0.016f
+        for (side in floatArrayOf(-1f, 1f)) {
+            val sx = { f: Float -> cx + side * cw * f }
+            c.drawPath(Path().apply { moveTo(sx(0.21f), y(0.045f)); quadTo(sx(0.36f), y(0.16f), sx(0.44f), y(0.36f)) }, p)
+        }
+        p.color = Color.rgb(13, 18, 27); p.strokeWidth = ch * 0.025f
+        c.drawPath(Path().apply { moveTo(x(0.08f), y(0.385f)); quadTo(x(0.5f), y(0.355f), x(0.92f), y(0.385f)) }, p)
+        p.color = Color.argb(180, 228, 233, 240); p.strokeWidth = ch * 0.008f
+        c.drawPath(Path().apply { moveTo(x(0.12f), y(0.37f)); quadTo(x(0.5f), y(0.343f), x(0.88f), y(0.37f)) }, p)
+        // Full-width light bar.
+        val barY = y(0.47f)
+        p.color = Color.argb(if (brakes) 128 else 64, 255, 34, 54); p.strokeWidth = ch * 0.12f
+        c.drawLine(x(0.06f), barY, x(0.94f), barY, p)
+        p.color = Color.rgb(42, 7, 16); p.strokeWidth = ch * 0.03f
+        c.drawLine(x(0.10f), barY, x(0.90f), barY, p)
+        p.color = Color.argb(lit, 255, 34, 54); p.strokeWidth = ch * 0.012f
+        c.drawLine(x(0.12f), barY, x(0.88f), barY, p)
+        p.style = Paint.Style.FILL
+        for (side in floatArrayOf(-1f, 1f)) {
+            val sx = { f: Float -> cx + side * cw * f }
+            p.color = Color.rgb(58, 6, 16)
+            c.drawPath(Path().apply {
+                moveTo(sx(0.50f), y(0.41f)); lineTo(sx(0.47f), y(0.535f)); lineTo(sx(0.30f), y(0.505f))
+                lineTo(sx(0.24f), y(0.485f)); lineTo(sx(0.24f), y(0.455f)); lineTo(sx(0.31f), y(0.435f)); close()
+            }, p)
+            p.color = Color.argb(lit, 255, 34, 54)
+            c.drawPath(Path().apply { moveTo(sx(0.49f), y(0.425f)); lineTo(sx(0.465f), y(0.52f)); lineTo(sx(0.39f), y(0.505f)); lineTo(sx(0.40f), y(0.44f)); close() }, p)
+            val clear = Path().apply { moveTo(sx(0.38f), y(0.445f)); lineTo(sx(0.375f), y(0.505f)); lineTo(sx(0.29f), y(0.49f)); lineTo(sx(0.29f), y(0.455f)); close() }
+            p.color = Color.argb(216, 217, 221, 228); c.drawPath(clear, p)
+            p.style = Paint.Style.STROKE; p.strokeWidth = ch * 0.008f; p.color = Color.argb(lit, 255, 34, 54); c.drawPath(clear, p)
+            p.strokeWidth = ch * 0.010f; p.color = Color.argb(lit, 255, 196, 202)
+            c.drawLine(sx(0.48f), y(0.44f), sx(0.41f), y(0.45f), p)
+            p.style = Paint.Style.FILL; p.color = Color.argb(190, 255, 34, 54)
+            c.drawPath(Path().apply { moveTo(sx(0.46f), y(0.66f)); lineTo(sx(0.45f), y(0.72f)); lineTo(sx(0.34f), y(0.735f)); lineTo(sx(0.34f), y(0.69f)); close() }, p)
+        }
+        // Plain badge, plate, diffuser, exhaust.
+        p.style = Paint.Style.STROKE; p.strokeWidth = ch * 0.007f; p.color = Color.rgb(205, 212, 222)
+        c.drawOval(RectF(cx - cw * 0.045f, barY - ch * 0.022f, cx + cw * 0.045f, barY + ch * 0.022f), p)
+        p.style = Paint.Style.FILL
+        p.color = Color.rgb(26, 32, 43); c.drawRoundRect(RectF(cx - cw * 0.14f, y(0.58f), cx + cw * 0.14f, y(0.71f)), ch * 0.02f, ch * 0.02f, p)
+        p.color = Color.rgb(233, 238, 245); c.drawRoundRect(RectF(cx - cw * 0.12f, y(0.595f), cx + cw * 0.12f, y(0.69f)), ch * 0.01f, ch * 0.01f, p)
+        p.color = Color.rgb(12, 16, 24); c.drawRoundRect(RectF(x(0.10f), y(0.80f), x(0.90f), y(0.90f)), ch * 0.04f, ch * 0.04f, p)
+        p.color = Color.rgb(154, 164, 180); c.drawOval(RectF(x(0.24f), y(0.83f), x(0.31f), y(0.88f)), p)
+        p.color = Color.rgb(5, 7, 11); c.drawOval(RectF(x(0.25f), y(0.84f), x(0.30f), y(0.87f)), p)
     }
 
     private fun blend(a: Int, b: Int, t: Float): Int = Color.rgb(

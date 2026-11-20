@@ -56,6 +56,10 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
     )
     private var lastDraw = 0L
     private var roadPhase = 0f
+    private var travelled = 0f
+    private var braking = false
+    private var brakeRefKmh = 0.0
+    private var brakeRefMs = 0L
     private val drawing = java.util.concurrent.atomic.AtomicBoolean(false)
 
     init {
@@ -83,9 +87,17 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
                 kotlinx.coroutines.delay(FRAME_MS)
                 val now = System.currentTimeMillis()
                 val kmh = snapshot[VehicleMetric.SPEED]?.takeIf { it.freshness(VehicleMetric.SPEED, now) == Freshness.LIVE }?.value ?: 0.0
+                // Brake lights: real speed falling faster than ~1.5 m/s² (checked every 0.5 s).
+                if (now - brakeRefMs >= 500) {
+                    val dt = (now - brakeRefMs) / 1000.0
+                    braking = brakeRefMs != 0L && dt < 3 && (brakeRefKmh - kmh) / 3.6 / dt > 1.5 && kmh > 1
+                    brakeRefKmh = kmh; brakeRefMs = now
+                }
                 if (kmh > 0.5) {
+                    val metres = (kmh / 3.6 * (now - last) / 1000.0).toFloat()
+                    travelled = (travelled + metres) % 10_000f
                     // One full dash cycle per ~3.6 m travelled.
-                    roadPhase = ((roadPhase + (kmh / 3.6 * (now - last) / 1000.0 / DASH_METERS).toFloat()) % 1f)
+                    roadPhase = ((roadPhase + metres / DASH_METERS.toFloat()) % 1f)
                     lastDraw = now
                     render()
                 }
@@ -151,6 +163,8 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             trip = v(VehicleMetric.TRIP_DISTANCE)?.let { "%.1f %s".format(UnitConverter.distance(it, speedUnit), if (speedUnit == SpeedUnit.KMH) "km" else "mi") },
             avgFuel = v(VehicleMetric.AVG_FUEL_CONSUMPTION)?.let { "%.1f L/100km".format(it) },
             roadPhase = roadPhase,
+            travelled = travelled,
+            braking = braking,
             labels = CockpitFrame.Labels(
                 rpm = carContext.getString(R.string.car_rpm_x1000),
                 coolant = carContext.getString(R.string.car_coolant),
