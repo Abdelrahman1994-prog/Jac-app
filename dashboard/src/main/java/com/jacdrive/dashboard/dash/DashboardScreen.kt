@@ -254,8 +254,8 @@ private fun Hero(state: DashboardUiState, palette: DashPalette, now: Long) {
     val rpm = s.display(VehicleMetric.RPM, state.units, now)
     val animate = state.cockpit.animationsEnabled
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val gauge = minOf(maxWidth * 0.45f, 260.dp)
-        val sceneH = gauge * 1.02f
+        val gauge = minOf(maxWidth * 0.39f, 230.dp)
+        val sceneH = gauge * 1.12f
         Box(Modifier.fillMaxWidth().height(sceneH)) {
             HeroScene(
                 speedKmh = (if (s.mode != DataMode.OFFLINE && speed.freshness == Freshness.LIVE) speed.raw ?: 0.0 else 0.0).toFloat(),

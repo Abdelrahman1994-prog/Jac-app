@@ -144,17 +144,17 @@ fun HeroScene(speedKmh: Float, palette: DashPalette, animate: Boolean, modifier:
         // Ground and road.
         drawRect(Brush.verticalGradient(listOf(Color(0xFF050B17), Color(0xFF02050C)), startY = horizon), Offset(0f, horizon), Size(w, h - horizon))
         val road = Path().apply {
-            moveTo(w * 0.47f, horizon); lineTo(w * 0.53f, horizon); lineTo(w * 0.95f, h); lineTo(w * 0.05f, h); close()
+            moveTo(w * 0.48f, horizon); lineTo(w * 0.52f, horizon); lineTo(w * 0.80f, h); lineTo(w * 0.20f, h); close()
         }
         drawPath(road, Brush.verticalGradient(listOf(Color(0xFF0E1A30), Color(0xFF16233C)), startY = horizon, endY = h))
         // Glowing road edges.
-        drawLine(palette.accent.copy(alpha = 0.8f), Offset(w * 0.47f, horizon), Offset(w * 0.05f, h), strokeWidth = 2.dp.toPx())
-        drawLine(palette.accent2.copy(alpha = 0.8f), Offset(w * 0.53f, horizon), Offset(w * 0.95f, h), strokeWidth = 2.dp.toPx())
+        drawLine(palette.accent.copy(alpha = 0.8f), Offset(w * 0.48f, horizon), Offset(w * 0.20f, h), strokeWidth = 2.dp.toPx())
+        drawLine(palette.accent2.copy(alpha = 0.8f), Offset(w * 0.52f, horizon), Offset(w * 0.80f, h), strokeWidth = 2.dp.toPx())
 
         // Everything below moves with the distance actually driven.
         // depth t: 0 at the horizon, 1 at the bottom edge; perspective y = horizon + (h - horizon) * t².
         fun yAt(t: Float) = horizon + (h - horizon) * t.pow(2f)
-        fun xAt(lane: Float, t: Float) = w / 2 + lane * (w * 0.03f + w * 0.42f * t.pow(2f) / 1f) // lane: -1 left edge … 1 right edge
+        fun xAt(lane: Float, t: Float) = w / 2 + lane * (w * 0.02f + w * 0.28f * t.pow(2f)) // lane: -1 left edge … 1 right edge
         val dashPhase = (travelled / 9f) % 1f           // a lane dash every 9 m
         val polePhase = (travelled / 25f) % 1f          // a road light every 25 m
         val dashes = 6
@@ -196,7 +196,7 @@ fun HeroScene(speedKmh: Float, palette: DashPalette, animate: Boolean, modifier:
         }
         // Slight body motion while driving.
         val bob = if (speed > 1f) kotlin.math.sin(travelled * 2.1f) * h * 0.003f * (speed / 120f).coerceAtMost(1f) else 0f
-        drawCarRear(Offset(w / 2, h * 0.72f + bob), w * 0.25f, palette, braking || speedKmh < 0.5f)
+        drawCarRear(Offset(w / 2, h * 0.74f + bob), w * 0.21f, palette, braking || speedKmh < 0.5f)
     }
 }
 
