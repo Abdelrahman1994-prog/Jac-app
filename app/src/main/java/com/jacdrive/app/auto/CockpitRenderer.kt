@@ -1,5 +1,6 @@
 package com.jacdrive.app.auto
 
+import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -13,7 +14,6 @@ import android.graphics.Typeface
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.pow
 import kotlin.math.sin
 
 /** Values to draw, already converted to the user's units. Null = no data. */
@@ -35,333 +35,528 @@ data class CockpitFrame(
     val travelled: Float = 0f,
     /** Real speed dropping fast or car stopped: brake lights bright. */
     val braking: Boolean = false,
+    /** Check-engine banner: [ENGINE_FAULT], [ENGINE_OK] (recent clean scan) or [ENGINE_UNKNOWN]. */
+    val engineState: Int = ENGINE_UNKNOWN,
+    /** Text after "CHECK ENGINE" in the banner, e.g. "FAULT DETECTED". */
+    val engineText: String = "",
+    /** Coolant within 5° of the user's alert threshold (orange). [coolantHot] = at/above it (red). */
+    val coolantWarm: Boolean = false,
+    /** Connected to a live adapter (green dot). */
+    val connected: Boolean = false,
+    val brandMake: String = "JAC",
+    val brandModel: String = "J7",
 ) {
     data class Labels(
         val rpm: String, val coolant: String, val battery: String, val fuel: String, val load: String,
         val demo: String, val mil: String, val throttle: String = "Throttle", val intake: String = "Intake",
         val trip: String = "Trip", val avgFuel: String = "Avg",
     )
+
+    companion object {
+        const val ENGINE_UNKNOWN = 0
+        const val ENGINE_OK = 1
+        const val ENGINE_FAULT = 2
+    }
 }
 
 /**
- * Draws the full cockpit with android.graphics for the Android Auto map surface: two main dials,
- * a perspective road whose lane marks move with real vehicle speed, and six mini gauges.
+ * Draws the cockpit with android.graphics for the Android Auto map surface, laid out like a
+ * premium digital cluster: header bar, check-engine banner, two large dials, the car on a road
+ * that moves with the real speed, six glass metric cards and a trip bar.
  * Large numerals, no blinking. Pure drawing — testable on a Bitmap.
  */
 class CockpitRenderer(private val bold: Typeface?, private val light: Typeface?) {
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
-    // Palette matched to the JAC J7 instrument cluster: deep navy, electric cyan, white car.
-    private val accent = Color.rgb(64, 208, 255)
-    private val accentDeep = Color.rgb(28, 108, 255)
-    private val numeral = Color.rgb(112, 222, 255)
-    private val track = Color.rgb(16, 40, 74)
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val cyan = Color.rgb(56, 200, 255)
+    private val blue = Color.rgb(28, 108, 255)
+    private val textCyan = Color.rgb(110, 205, 255)
+    private val track = Color.rgb(18, 38, 70)
+    private val orange = Color.rgb(255, 140, 26)
+    private val red = Color.rgb(255, 48, 56)
+    private val green = Color.rgb(51, 226, 138)
     private val amber = Color.rgb(255, 176, 32)
-    private val red = Color.rgb(255, 70, 88)
-    private val dim = Color.rgb(112, 152, 196)
+    private val dim = Color.rgb(140, 170, 205)
     private val purple = Color.rgb(181, 123, 255)
 
-    private data class Mini(val label: String, val value: String?, val fraction: Float?, val warn: Int?)
+    private enum class Icon { COOLANT, BATTERY, FUEL, ENGINE, THROTTLE, INTAKE }
+    private data class Card(val icon: Icon, val label: String, val value: String?, val unit: String, val fraction: Float?, val level: Int)
 
     fun draw(c: Canvas, area: Rect, f: CockpitFrame) {
-        background(c, area)
+        background(c)
         val w = area.width().toFloat()
         val h = area.height().toFloat()
         if (h > w * 1.05f) drawPortrait(c, area, f, w, h) else drawLandscape(c, area, f, w, h)
     }
 
-    /** Navy cluster background: vertical gradient, central glow, curved light rails at the edges. */
-    private fun background(c: Canvas, area: Rect) {
+    private fun accentOf(f: CockpitFrame) = if (f.demo) purple else cyan
+
+    private fun background(c: Canvas) {
         val cw = c.width.toFloat()
         val chh = c.height.toFloat()
         p.reset(); p.isAntiAlias = true
-        p.shader = LinearGradient(0f, 0f, 0f, chh, Color.rgb(11, 30, 64), Color.rgb(3, 8, 20), Shader.TileMode.CLAMP)
+        p.shader = LinearGradient(0f, 0f, 0f, chh, intArrayOf(Color.rgb(8, 20, 44), Color.rgb(3, 8, 20), Color.rgb(0, 2, 6)), null, Shader.TileMode.CLAMP)
         c.drawRect(0f, 0f, cw, chh, p)
-        p.shader = RadialGradient(area.exactCenterX(), area.top + area.height() * 0.55f, max(cw, chh) * 0.55f,
-            Color.argb(70, 28, 108, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        p.shader = RadialGradient(cw / 2, chh * 0.42f, max(cw, chh) * 0.5f, Color.argb(60, 28, 108, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
         c.drawRect(0f, 0f, cw, chh, p)
-        // Curved light rails (like the cluster bezel), top and bottom.
-        p.shader = null; p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND
-        val w = area.width().toFloat()
-        val h = area.height().toFloat()
-        for ((y, bend) in listOf(area.top + h * 0.004f to h * 0.012f, area.bottom - h * 0.004f to -h * 0.012f)) {
-            val path = Path().apply {
-                moveTo(area.left + w * 0.06f, y + bend)
-                quadTo(area.exactCenterX(), y - bend, area.right - w * 0.06f, y + bend)
-            }
-            p.strokeWidth = h * 0.006f
-            p.shader = LinearGradient(area.left.toFloat(), 0f, area.right.toFloat(), 0f,
-                intArrayOf(Color.TRANSPARENT, Color.argb(200, 64, 208, 255), Color.TRANSPARENT), null, Shader.TileMode.CLAMP)
-            c.drawPath(path, p)
-        }
         p.shader = null
     }
 
-    private fun minis(f: CockpitFrame) = listOf(
-        Mini(f.labels.coolant, f.coolant?.let { "%.0f%s".format(it, f.coolantUnit) }, f.coolant?.let { if (f.coolantUnit == "°C") (it - 40) / 90 else (it - 104) / 162 }, if (f.coolantHot) red else null),
-        Mini(f.labels.battery, f.battery?.let { "%.1f V".format(it) }, f.battery?.let { (it - 10) / 6 }, if (f.batteryBad) amber else null),
-        Mini(f.labels.fuel, f.fuel?.let { "%.0f%%".format(it) }, f.fuel?.div(100), if ((f.fuel ?: 100f) < 10f) amber else null),
-        Mini(f.labels.load, f.load?.let { "%.0f%%".format(it) }, f.load?.div(100), null),
-        Mini(f.labels.throttle, f.throttle?.let { "%.0f%%".format(it) }, f.throttle?.div(100), null),
-        Mini(f.labels.intake, f.intake?.let { "%.0f%s".format(it, f.coolantUnit) }, f.intake?.let { if (f.coolantUnit == "°C") (it + 10) / 90 else (it - 14) / 162 }, null),
-    )
+    // ------------------------------------------------------------------ layouts
 
-    private fun header(c: Canvas, cx: Float, y: Float, size: Float, f: CockpitFrame) {
-        text(c, f.status, cx, y, size, if (f.demo) purple else dim, bold, Paint.Align.CENTER)
-        if (f.milOn) text(c, f.labels.mil, cx, y + size * 1.3f, size * 1.1f, red, bold, Paint.Align.CENTER)
-    }
-
-    private fun footer(c: Canvas, cx: Float, y: Float, size: Float, f: CockpitFrame) {
-        val parts = listOfNotNull(
-            f.trip?.let { "${f.labels.trip} $it" },
-            f.avgFuel?.let { "${f.labels.avgFuel} $it" },
-            if (f.demo) f.labels.demo else null,
-        )
-        if (parts.isNotEmpty()) text(c, parts.joinToString("   ·   "), cx, y, size, if (f.demo) purple else dim, bold, Paint.Align.CENTER)
-    }
-
-    /** Tall screens (the JAC J7's portrait head unit). */
+    /** Tall screens (the JAC J7's portrait head unit): the reference layout. */
     private fun drawPortrait(c: Canvas, area: Rect, f: CockpitFrame, w: Float, h: Float) {
-        val cx = area.exactCenterX()
-        header(c, cx, area.top + h * 0.05f, min(w * 0.042f, h * 0.028f), f)
+        val pad = w * 0.025f
+        val l = area.left + pad
+        val r = area.right - pad
+        var y = area.top + h * 0.012f
+        header(c, RectF(l, y, r, y + h * 0.058f), f); y += h * 0.058f + h * 0.016f
+        banner(c, RectF(area.left + w * 0.15f, y, area.right - w * 0.15f, y + h * 0.054f), f); y += h * 0.054f + h * 0.012f
 
-        val d = min(w * 0.47f, h * 0.30f)
-        val dialCy = area.top + h * (if (f.milOn) 0.10f else 0.08f) + d / 2
-        speedDial(c, area.left + w * 0.25f, dialCy, d, f)
-        rpmDial(c, area.left + w * 0.75f, dialCy, d, f)
+        val d = min(w * 0.46f, h * 0.30f)
+        val dialCy = y + d / 2
+        val stageTop = dialCy + d * 0.22f
+        val stageBottom = y + d + h * 0.10f
+        stage(c, RectF(area.left.toFloat(), stageTop, area.right.toFloat(), stageBottom), f, carWidth = w * 0.25f)
+        speedDial(c, area.left + w * 0.255f, dialCy, d, f)
+        rpmDial(c, area.left + w * 0.745f, dialCy, d, f)
 
-        val roadTop = dialCy + d / 2 + h * 0.005f
-        val roadH = h * 0.22f
-        road(c, RectF(area.left + w * 0.06f, roadTop, area.right - w * 0.06f, roadTop + roadH), f)
-
-        val gridTop = roadTop + roadH + h * 0.02f
-        val footerH = h * 0.05f
-        val gridBottom = area.bottom - footerH
-        val cols = 3
-        val rows = 2
-        val cellW = w / cols
-        val cellH = (gridBottom - gridTop) / rows
-        minis(f).forEachIndexed { i, m ->
-            val col = i % cols
-            val row = i / cols
-            miniGauge(c, RectF(area.left + col * cellW, gridTop + row * cellH, area.left + (col + 1) * cellW, gridTop + (row + 1) * cellH), m, f.demo)
-        }
-        footer(c, cx, area.bottom - footerH * 0.35f, min(w * 0.036f, h * 0.024f), f)
+        val tripH = h * 0.072f
+        val tripTop = area.bottom - h * 0.012f - tripH
+        val gridTop = stageBottom + h * 0.012f
+        cardGrid(c, RectF(l, gridTop, r, tripTop - h * 0.018f), f, w * 0.022f)
+        tripBar(c, RectF(l, tripTop, r, tripTop + tripH), f)
     }
 
     private fun drawLandscape(c: Canvas, area: Rect, f: CockpitFrame, w: Float, h: Float) {
-        val d = min(w * 0.29f, h * 0.82f)
-        val cy = area.top + h * 0.50f
-        val leftCx = area.left + w * 0.035f + d / 2
-        val rightCx = area.right - w * 0.035f - d / 2
+        val pad = w * 0.015f
+        val headerH = h * 0.085f
+        header(c, RectF(area.left + w * 0.2f, area.top + h * 0.015f, area.right - w * 0.2f, area.top + h * 0.015f + headerH), f)
+        val d = min(w * 0.27f, h * 0.70f)
+        val cy = area.top + h * 0.55f
+        val leftCx = area.left + pad + d / 2
+        val rightCx = area.right - pad - d / 2
+        val colL = leftCx + d / 2 + w * 0.012f
+        val colR = rightCx - d / 2 - w * 0.012f
+        var y = area.top + h * 0.015f + headerH + h * 0.02f
+        banner(c, RectF(colL, y, colR, y + h * 0.075f), f); y += h * 0.075f + h * 0.01f
+        val stageH = h * 0.25f
+        stage(c, RectF(colL, y, colR, y + stageH), f, carWidth = (colR - colL) * 0.30f)
+        y += stageH + h * 0.015f
+        val tripH = h * 0.10f
+        val tripTop = area.bottom - h * 0.02f - tripH
+        cardGrid(c, RectF(colL, y, colR, tripTop - h * 0.02f), f, w * 0.008f)
+        tripBar(c, RectF(colL, tripTop, colR, tripTop + tripH), f)
         speedDial(c, leftCx, cy, d, f)
         rpmDial(c, rightCx, cy, d, f)
-
-        val colL = leftCx + d / 2 + w * 0.015f
-        val colR = rightCx - d / 2 - w * 0.015f
-        val colW = colR - colL
-        header(c, (colL + colR) / 2, area.top + h * 0.07f, h * 0.04f, f)
-        val roadTop = area.top + h * (if (f.milOn) 0.15f else 0.11f)
-        val roadBottom = area.top + h * 0.50f
-        road(c, RectF(colL, roadTop, colR, roadBottom), f)
-
-        val gridTop = roadBottom + h * 0.02f
-        val gridBottom = area.bottom - h * 0.07f
-        val cellW = colW / 3
-        val cellH = (gridBottom - gridTop) / 2
-        minis(f).forEachIndexed { i, m ->
-            val col = i % 3
-            val row = i / 3
-            miniGauge(c, RectF(colL + col * cellW, gridTop + row * cellH, colL + (col + 1) * cellW, gridTop + (row + 1) * cellH), m, f.demo)
-        }
-        footer(c, (colL + colR) / 2, area.bottom - h * 0.025f, h * 0.035f, f)
     }
 
-    private fun speedDial(c: Canvas, cx: Float, cy: Float, d: Float, f: CockpitFrame) =
-        dial(c, cx, cy, d, f.speed?.div(f.speedMax), if (f.demo) purple else accent, null, f.speed?.let { "%.0f".format(it) } ?: "—", f.speedUnit)
+    // ------------------------------------------------------------------ header & banner
+
+    private fun glass(c: Canvas, r: RectF, radius: Float, edge: Int, fillTint: Int? = null, glow: Float = 0f) {
+        if (glow > 0f) {
+            glowPaint.reset(); glowPaint.isAntiAlias = true; glowPaint.style = Paint.Style.STROKE
+            glowPaint.strokeWidth = glow; glowPaint.color = Color.argb(110, Color.red(edge), Color.green(edge), Color.blue(edge))
+            glowPaint.maskFilter = BlurMaskFilter(glow * 1.5f, BlurMaskFilter.Blur.NORMAL)
+            c.drawRoundRect(r, radius, radius, glowPaint)
+        }
+        p.reset(); p.isAntiAlias = true
+        val tint = fillTint ?: Color.rgb(16, 42, 84)
+        p.shader = LinearGradient(0f, r.top, 0f, r.bottom,
+            Color.argb(if (fillTint != null) 120 else 95, Color.red(tint), Color.green(tint), Color.blue(tint)),
+            Color.argb(200, 4, 10, 24), Shader.TileMode.CLAMP)
+        c.drawRoundRect(r, radius, radius, p)
+        p.shader = LinearGradient(0f, r.top, 0f, r.bottom, Color.argb(230, Color.red(edge), Color.green(edge), Color.blue(edge)),
+            Color.argb(120, Color.red(edge), Color.green(edge), Color.blue(edge)), Shader.TileMode.CLAMP)
+        p.style = Paint.Style.STROKE; p.strokeWidth = max(1.5f, r.height() * 0.022f)
+        c.drawRoundRect(r, radius, radius, p)
+        p.shader = null; p.style = Paint.Style.FILL
+    }
+
+    private fun header(c: Canvas, r: RectF, f: CockpitFrame) {
+        glass(c, r, r.height() / 2, Color.argb(160, 56, 200, 255))
+        val ts = r.height() * 0.34f
+        val cy = r.centerY()
+        val dotColor = when { f.demo -> purple; f.connected -> green; else -> red }
+        p.color = dotColor
+        p.maskFilter = BlurMaskFilter(ts * 0.5f, BlurMaskFilter.Blur.NORMAL)
+        c.drawCircle(r.left + r.height() * 0.55f, cy, ts * 0.42f, p)
+        p.maskFilter = null
+        c.drawCircle(r.left + r.height() * 0.55f, cy, ts * 0.3f, p)
+        val leftEnd = r.left + r.width() * 0.34f
+        fitText(c, f.status.uppercase(), r.left + r.height() * 0.95f, cy + ts * 0.36f, ts, leftEnd - r.left - r.height() * 1.05f, Color.WHITE, bold, Paint.Align.LEFT)
+        // Dividers.
+        p.color = Color.argb(140, 56, 200, 255); p.strokeWidth = max(1.5f, r.height() * 0.02f)
+        val rightStart = r.right - r.width() * 0.34f
+        c.drawLine(leftEnd, r.top + r.height() * 0.22f, leftEnd, r.bottom - r.height() * 0.22f, p)
+        c.drawLine(rightStart, r.top + r.height() * 0.22f, rightStart, r.bottom - r.height() * 0.22f, p)
+        // Brand: make in white, model in red, bold italic.
+        val bs = r.height() * 0.55f
+        p.reset(); p.isAntiAlias = true; p.typeface = Typeface.create(bold, Typeface.BOLD_ITALIC); p.textSize = bs; p.textSkewX = -0.18f
+        val make = f.brandMake.uppercase()
+        val model = " " + f.brandModel.uppercase()
+        val total = p.measureText(make) + p.measureText(model)
+        val bx = r.centerX() - total / 2
+        p.color = Color.WHITE; c.drawText(make, bx, cy + bs * 0.36f, p)
+        p.color = red; c.drawText(model, bx + p.measureText(make), cy + bs * 0.36f, p)
+        p.textSkewX = 0f
+        // Right segment: data source.
+        val tag = if (f.demo) f.labels.demo.substringBefore(' ').uppercase() else if (f.connected) "LIVE" else "—"
+        text(c, tag, (rightStart + r.right) / 2, cy + ts * 0.36f, ts, if (f.demo) purple else if (f.connected) green else dim, bold, Paint.Align.CENTER)
+    }
+
+    private fun banner(c: Canvas, r: RectF, f: CockpitFrame) {
+        val color = when (f.engineState) {
+            CockpitFrame.ENGINE_FAULT -> red
+            CockpitFrame.ENGINE_OK -> green
+            else -> amber
+        }
+        val cut = r.height() * 0.45f
+        val shape = Path().apply {
+            moveTo(r.left + cut, r.top); lineTo(r.right - cut, r.top); lineTo(r.right, r.centerY())
+            lineTo(r.right - cut, r.bottom); lineTo(r.left + cut, r.bottom); lineTo(r.left, r.centerY()); close()
+        }
+        glowPaint.reset(); glowPaint.isAntiAlias = true; glowPaint.style = Paint.Style.STROKE
+        glowPaint.strokeWidth = r.height() * 0.12f
+        glowPaint.color = Color.argb(150, Color.red(color), Color.green(color), Color.blue(color))
+        glowPaint.maskFilter = BlurMaskFilter(r.height() * 0.25f, BlurMaskFilter.Blur.NORMAL)
+        c.drawPath(shape, glowPaint)
+        p.reset(); p.isAntiAlias = true
+        p.shader = LinearGradient(r.left, 0f, r.right, 0f,
+            intArrayOf(Color.argb(60, Color.red(color), Color.green(color), Color.blue(color)), Color.argb(150, Color.red(color) / 3, Color.green(color) / 3, Color.blue(color) / 3), Color.argb(60, Color.red(color), Color.green(color), Color.blue(color))),
+            null, Shader.TileMode.CLAMP)
+        c.drawPath(shape, p); p.shader = null
+        p.style = Paint.Style.STROKE; p.strokeWidth = max(1.5f, r.height() * 0.035f); p.color = color
+        c.drawPath(shape, p); p.style = Paint.Style.FILL
+        // Warning triangle.
+        val ts = r.height() * 0.40f
+        val ix = r.left + r.width() * 0.17f
+        val tri = Path().apply { moveTo(ix, r.centerY() - ts * 0.75f); lineTo(ix + ts * 0.8f, r.centerY() + ts * 0.6f); lineTo(ix - ts * 0.8f, r.centerY() + ts * 0.6f); close() }
+        p.color = color; c.drawPath(tri, p)
+        p.color = Color.rgb(20, 4, 6)
+        c.drawRect(ix - ts * 0.07f, r.centerY() - ts * 0.35f, ix + ts * 0.07f, r.centerY() + ts * 0.18f, p)
+        c.drawCircle(ix, r.centerY() + ts * 0.36f, ts * 0.08f, p)
+        // Text.
+        val fs = r.height() * 0.40f
+        val split = r.left + r.width() * 0.55f
+        fitText(c, f.labels.mil.uppercase(), ix + ts * 1.2f, r.centerY() + fs * 0.36f, fs, split - ix - ts * 1.5f, color, bold, Paint.Align.LEFT)
+        p.color = Color.argb(160, Color.red(color), Color.green(color), Color.blue(color)); p.strokeWidth = max(1.5f, r.height() * 0.03f)
+        c.drawLine(split, r.top + r.height() * 0.22f, split, r.bottom - r.height() * 0.22f, p)
+        fitText(c, f.engineText.uppercase(), split + r.height() * 0.4f, r.centerY() + fs * 0.36f, fs, r.right - cut - split - r.height() * 0.4f, Color.WHITE, bold, Paint.Align.LEFT)
+    }
+
+    // ------------------------------------------------------------------ dials
+
+    private fun speedDial(c: Canvas, cx: Float, cy: Float, d: Float, f: CockpitFrame) {
+        val step = if (f.speedMax > 200) 30 else 20
+        dial(c, cx, cy, d, f.speed?.div(f.speedMax), accentOf(f), null,
+            f.speed?.let { "%.0f".format(it) } ?: "—", f.speedUnit,
+            (0..f.speedMax.toInt() step step).map { it.toString() })
+    }
 
     private fun rpmDial(c: Canvas, cx: Float, cy: Float, d: Float, f: CockpitFrame) {
-        val rpmFrac = f.rpm?.div(8000f)
+        val frac = f.rpm?.div(8000f)
         val redFrac = f.redline / 8000f
-        dial(c, cx, cy, d, rpmFrac, if (rpmFrac != null && rpmFrac >= redFrac) red else if (f.demo) purple else accent, redFrac, f.rpm?.let { "%.1f".format(it / 1000f) } ?: "—", f.labels.rpm)
+        dial(c, cx, cy, d, frac, if (frac != null && frac >= redFrac) red else accentOf(f), redFrac,
+            f.rpm?.let { "%.1f".format(it / 1000f) } ?: "—", f.labels.rpm, (0..8).map { it.toString() })
     }
 
-    private fun dial(c: Canvas, cx: Float, cy: Float, d: Float, fraction: Float?, color: Int, danger: Float?, value: String, unit: String) {
-        val stroke = d * 0.045f
-        val r = d / 2 - stroke
-        val rect = RectF(cx - r, cy - r, cx + r, cy + r)
-        val start = 125f
-        val sweep = 290f
-        p.reset(); p.isAntiAlias = true; p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = stroke
-        p.color = track; c.drawArc(rect, start, sweep, false, p)
-        // Fine ticks.
-        p.strokeCap = Paint.Cap.ROUND
-        for (i in 0..10) {
-            val a = Math.toRadians((start + sweep * i / 10).toDouble())
-            val r1 = r - stroke * 1.6f
-            val r2 = r1 - d * if (i % 2 == 0) 0.05f else 0.025f
-            p.color = Color.argb(if (i % 2 == 0) 190 else 100, 150, 215, 255)
-            p.strokeWidth = d * if (i % 2 == 0) 0.012f else 0.007f
-            c.drawLine(cx + cos(a).toFloat() * r1, cy + sin(a).toFloat() * r1, cx + cos(a).toFloat() * r2, cy + sin(a).toFloat() * r2, p)
-        }
-        p.strokeWidth = stroke
+    private fun dial(c: Canvas, cx: Float, cy: Float, d: Float, fraction: Float?, color: Int, danger: Float?, value: String, unit: String, labels: List<String>) {
+        val start = 135f
+        val sweep = 270f
+        val rOuter = d / 2
+        val ringW = d * 0.035f
+        val rRing = rOuter - ringW
+        val ring = RectF(cx - rRing, cy - rRing, cx + rRing, cy + rRing)
+        // Dark face with a soft inner glow.
+        p.reset(); p.isAntiAlias = true
+        p.shader = RadialGradient(cx, cy, rOuter, intArrayOf(Color.rgb(8, 18, 36), Color.rgb(4, 10, 22), Color.argb(0, 4, 10, 22)), floatArrayOf(0f, 0.85f, 1f), Shader.TileMode.CLAMP)
+        c.drawCircle(cx, cy, rOuter, p); p.shader = null
+        // Thin outer bezel ring.
+        p.style = Paint.Style.STROKE; p.strokeWidth = d * 0.006f; p.color = Color.argb(120, 56, 200, 255)
+        c.drawCircle(cx, cy, rOuter - d * 0.004f, p)
+        // Track.
+        p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = ringW; p.color = track
+        c.drawArc(ring, start, sweep, false, p)
+        // Redline band.
         if (danger != null) {
-            val inner = RectF(rect).apply { inset(stroke * 1.2f, stroke * 1.2f) }
-            p.strokeWidth = stroke * 0.35f; p.strokeCap = Paint.Cap.BUTT; p.color = red
-            c.drawArc(inner, start + sweep * danger, sweep * (1 - danger), false, p)
-            p.strokeWidth = stroke; p.strokeCap = Paint.Cap.ROUND
+            p.strokeCap = Paint.Cap.BUTT
+            p.shader = android.graphics.SweepGradient(cx, cy, intArrayOf(Color.argb(0, 255, 48, 56), red, red), floatArrayOf(0f, 0.05f, 1f))
+            val m = android.graphics.Matrix(); m.setRotate(start + sweep * danger - 4f, cx, cy); p.shader.setLocalMatrix(m)
+            c.drawArc(ring, start + sweep * danger, sweep * (1 - danger), false, p)
+            p.shader = null
         }
+        // Value arc with glow.
         val fr = fraction?.coerceIn(0f, 1f)
         if (fr != null && fr > 0.004f) {
-            p.color = Color.argb(55, Color.red(color), Color.green(color), Color.blue(color)); p.strokeWidth = stroke * 2.6f
-            c.drawArc(rect, start, sweep * fr, false, p)
-            p.strokeWidth = stroke
-            p.color = color
-            c.drawArc(rect, start, sweep * fr, false, p)
-            p.shader = null
-            val a = Math.toRadians((start + sweep * fr).toDouble())
-            p.color = Color.WHITE; p.strokeWidth = stroke * 0.7f
-            c.drawLine(cx + cos(a).toFloat() * (r * 0.70f), cy + sin(a).toFloat() * (r * 0.70f), cx + cos(a).toFloat() * (r - stroke), cy + sin(a).toFloat() * (r - stroke), p)
+            glowPaint.reset(); glowPaint.isAntiAlias = true; glowPaint.style = Paint.Style.STROKE; glowPaint.strokeCap = Paint.Cap.ROUND
+            glowPaint.strokeWidth = ringW * 2.2f; glowPaint.color = Color.argb(150, Color.red(color), Color.green(color), Color.blue(color))
+            glowPaint.maskFilter = BlurMaskFilter(ringW * 1.6f, BlurMaskFilter.Blur.NORMAL)
+            c.drawArc(ring, start, sweep * fr, false, glowPaint)
+            p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = ringW
+            p.shader = android.graphics.SweepGradient(cx, cy, intArrayOf(blue, color, color), floatArrayOf(0f, 0.4f, 1f))
+            val m = android.graphics.Matrix(); m.setRotate(start, cx, cy); p.shader.setLocalMatrix(m)
+            c.drawArc(ring, start, sweep * fr, false, p); p.shader = null
         }
-        text(c, value, cx, cy + d * 0.08f, d * 0.25f, if (color == accent) numeral else color, light ?: bold, Paint.Align.CENTER)
-        text(c, unit, cx, cy + d * 0.20f, d * 0.065f, dim, bold, Paint.Align.CENTER)
-    }
-
-    /** Small 240° arc gauge with the value inside and the label underneath. */
-    private fun miniGauge(c: Canvas, cell: RectF, m: Mini, demo: Boolean) {
-        val labelSize = min(cell.width() * 0.11f, cell.height() * 0.11f)
-        val d = min(cell.width() * 0.78f, (cell.height() - labelSize * 2.2f) * 0.98f)
-        val cx = cell.centerX()
-        val cy = cell.top + cell.height() * 0.06f + d / 2
-        val stroke = d * 0.09f
-        val r = d / 2 - stroke
-        val rect = RectF(cx - r, cy - r, cx + r, cy + r)
-        p.reset(); p.isAntiAlias = true; p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = stroke
-        // Segmented scale (12 bars), lit up to the value.
-        val segs = 12
-        val seg = 240f / segs
-        val fr = m.fraction?.coerceIn(0f, 1f) ?: -1f
-        p.strokeCap = Paint.Cap.BUTT
-        for (i in 0 until segs) {
-            val lit = (i + 0.5f) / segs <= fr
-            p.color = when {
-                !lit -> track
-                m.warn != null -> m.warn
-                demo -> purple
-                else -> blend(accentDeep, accent, i / (segs - 1f))
+        // Ticks and numbers.
+        val majors = labels.size - 1
+        val rTick = rRing - ringW * 1.3f
+        for (i in 0..majors * 5) {
+            val a = Math.toRadians((start + sweep * i / (majors * 5f)).toDouble())
+            val major = i % 5 == 0
+            val len = d * if (major) 0.055f else 0.025f
+            val frac = i / (majors * 5f)
+            p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND
+            p.strokeWidth = d * if (major) 0.010f else 0.005f
+            p.color = if (danger != null && frac >= danger) red else if (major) Color.WHITE else Color.argb(150, 180, 210, 240)
+            c.drawLine(cx + cos(a).toFloat() * rTick, cy + sin(a).toFloat() * rTick, cx + cos(a).toFloat() * (rTick - len), cy + sin(a).toFloat() * (rTick - len), p)
+            if (major) {
+                val rl = rTick - d * 0.11f
+                val lc = if (danger != null && frac >= danger) red else Color.WHITE
+                text(c, labels[i / 5], cx + cos(a).toFloat() * rl, cy + sin(a).toFloat() * rl + d * 0.022f, d * 0.062f, lc, bold, Paint.Align.CENTER)
             }
-            c.drawArc(rect, 150f + i * seg + seg * 0.14f, seg * 0.72f, false, p)
         }
-        text(c, m.value ?: "—", cx, cy + d * 0.1f, d * 0.24f, m.warn ?: Color.WHITE, bold, Paint.Align.CENTER)
-        text(c, m.label.uppercase(), cx, cy + d / 2 + labelSize * 0.9f, labelSize, dim, bold, Paint.Align.CENTER)
+        // Needle (short, at the arc tip).
+        if (fr != null) {
+            val a = Math.toRadians((start + sweep * fr).toDouble())
+            p.strokeWidth = d * 0.016f; p.color = Color.WHITE; p.strokeCap = Paint.Cap.ROUND
+            c.drawLine(cx + cos(a).toFloat() * (rTick - d * 0.17f), cy + sin(a).toFloat() * (rTick - d * 0.17f), cx + cos(a).toFloat() * (rRing + ringW * 0.3f), cy + sin(a).toFloat() * (rRing + ringW * 0.3f), p)
+        }
+        p.style = Paint.Style.FILL
+        text(c, value, cx, cy + d * 0.08f, d * 0.24f, Color.WHITE, Typeface.create(bold, Typeface.BOLD_ITALIC), Paint.Align.CENTER)
+        text(c, unit, cx, cy + d * 0.19f, d * 0.068f, textCyan, bold, Paint.Align.CENTER)
     }
 
-    private val windows = java.util.Random(7).let { r -> List(220) { floatArrayOf(r.nextFloat(), r.nextFloat(), r.nextFloat()) } }
-    private val buildings = java.util.Random(3).let { r -> List(24) { r.nextFloat() } }
+    // ------------------------------------------------------------------ cards & trip
+
+    private fun cards(f: CockpitFrame): List<Card> {
+        val celsius = f.coolantUnit == "°C"
+        return listOf(
+            Card(Icon.COOLANT, f.labels.coolant, f.coolant?.let { "%.0f".format(it) }, f.coolantUnit,
+                f.coolant?.let { if (celsius) (it - 40) / 90 else (it - 104) / 162 }, if (f.coolantHot) 2 else if (f.coolantWarm) 1 else 0),
+            Card(Icon.BATTERY, f.labels.battery, f.battery?.let { "%.1f".format(it) }, "V", f.battery?.let { (it - 10) / 6 },
+                if (f.battery != null && (f.battery < 11.8f || f.battery > 16f)) 2 else if (f.batteryBad) 1 else 0),
+            Card(Icon.FUEL, f.labels.fuel, f.fuel?.let { "%.0f".format(it) }, "%", f.fuel?.div(100),
+                when { f.fuel == null -> 0; f.fuel < 10f -> 2; f.fuel < 20f -> 1; else -> 0 }),
+            Card(Icon.ENGINE, f.labels.load, f.load?.let { "%.0f".format(it) }, "%", f.load?.div(100), 0),
+            Card(Icon.THROTTLE, f.labels.throttle, f.throttle?.let { "%.0f".format(it) }, "%", f.throttle?.div(100), 0),
+            Card(Icon.INTAKE, f.labels.intake, f.intake?.let { "%.0f".format(it) }, f.coolantUnit,
+                f.intake?.let { if (celsius) (it + 10) / 90 else (it - 14) / 162 },
+                if (f.intake != null && f.intake > (if (celsius) 60f else 140f)) 1 else 0),
+        )
+    }
+
+    private fun cardGrid(c: Canvas, r: RectF, f: CockpitFrame, gap: Float) {
+        val cw = (r.width() - gap * 2) / 3
+        val ch = (r.height() - gap) / 2
+        cards(f).forEachIndexed { i, card ->
+            val col = i % 3
+            val row = i / 3
+            val x = r.left + col * (cw + gap)
+            val y = r.top + row * (ch + gap)
+            card(c, RectF(x, y, x + cw, y + ch), card, f)
+        }
+    }
+
+    private fun card(c: Canvas, r: RectF, m: Card, f: CockpitFrame) {
+        val color = when (m.level) { 2 -> red; 1 -> orange; else -> accentOf(f) }
+        glass(c, r, min(r.width(), r.height()) * 0.14f, color, fillTint = if (m.level == 2) Color.rgb(140, 16, 24) else null, glow = if (m.level > 0) r.height() * 0.05f else r.height() * 0.02f)
+        val padX = r.width() * 0.07f
+        // Icon.
+        val iconS = min(r.height() * 0.38f, r.width() * 0.30f)
+        icon(c, m.icon, RectF(r.left + padX, r.top + r.height() * 0.16f, r.left + padX + iconS, r.top + r.height() * 0.16f + iconS), color)
+        // Value + unit, right aligned.
+        val right = r.right - padX
+        val vs = min(r.height() * 0.30f, r.width() * 0.22f)
+        val valueText = m.value ?: "—"
+        val us = vs * 0.55f
+        p.reset(); p.isAntiAlias = true; p.typeface = bold; p.textSize = us
+        val unitW = if (m.value != null) p.measureText(m.unit) + vs * 0.08f else 0f
+        val baseline = r.top + r.height() * 0.44f
+        val valueColor = if (m.level == 2) red else Color.WHITE
+        text(c, valueText, right - unitW, baseline, vs, valueColor, bold, Paint.Align.RIGHT)
+        if (m.value != null) text(c, m.unit, right, baseline, us, valueColor, bold, Paint.Align.RIGHT)
+        // Label.
+        fitText(c, m.label, right, r.top + r.height() * 0.66f, r.height() * 0.14f, r.width() - padX * 2 - iconS * 0.2f,
+            if (m.level == 2) Color.WHITE else Color.rgb(200, 225, 255), bold, Paint.Align.RIGHT)
+        // Progress bar.
+        val barY = r.bottom - r.height() * 0.15f
+        val barH = r.height() * 0.065f
+        p.reset(); p.isAntiAlias = true; p.color = Color.argb(70, 120, 160, 210)
+        c.drawRoundRect(RectF(r.left + padX, barY, right, barY + barH), barH / 2, barH / 2, p)
+        val fr = m.fraction?.coerceIn(0f, 1f)
+        if (fr != null && fr > 0.01f) {
+            val end = r.left + padX + (right - r.left - padX) * fr
+            val bar = RectF(r.left + padX, barY, end, barY + barH)
+            glowPaint.reset(); glowPaint.isAntiAlias = true; glowPaint.color = Color.argb(170, Color.red(color), Color.green(color), Color.blue(color))
+            glowPaint.maskFilter = BlurMaskFilter(barH * 1.2f, BlurMaskFilter.Blur.NORMAL)
+            c.drawRoundRect(bar, barH / 2, barH / 2, glowPaint)
+            p.reset(); p.isAntiAlias = true; p.color = color
+            c.drawRoundRect(bar, barH / 2, barH / 2, p)
+        }
+    }
+
+    private fun tripBar(c: Canvas, r: RectF, f: CockpitFrame) {
+        glass(c, r, r.height() / 2, Color.argb(200, 56, 200, 255), glow = r.height() * 0.04f)
+        val cy = r.centerY()
+        val iconS = r.height() * 0.5f
+        icon(c, null, RectF(r.left + r.height() * 0.5f, cy - iconS / 2, r.left + r.height() * 0.5f + iconS, cy + iconS / 2), accentOf(f))
+        val d1 = r.left + r.height() * 1.4f
+        val d2 = r.left + r.width() * 0.56f
+        p.color = Color.argb(140, 56, 200, 255); p.strokeWidth = max(1.5f, r.height() * 0.02f)
+        c.drawLine(d1, r.top + r.height() * 0.22f, d1, r.bottom - r.height() * 0.22f, p)
+        c.drawLine(d2, r.top + r.height() * 0.22f, d2, r.bottom - r.height() * 0.22f, p)
+        val fs = r.height() * 0.36f
+        pair(c, f.labels.trip.uppercase(), f.trip ?: "—", (d1 + d2) / 2, cy + fs * 0.36f, fs, d2 - d1 - r.height() * 0.3f)
+        pair(c, f.labels.avgFuel.uppercase(), f.avgFuel ?: "—", (d2 + r.right - r.height() * 0.3f) / 2, cy + fs * 0.36f, fs, r.right - d2 - r.height() * 0.5f)
+    }
+
+    /** "LABEL value" centred, label in cyan, value in white, shrunk to fit [maxW]. */
+    private fun pair(c: Canvas, label: String, value: String, cx: Float, baseline: Float, size: Float, maxW: Float) {
+        p.reset(); p.isAntiAlias = true; p.typeface = bold
+        var s = size
+        fun width(): Float { p.textSize = s * 0.85f; val a = p.measureText("$label "); p.textSize = s; return a + p.measureText(value) }
+        while (width() > maxW && s > 6f) s *= 0.92f
+        val total = width()
+        var x = cx - total / 2
+        p.textSize = s * 0.85f; p.color = textCyan; p.textAlign = Paint.Align.LEFT
+        c.drawText("$label ", x, baseline, p); x += p.measureText("$label ")
+        p.textSize = s; p.color = Color.WHITE
+        c.drawText(value, x, baseline, p)
+    }
+
+    // ------------------------------------------------------------------ icons (line drawings)
+
+    private fun icon(c: Canvas, which: Icon?, b: RectF, color: Int) {
+        val s = b.width()
+        fun X(f: Float) = b.left + s * f
+        fun Y(f: Float) = b.top + s * f
+        p.reset(); p.isAntiAlias = true; p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeJoin = Paint.Join.ROUND
+        p.color = color; p.strokeWidth = s * 0.075f
+        when (which) {
+            Icon.COOLANT -> {
+                c.drawRoundRect(RectF(X(0.40f), Y(0.02f), X(0.56f), Y(0.58f)), s * 0.08f, s * 0.08f, p)
+                c.drawCircle(X(0.48f), Y(0.66f), s * 0.12f, p)
+                for (k in 0..2) c.drawLine(X(0.60f), Y(0.12f + k * 0.12f), X(0.74f), Y(0.12f + k * 0.12f), p)
+                val wave = Path(); wave.moveTo(X(0.05f), Y(0.92f))
+                for (k in 0 until 4) wave.quadTo(X(0.16f + k * 0.24f), Y(0.82f + (k % 2) * 0.2f), X(0.28f + k * 0.24f), Y(0.92f))
+                c.drawPath(wave, p)
+            }
+            Icon.BATTERY -> {
+                c.drawRoundRect(RectF(X(0.04f), Y(0.26f), X(0.96f), Y(0.86f)), s * 0.06f, s * 0.06f, p)
+                c.drawLine(X(0.20f), Y(0.17f), X(0.34f), Y(0.17f), p); c.drawLine(X(0.66f), Y(0.17f), X(0.80f), Y(0.17f), p)
+                c.drawLine(X(0.18f), Y(0.55f), X(0.38f), Y(0.55f), p); c.drawLine(X(0.28f), Y(0.45f), X(0.28f), Y(0.65f), p)
+                c.drawLine(X(0.62f), Y(0.55f), X(0.82f), Y(0.55f), p)
+            }
+            Icon.FUEL -> {
+                c.drawRoundRect(RectF(X(0.10f), Y(0.06f), X(0.60f), Y(0.94f)), s * 0.07f, s * 0.07f, p)
+                c.drawRect(X(0.20f), Y(0.18f), X(0.50f), Y(0.40f), p)
+                val hose = Path().apply { moveTo(X(0.60f), Y(0.30f)); lineTo(X(0.80f), Y(0.42f)); lineTo(X(0.80f), Y(0.78f)); quadTo(X(0.80f), Y(0.88f), X(0.90f), Y(0.84f)); lineTo(X(0.90f), Y(0.30f)); lineTo(X(0.78f), Y(0.16f)) }
+                c.drawPath(hose, p)
+            }
+            Icon.ENGINE -> {
+                val e = Path().apply {
+                    moveTo(X(0.30f), Y(0.22f)); lineTo(X(0.58f), Y(0.22f)); lineTo(X(0.66f), Y(0.32f)); lineTo(X(0.80f), Y(0.32f))
+                    lineTo(X(0.80f), Y(0.44f)); lineTo(X(0.94f), Y(0.44f)); lineTo(X(0.94f), Y(0.70f)); lineTo(X(0.80f), Y(0.70f))
+                    lineTo(X(0.80f), Y(0.80f)); lineTo(X(0.70f), Y(0.88f)); lineTo(X(0.30f), Y(0.88f)); lineTo(X(0.22f), Y(0.76f))
+                    lineTo(X(0.12f), Y(0.76f)); lineTo(X(0.12f), Y(0.84f)); lineTo(X(0.04f), Y(0.84f)); lineTo(X(0.04f), Y(0.46f))
+                    lineTo(X(0.12f), Y(0.46f)); lineTo(X(0.12f), Y(0.56f)); lineTo(X(0.22f), Y(0.56f)); lineTo(X(0.22f), Y(0.36f)); lineTo(X(0.30f), Y(0.32f)); close()
+                }
+                c.drawPath(e, p)
+                c.drawLine(X(0.36f), Y(0.12f), X(0.52f), Y(0.12f), p); c.drawLine(X(0.44f), Y(0.12f), X(0.44f), Y(0.22f), p)
+            }
+            Icon.THROTTLE -> {
+                c.save(); c.rotate(40f, X(0.5f), Y(0.5f))
+                c.drawRoundRect(RectF(X(0.30f), Y(0.02f), X(0.70f), Y(0.98f)), s * 0.08f, s * 0.08f, p)
+                for (k in 0..3) c.drawLine(X(0.38f), Y(0.36f + k * 0.14f), X(0.62f), Y(0.36f + k * 0.14f), p)
+                c.restore()
+            }
+            Icon.INTAKE -> {
+                c.drawRoundRect(RectF(X(0.18f), Y(0.02f), X(0.34f), Y(0.60f)), s * 0.08f, s * 0.08f, p)
+                c.drawCircle(X(0.26f), Y(0.76f), s * 0.17f, p)
+                for (k in 0..3) c.drawLine(X(0.50f), Y(0.12f + k * 0.13f), X(0.90f - (k % 2) * 0.12f), Y(0.12f + k * 0.13f), p)
+            }
+            null -> { // route
+                c.drawCircle(X(0.78f), Y(0.22f), s * 0.13f, p)
+                val route = Path().apply { moveTo(X(0.78f), Y(0.38f)); quadTo(X(0.70f), Y(0.62f), X(0.46f), Y(0.56f)); quadTo(X(0.20f), Y(0.50f), X(0.32f), Y(0.76f)); quadTo(X(0.38f), Y(0.92f), X(0.12f), Y(0.92f)) }
+                c.drawPath(route, p)
+                p.style = Paint.Style.FILL; c.drawCircle(X(0.12f), Y(0.92f), s * 0.07f, p)
+            }
+        }
+        p.style = Paint.Style.FILL
+    }
+
+    // ------------------------------------------------------------------ road stage
 
     /**
-     * Night city, perspective road and the car seen from behind (same scene as the phone dashboard).
-     * Lane marks, road lights and streaks move with the real speed. Illustrative only.
+     * Dark road with a blue horizon glow, light trails spreading to the sides, moving lane marks
+     * and the car from behind. Everything that moves is driven by the real speed. Illustrative only.
      */
-    private fun road(c: Canvas, r: RectF, f: CockpitFrame) {
+    private fun stage(c: Canvas, r: RectF, f: CockpitFrame, carWidth: Float) {
         val w = r.width()
         val h = r.height()
         val vx = r.centerX()
-        val horizon = r.top + h * 0.40f
-        val radius = min(w, h) * 0.08f
-        c.save()
-        c.clipPath(Path().apply { addRoundRect(r, radius, radius, Path.Direction.CW) })
+        val horizon = r.top + h * 0.30f
+        c.save(); c.clipRect(r)
         p.reset(); p.isAntiAlias = true
-        // Sky with a glow on the horizon.
-        p.shader = LinearGradient(0f, r.top, 0f, horizon, Color.rgb(7, 21, 48), Color.rgb(11, 35, 80), Shader.TileMode.CLAMP)
-        c.drawRect(r.left, r.top, r.right, horizon, p)
-        p.shader = RadialGradient(vx, horizon, w * 0.45f, Color.argb(90, 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
-        c.drawRect(r.left, r.top, r.right, horizon, p)
-        // Skyline with lit windows (static: far away).
-        val n = buildings.size
-        val bw = w / n
-        fun bh(i: Int): Float {
-            val centre = 1f - kotlin.math.abs(i - n / 2f) / (n / 2f)
-            return (horizon - r.top) * (0.25f + 0.65f * buildings[i] * (0.4f + 0.6f * centre))
-        }
-        p.shader = null
-        for (i in 0 until n) {
-            p.color = Color.rgb(10, 26, 54)
-            c.drawRect(r.left + i * bw + bw * 0.08f, horizon - bh(i), r.left + i * bw + bw * 0.92f, horizon, p)
-        }
-        for (wv in windows) {
-            val bi = (wv[0] * n).toInt().coerceIn(0, n - 1)
-            if (wv[2] <= 0.45f) continue
-            val wy = horizon - bh(bi) * (0.05f + 0.9f * wv[1])
-            val wx = r.left + bi * bw + bw * (0.2f + 0.6f * ((wv[0] * n) % 1f))
-            p.color = if (wv[2] > 0.9f) Color.argb((100 + 120 * wv[2]).toInt(), 255, 232, 168) else Color.argb((60 + 140 * (wv[2] - 0.45f)).toInt(), 64, 208, 255)
-            c.drawRect(wx, wy, wx + w * 0.004f, wy + w * 0.006f, p)
-        }
-        // Ground and road.
-        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.rgb(5, 11, 23), Color.rgb(2, 5, 12), Shader.TileMode.CLAMP)
+        // Horizon glow.
+        // Elliptical so it fades out before the top edge of the stage (no hard edge behind the dials).
+        val ry = (horizon - r.top) * 0.95f
+        c.save(); c.scale(1f, ry / (w * 0.55f), vx, horizon)
+        p.shader = RadialGradient(vx, horizon, w * 0.55f, Color.argb(130, 28, 108, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+        c.drawCircle(vx, horizon, w * 0.55f, p)
+        c.restore()
+        p.shader = LinearGradient(r.left, 0f, r.right, 0f, intArrayOf(Color.TRANSPARENT, Color.argb(220, 90, 200, 255), Color.TRANSPARENT), null, Shader.TileMode.CLAMP)
+        c.drawRect(r.left, horizon - h * 0.006f, r.right, horizon + h * 0.006f, p)
+        // Ground.
+        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.argb(110, 6, 14, 30), Color.argb(0, 2, 5, 12), Shader.TileMode.CLAMP)
         c.drawRect(r.left, horizon, r.right, r.bottom, p)
-        val surface = Path().apply {
-            moveTo(vx - w * 0.02f, horizon); lineTo(vx + w * 0.02f, horizon)
-            lineTo(vx + w * 0.32f, r.bottom); lineTo(vx - w * 0.32f, r.bottom); close()
+        val road = Path().apply {
+            moveTo(vx - w * 0.03f, horizon); lineTo(vx + w * 0.03f, horizon); lineTo(vx + w * 0.30f, r.bottom); lineTo(vx - w * 0.30f, r.bottom); close()
         }
-        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.rgb(14, 26, 48), Color.rgb(22, 35, 60), Shader.TileMode.CLAMP)
-        c.drawPath(surface, p); p.shader = null
-        p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND; p.strokeWidth = w * 0.004f
-        p.color = accent; c.drawLine(vx - w * 0.02f, horizon, vx - w * 0.32f, r.bottom, p)
-        p.color = accentDeep; c.drawLine(vx + w * 0.02f, horizon, vx + w * 0.32f, r.bottom, p)
-        fun yAt(t: Float) = horizon + (r.bottom - horizon) * t * t
-        fun xAt(lane: Float, t: Float) = vx + lane * (w * 0.02f + w * 0.30f * t * t)
-        // Two dashed lane lines.
-        val dashes = 6
-        for (lane in floatArrayOf(-0.33f, 0.33f)) {
-            for (i in 0 until dashes) {
-                val t0 = (i + f.roadPhase) / dashes
-                val t1 = (t0 + 0.06f).coerceAtMost(1f)
-                p.color = Color.argb((30 + 150 * t0).toInt(), 255, 255, 255)
-                p.strokeWidth = w * (0.0015f + 0.007f * t0)
-                c.drawLine(xAt(lane, t0), yAt(t0), xAt(lane, t1), yAt(t1), p)
-            }
-        }
-        // Road lights passing on both sides (one every 25 m).
-        val polePhase = (f.travelled / 25f) % 1f
-        for (i in 0 until 4) {
-            val t = (i + polePhase) / 4
-            val y = yAt(t)
-            val hgt = (r.bottom - horizon) * 0.12f + h * 0.55f * t * t
+        p.shader = LinearGradient(0f, horizon, 0f, r.bottom, Color.rgb(16, 30, 56), Color.argb(200, 20, 34, 60), Shader.TileMode.CLAMP)
+        c.drawPath(road, p); p.shader = null
+        // Light trails spreading from the horizon to the sides (static) and their moving highlights.
+        p.style = Paint.Style.STROKE; p.strokeCap = Paint.Cap.ROUND
+        val trails = listOf(0.30f to 0.72f, 0.50f to 0.46f, 0.80f to 0.30f)
+        for ((i, tr) in trails.withIndex()) {
             for (side in floatArrayOf(-1f, 1f)) {
-                val x = xAt(side * 1.08f, t)
-                p.style = Paint.Style.STROKE; p.strokeWidth = w * (0.001f + 0.004f * t)
-                p.color = Color.argb((80 + 150 * t).toInt(), 38, 53, 79)
-                c.drawLine(x, y, x, y - hgt, p)
-                val lx = x - side * hgt * 0.12f
-                val ly = y - hgt
-                val gr = w * (0.008f + 0.03f * t)
-                p.style = Paint.Style.FILL
-                p.shader = RadialGradient(lx, ly, gr, Color.argb((140 * t).toInt(), 64, 208, 255), Color.TRANSPARENT, Shader.TileMode.CLAMP)
-                c.drawCircle(lx, ly, gr, p); p.shader = null
-                p.color = Color.argb((100 + 155 * t).toInt(), 255, 255, 255)
-                c.drawCircle(lx, ly, w * (0.0015f + 0.004f * t), p)
+                val x1 = vx + side * w * (0.55f + i * 0.02f)
+                val y1 = horizon + (r.bottom - horizon) * tr.second
+                p.strokeWidth = h * (0.008f - i * 0.002f)
+                p.shader = LinearGradient(vx + side * w * 0.04f, horizon, x1, y1, Color.argb(0, 64, 208, 255), Color.argb((230 - i * 60), 64, 208, 255), Shader.TileMode.CLAMP)
+                c.drawLine(vx + side * w * 0.04f, horizon + h * 0.01f, x1, y1, p)
+                p.shader = null
+                val m = ((f.travelled / (8f + i * 3f)) + i * 0.3f) % 1f
+                val t0 = m * m
+                val t1 = (m + 0.12f).coerceAtMost(1f).let { it * it }
+                val sx = vx + side * w * 0.04f
+                p.color = Color.argb((200 * m).toInt(), 200, 240, 255); p.strokeWidth = h * 0.012f
+                if ((f.speed ?: 0f) > 1f) c.drawLine(sx + (x1 - sx) * t0, horizon + (y1 - horizon) * t0, sx + (x1 - sx) * t1, horizon + (y1 - horizon) * t1, p)
             }
         }
-        // Speed streaks above 40 km/h.
-        val streak = (((f.speed ?: 0f) - 40f) / 100f).coerceIn(0f, 1f)
-        if (streak > 0f) {
-            p.style = Paint.Style.STROKE; p.strokeWidth = w * 0.003f
-            for (k in 0 until 6) {
-                val t = ((k / 6f) + (f.travelled / 6f) % 1f) % 1f
-                val side = if (k % 2 == 0) -1f else 1f
-                val t1 = (t + 0.18f).coerceAtMost(1f)
-                p.color = Color.argb((90 * streak * t).toInt(), 64, 208, 255)
-                c.drawLine(xAt(side * 0.75f, t), yAt(t), xAt(side * 0.75f, t1), yAt(t1), p)
+        // Road edges and moving lane marks.
+        p.strokeWidth = max(1.5f, w * 0.003f)
+        p.color = Color.argb(200, 64, 208, 255)
+        c.drawLine(vx - w * 0.03f, horizon, vx - w * 0.30f, r.bottom, p)
+        c.drawLine(vx + w * 0.03f, horizon, vx + w * 0.30f, r.bottom, p)
+        for (lane in floatArrayOf(-0.33f, 0.33f)) {
+            for (i in 0 until 5) {
+                val t0 = (i + f.roadPhase) / 5
+                val t1 = (t0 + 0.07f).coerceAtMost(1f)
+                fun xAt(t: Float) = vx + lane * (w * 0.03f + w * 0.27f * t * t)
+                fun yAt(t: Float) = horizon + (r.bottom - horizon) * t * t
+                p.color = Color.argb((40 + 170 * t0).toInt(), 255, 255, 255)
+                p.strokeWidth = w * (0.0015f + 0.006f * t0)
+                c.drawLine(xAt(t0), yAt(t0), xAt(t1), yAt(t1), p)
             }
         }
         p.style = Paint.Style.FILL
         val moving = (f.speed ?: 0f) > 1f
-        val bob = if (moving) sin(f.travelled * 2.1f) * h * 0.004f * ((f.speed ?: 0f) / 120f).coerceAtMost(1f) else 0f
-        car(c, vx, r.bottom - h * 0.20f + bob, min(w * 0.30f, h * 0.62f), f.braking || !moving)
+        val bob = if (moving) sin(f.travelled * 2.1f) * h * 0.005f * ((f.speed ?: 0f) / 120f).coerceAtMost(1f) else 0f
+        val cwid = min(carWidth, h * 1.15f)
+        car(c, vx, r.bottom - cwid * 0.34f + bob, cwid, f.braking || !moving)
         c.restore()
-        p.reset(); p.isAntiAlias = true; p.style = Paint.Style.STROKE; p.strokeWidth = w * 0.003f
-        p.color = Color.argb(110, 64, 208, 255)
-        c.drawRoundRect(r, radius, radius, p)
     }
 
     /** JAC J7-style liftback seen from behind (no manufacturer logo). Mirrors the phone drawing. */
@@ -463,15 +658,19 @@ class CockpitRenderer(private val bold: Typeface?, private val light: Typeface?)
         p.color = Color.rgb(5, 7, 11); c.drawOval(RectF(x(0.25f), y(0.84f), x(0.30f), y(0.87f)), p)
     }
 
-    private fun blend(a: Int, b: Int, t: Float): Int = Color.rgb(
-        (Color.red(a) + (Color.red(b) - Color.red(a)) * t).toInt(),
-        (Color.green(a) + (Color.green(b) - Color.green(a)) * t).toInt(),
-        (Color.blue(a) + (Color.blue(b) - Color.blue(a)) * t).toInt(),
-    )
 
     private fun text(c: Canvas, s: String, x: Float, y: Float, size: Float, color: Int, tf: Typeface?, align: Paint.Align) {
         p.reset(); p.isAntiAlias = true
         p.color = color; p.textSize = size; p.typeface = tf; p.textAlign = align
         c.drawText(s, x, y, p)
+    }
+
+    /** Like [text] but shrinks the size until it fits [maxW]. */
+    private fun fitText(c: Canvas, s: String, x: Float, y: Float, size: Float, maxW: Float, color: Int, tf: Typeface?, align: Paint.Align) {
+        p.reset(); p.isAntiAlias = true; p.typeface = tf
+        var sz = size
+        p.textSize = sz
+        while (p.measureText(s) > maxW && sz > 6f) { sz *= 0.92f; p.textSize = sz }
+        text(c, s, x, y, sz, color, tf, align)
     }
 }

@@ -40,4 +40,9 @@
     <string name="car_rpm_x1000">×1000 دورة</string>
     <string name="car_trip">الرحلة</string>
     <string name="car_avg_fuel">المتوسط</string>
+    <string name="car_check_engine">فحص المحرك</string>
+    <string name="car_engine_fault">يوجد عطل</string>
+    <string name="car_engine_codes">رموز نشطة: %1$d</string>
+    <string name="car_engine_ok">لا توجد أعطال</string>
+    <string name="car_engine_unknown">لم يُفحص</string>
 </resources>

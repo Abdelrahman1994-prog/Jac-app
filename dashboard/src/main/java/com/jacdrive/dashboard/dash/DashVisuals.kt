@@ -33,7 +33,6 @@ import com.jacdrive.core.model.DashboardBackground
 import com.jacdrive.ui.cockpit.CockpitStyle
 import com.jacdrive.ui.cockpit.GaugeStyle
 import kotlin.math.pow
-import kotlin.random.Random
 
 /** Colours for the dashboard in normal (blue/cyan) and Sport (red/orange) mode. */
 data class DashPalette(
@@ -113,90 +112,75 @@ fun HeroScene(speedKmh: Float, palette: DashPalette, animate: Boolean, modifier:
         if (dt in 0.05f..3f) braking = (prev.first - speedKmh) / 3.6f / dt > 1.5f && speedKmh > 1f
         prev = speedKmh to now
     }
-    val windows = remember { Random(7).let { r -> List(260) { Triple(r.nextFloat(), r.nextFloat(), r.nextFloat()) } } }
-    val buildings = remember { Random(3).let { r -> List(26) { r.nextFloat() } } }
-
+    val roadPhase = (travelled / 9f) % 1f
     Canvas(modifier) {
         val w = size.width
         val h = size.height
-        val horizon = h * 0.52f
-        // Sky glow.
-        drawRect(Brush.verticalGradient(listOf(Color(0xFF071530), Color(0xFF0B2350), Color(0xFF06101F)), endY = horizon))
-        drawRect(Brush.radialGradient(listOf(palette.glow.copy(alpha = 0.35f), Color.Transparent), center = Offset(w / 2, horizon), radius = w * 0.45f))
-        // Skyline (far away, so it stays still).
-        val n = buildings.size
-        val bw = w / n
-        buildings.forEachIndexed { i, v ->
-            val centre = 1f - kotlin.math.abs(i - n / 2f) / (n / 2f)
-            val bh = horizon * (0.18f + 0.55f * v * (0.4f + 0.6f * centre))
-            val left = i * bw + bw * 0.08f
-            drawRect(Color(0xFF0A1A36), Offset(left, horizon - bh), Size(bw * 0.84f, bh))
-            drawRect(Brush.verticalGradient(listOf(palette.accent.copy(alpha = 0.08f), Color.Transparent), startY = horizon - bh, endY = horizon), Offset(left, horizon - bh), Size(bw * 0.84f, bh))
-        }
-        windows.forEach { (x, y, a) ->
-            val bi = (x * n).toInt().coerceIn(0, n - 1)
-            val centre = 1f - kotlin.math.abs(bi - n / 2f) / (n / 2f)
-            val bh = horizon * (0.18f + 0.55f * buildings[bi] * (0.4f + 0.6f * centre))
-            val wy = horizon - bh * (0.05f + 0.9f * y)
-            val wx = bi * bw + bw * (0.2f + 0.6f * ((x * n) % 1f))
-            if (a > 0.45f) drawRect((if (a > 0.9f) Color(0xFFFFE8A8) else palette.accent).copy(alpha = 0.25f + 0.55f * (a - 0.45f)), Offset(wx, wy), Size(w * 0.004f, w * 0.006f))
-        }
-        // Ground and road.
-        drawRect(Brush.verticalGradient(listOf(Color(0xFF050B17), Color(0xFF02050C)), startY = horizon), Offset(0f, horizon), Size(w, h - horizon))
+        val vx = w / 2
+        val horizon = h * 0.22f
+        // Horizon glow (elliptical, fades out before the top edge) and the bright horizon line.
+        drawOval(
+            Brush.radialGradient(listOf(DashPalette.Blue.copy(alpha = 0.55f), Color.Transparent), center = Offset(vx, horizon), radius = w * 0.5f),
+            topLeft = Offset(vx - w * 0.5f, horizon - h * 0.22f), size = Size(w, h * 0.5f),
+        )
+        drawRect(
+            Brush.horizontalGradient(listOf(Color.Transparent, palette.accent.copy(alpha = 0.9f), Color.Transparent)),
+            topLeft = Offset(0f, horizon - 1.dp.toPx()), size = Size(w, 2.dp.toPx()),
+        )
+        // Ground fading into the page.
+        drawOval(
+            Brush.radialGradient(listOf(Color(0xCC06102A), Color.Transparent), center = Offset(vx, horizon), radius = w * 0.55f),
+            topLeft = Offset(vx - w * 0.55f, horizon - (h - horizon)), size = Size(w * 1.1f, (h - horizon) * 2f),
+        )
+        // Road surface.
         val road = Path().apply {
-            moveTo(w * 0.48f, horizon); lineTo(w * 0.52f, horizon); lineTo(w * 0.80f, h); lineTo(w * 0.20f, h); close()
+            moveTo(vx - w * 0.03f, horizon); lineTo(vx + w * 0.03f, horizon); lineTo(vx + w * 0.30f, h); lineTo(vx - w * 0.30f, h); close()
         }
-        drawPath(road, Brush.verticalGradient(listOf(Color(0xFF0E1A30), Color(0xFF16233C)), startY = horizon, endY = h))
-        // Glowing road edges.
-        drawLine(palette.accent.copy(alpha = 0.8f), Offset(w * 0.48f, horizon), Offset(w * 0.20f, h), strokeWidth = 2.dp.toPx())
-        drawLine(palette.accent2.copy(alpha = 0.8f), Offset(w * 0.52f, horizon), Offset(w * 0.80f, h), strokeWidth = 2.dp.toPx())
-
-        // Everything below moves with the distance actually driven.
-        // depth t: 0 at the horizon, 1 at the bottom edge; perspective y = horizon + (h - horizon) * t².
-        fun yAt(t: Float) = horizon + (h - horizon) * t.pow(2f)
-        fun xAt(lane: Float, t: Float) = w / 2 + lane * (w * 0.02f + w * 0.28f * t.pow(2f)) // lane: -1 left edge … 1 right edge
-        val dashPhase = (travelled / 9f) % 1f           // a lane dash every 9 m
-        val polePhase = (travelled / 25f) % 1f          // a road light every 25 m
-        val dashes = 6
-        for (lane in listOf(-0.33f, 0.33f)) {
-            for (i in 0 until dashes) {
-                val t0 = (i + dashPhase) / dashes
-                val t1 = (t0 + 0.06f).coerceAtMost(1f)
+        drawPath(road, Brush.verticalGradient(listOf(Color(0xFF10203E), Color(0x99142644)), startY = horizon, endY = h))
+        // Light trails spreading to the sides, with highlights that run along them at the real speed.
+        val trails = listOf(0.80f, 0.48f, 0.30f)
+        val moving = speed > 1f
+        trails.forEachIndexed { i, ty ->
+            for (side in listOf(-1f, 1f)) {
+                val start = Offset(vx + side * w * 0.04f, horizon + h * 0.02f)
+                val end = Offset(vx + side * w * (0.56f + i * 0.02f), horizon + (h - horizon) * ty)
                 drawLine(
-                    Color.White.copy(alpha = 0.12f + 0.55f * t0),
-                    Offset(xAt(lane, t0), yAt(t0)), Offset(xAt(lane, t1), yAt(t1)),
-                    strokeWidth = (0.8f + 3.5f * t0).dp.toPx(), cap = StrokeCap.Round,
+                    Brush.linearGradient(listOf(palette.accent.copy(alpha = 0f), palette.accent.copy(alpha = 0.9f - i * 0.22f)), start, end),
+                    start, end, strokeWidth = (2.6f - i * 0.6f).dp.toPx(), cap = StrokeCap.Round,
+                )
+                if (moving) {
+                    val m = ((travelled / (8f + i * 3f)) + i * 0.3f) % 1f
+                    val t0 = m * m
+                    val t1 = (m + 0.12f).coerceAtMost(1f).let { it * it }
+                    drawLine(
+                        Color(0xFFC8F0FF).copy(alpha = 0.85f * m),
+                        Offset(start.x + (end.x - start.x) * t0, start.y + (end.y - start.y) * t0),
+                        Offset(start.x + (end.x - start.x) * t1, start.y + (end.y - start.y) * t1),
+                        strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round,
+                    )
+                }
+            }
+        }
+        // Road edges and moving lane marks.
+        drawLine(palette.accent.copy(alpha = 0.85f), Offset(vx - w * 0.03f, horizon), Offset(vx - w * 0.30f, h), strokeWidth = 1.5.dp.toPx())
+        drawLine(palette.accent2.copy(alpha = 0.85f), Offset(vx + w * 0.03f, horizon), Offset(vx + w * 0.30f, h), strokeWidth = 1.5.dp.toPx())
+        fun yAt(t: Float) = horizon + (h - horizon) * t * t
+        for (lane in listOf(-0.33f, 0.33f)) {
+            fun xAt(t: Float) = vx + lane * (w * 0.03f + w * 0.27f * t * t)
+            for (i in 0 until 5) {
+                val t0 = (i + roadPhase) / 5
+                val t1 = (t0 + 0.07f).coerceAtMost(1f)
+                drawLine(
+                    Color.White.copy(alpha = 0.15f + 0.6f * t0),
+                    Offset(xAt(t0), yAt(t0)), Offset(xAt(t1), yAt(t1)),
+                    strokeWidth = (0.8f + 3f * t0).dp.toPx(), cap = StrokeCap.Round,
                 )
             }
         }
-        // Road lights passing on both sides.
-        val poles = 4
-        for (i in 0 until poles) {
-            val t = (i + polePhase) / poles
-            val y = yAt(t)
-            val hgt = (h - horizon) * 0.10f + h * 0.55f * t.pow(2f)
-            for (side in listOf(-1f, 1f)) {
-                val x = xAt(side * 1.08f, t)
-                drawLine(Color(0xFF26354F).copy(alpha = 0.3f + 0.6f * t), Offset(x, y), Offset(x, y - hgt), strokeWidth = (0.6f + 2.5f * t).dp.toPx())
-                val lamp = Offset(x - side * hgt * 0.12f, y - hgt)
-                drawCircle(Brush.radialGradient(listOf(palette.accent.copy(alpha = 0.55f * t), Color.Transparent), center = lamp, radius = 4.dp.toPx() + 16.dp.toPx() * t), radius = 4.dp.toPx() + 16.dp.toPx() * t, center = lamp)
-                drawCircle(Color.White.copy(alpha = 0.4f + 0.6f * t), radius = 0.8.dp.toPx() + 2.5.dp.toPx() * t, center = lamp)
-            }
-        }
-        // Speed streaks once really moving.
-        val streak = ((speed - 40f) / 100f).coerceIn(0f, 1f)
-        if (streak > 0f) {
-            for (k in 0 until 6) {
-                val t = ((k / 6f) + (travelled / 6f) % 1f / 6f * 6f) % 1f
-                val side = if (k % 2 == 0) -1f else 1f
-                val x0 = xAt(side * 0.75f, t)
-                val x1 = xAt(side * 0.75f, (t + 0.18f).coerceAtMost(1f))
-                drawLine(palette.accent.copy(alpha = 0.35f * streak * t), Offset(x0, yAt(t)), Offset(x1, yAt((t + 0.18f).coerceAtMost(1f))), strokeWidth = 1.5.dp.toPx(), cap = StrokeCap.Round)
-            }
-        }
-        // Slight body motion while driving.
-        val bob = if (speed > 1f) kotlin.math.sin(travelled * 2.1f) * h * 0.003f * (speed / 120f).coerceAtMost(1f) else 0f
-        drawCarRear(Offset(w / 2, h * 0.75f + bob), w * 0.23f, palette, braking || speedKmh < 0.5f)
+        // The car, with slight body motion while driving.
+        val bob = if (moving) kotlin.math.sin(travelled * 2.1f) * h * 0.006f * (speed / 120f).coerceAtMost(1f) else 0f
+        val cw = minOf(w * 0.30f, h * 0.95f)
+        drawCarRear(Offset(vx, h - cw * 0.34f + bob), cw, palette, braking || speedKmh < 0.5f)
     }
 }
 

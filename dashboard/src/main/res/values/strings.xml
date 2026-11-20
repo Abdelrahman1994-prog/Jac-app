@@ -94,4 +94,14 @@
     <string name="drawer_themes">Themes</string>
     <string name="drawer_sport">Sport mode</string>
     <string name="drawer_title">JAC DRIVE</string>
+    <string name="dash_hdr_connected">OBDII connected</string>
+    <string name="dash_hdr_demo">Demo data</string>
+    <string name="dash_hdr_connecting">Connecting</string>
+    <string name="dash_hdr_lost">Connection lost</string>
+    <string name="dash_hdr_disconnected">OBDII disconnected</string>
+    <string name="dash_banner_fault">Fault detected</string>
+    <string name="dash_banner_ok">No active faults</string>
+    <string name="dash_banner_unknown">Not checked</string>
+    <string name="dash_trip_short">Trip</string>
+    <string name="dash_avg_short">Avg</string>
 </resources>

@@ -56,6 +56,10 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
     )
     private var lastDraw = 0L
     private var roadPhase = 0f
+    private var sessions: List<com.jacdrive.core.database.SessionWithCodes> = emptyList()
+    private var coolantLimitC = 105.0
+    private var make = "JAC"
+    private var model = "J7"
     private var travelled = 0f
     private var braking = false
     private var brakeRefKmh = 0.0
@@ -73,6 +77,9 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             speedUnit = s.speedUnit
             tempUnit = s.temperatureUnit
             redline = deps.settings.cockpit.first().redlineRpm
+            launch { deps.settings.alerts.collect { coolantLimitC = it.coolantThresholdC.toDouble() } }
+            launch { deps.diagnosticDao.observeSessions().collect { sessions = it; render() } }
+            deps.vehicle?.let { v -> launch { v.profile.collect { make = it.make; model = it.model; render() } } }
             launch {
                 deps.vehicleData.snapshot.collect { snap ->
                     snapshot = snap
@@ -142,7 +149,25 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             s.connection is ConnectionState.Failed -> carContext.getString(R.string.car_reconnecting)
             else -> carContext.getString(R.string.car_not_connected)
         }
+        val check = com.jacdrive.dashboard.dash.EngineCheckRules.evaluate(s, sessions, now)
+        val engineState = when (check.state) {
+            com.jacdrive.dashboard.dash.EngineCheckState.FAULT -> CockpitFrame.ENGINE_FAULT
+            com.jacdrive.dashboard.dash.EngineCheckState.OK -> CockpitFrame.ENGINE_OK
+            com.jacdrive.dashboard.dash.EngineCheckState.UNKNOWN -> CockpitFrame.ENGINE_UNKNOWN
+        }
+        val engineText = when (check.state) {
+            com.jacdrive.dashboard.dash.EngineCheckState.FAULT ->
+                check.codeCount?.takeIf { it > 0 }?.let { carContext.getString(R.string.car_engine_codes, it) } ?: carContext.getString(R.string.car_engine_fault)
+            com.jacdrive.dashboard.dash.EngineCheckState.OK -> carContext.getString(R.string.car_engine_ok)
+            com.jacdrive.dashboard.dash.EngineCheckState.UNKNOWN -> carContext.getString(R.string.car_engine_unknown)
+        }
         return CockpitFrame(
+            engineState = engineState,
+            engineText = engineText,
+            coolantWarm = coolant != null && coolant >= coolantLimitC - 5 && coolant < coolantLimitC,
+            connected = s.mode == DataMode.LIVE && s.connection is ConnectionState.Connected,
+            brandMake = make,
+            brandModel = model,
             speed = v(VehicleMetric.SPEED)?.let { UnitConverter.speed(it, speedUnit).toFloat() },
             speedMax = UnitConverter.speedScaleMax(speedUnit).toFloat(),
             speedUnit = if (speedUnit == SpeedUnit.KMH) "km/h" else "mph",
@@ -150,7 +175,7 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
             redline = redline.toFloat(),
             coolant = coolant?.let { UnitConverter.temperature(it, tempUnit).toFloat() },
             coolantUnit = if (tempUnit == TemperatureUnit.CELSIUS) "°C" else "°F",
-            coolantHot = (coolant ?: 0.0) >= 105,
+            coolantHot = (coolant ?: 0.0) >= coolantLimitC,
             battery = battery?.toFloat(),
             batteryBad = battery != null && (battery < 12.0 || battery > 15.2),
             fuel = v(VehicleMetric.FUEL_LEVEL)?.toFloat(),
@@ -172,7 +197,7 @@ class CockpitNavScreen(carContext: CarContext, private val deps: CarDeps) : Scre
                 fuel = carContext.getString(R.string.car_fuel),
                 load = carContext.getString(R.string.car_load),
                 demo = carContext.getString(R.string.car_demo),
-                mil = carContext.getString(R.string.car_mil_on_short),
+                mil = carContext.getString(R.string.car_check_engine),
                 throttle = carContext.getString(R.string.car_throttle),
                 intake = carContext.getString(R.string.car_intake),
                 trip = carContext.getString(R.string.car_trip),

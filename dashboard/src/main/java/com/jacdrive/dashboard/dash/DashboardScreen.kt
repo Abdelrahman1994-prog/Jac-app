@@ -59,6 +59,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.Icon
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -125,181 +129,188 @@ fun DashboardContent(
 
     LazyColumn(
         Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 110.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 110.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        item { DashHeader(state, check, palette, onOpenDrawer, { onNavigate(DashDestination.SETTINGS) }, { onNavigate(DashDestination.ADAPTER) }, onSport) }
-        item { Hero(state, palette, now) }
+        item { HeaderBar(state, palette, onOpenDrawer, { onNavigate(DashDestination.SETTINGS) }, { onNavigate(DashDestination.ADAPTER) }, onSport) }
+        item { CheckEngineBanner(check) { onNavigate(DashDestination.DTC) } }
+        item { GaugesAndRoad(state, palette, now) }
         item { MetricGrid(state, palette, now) }
-        item {
-            BoxWithConstraints {
-                if (maxWidth > 600.dp) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        TripCard(state, now, Modifier.weight(1f))
-                        DtcCard(check, Modifier.weight(1.2f)) { onNavigate(DashDestination.DTC) }
-                    }
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        TripCard(state, now, Modifier.fillMaxWidth())
-                        DtcCard(check, Modifier.fillMaxWidth()) { onNavigate(DashDestination.DTC) }
-                    }
-                }
-            }
-        }
+        item { TripBar(state, palette, now) }
         item { TrendCard(state, palette, now) { onNavigate(DashDestination.LIVE_DATA) } }
     }
 }
 
-private val Numeral = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic, textDirection = TextDirection.Ltr)
+private val Numeral = TextStyle(fontFamily = JacFonts.Display, fontWeight = FontWeight.Bold, textDirection = TextDirection.Ltr)
+private val TextCyan = Color(0xFF6ECDFF)
+
+/** Glass panel with a glowing gradient border; optional tinted fill for critical states. */
+private fun Modifier.glass(shape: androidx.compose.ui.graphics.Shape, edge: Color, tint: Color? = null, glow: Boolean = false): Modifier =
+    this
+        .then(if (glow) Modifier.shadow(14.dp, shape, ambientColor = edge, spotColor = edge) else Modifier)
+        .clip(shape)
+        .background(Brush.verticalGradient(listOf((tint ?: Color(0xFF102A54)).copy(alpha = if (tint != null) 0.55f else 0.40f), Color(0xE6040A18))))
+        .border(1.5.dp, Brush.verticalGradient(listOf(edge.copy(alpha = 0.95f), edge.copy(alpha = 0.45f))), shape)
 
 // ---------------------------------------------------------------- header
 
 @Composable
-private fun DashHeader(
+private fun HeaderBar(
     state: DashboardUiState,
-    check: EngineCheck,
     palette: DashPalette,
     onMenu: () -> Unit,
     onSettings: () -> Unit,
     onAdapter: () -> Unit,
     onSport: (Boolean) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onMenu) { Icon(Icons.Rounded.Menu, stringResource(R.string.dash_menu), tint = Color.White) }
-            Spacer(Modifier.weight(1f))
-            // Vehicle branding from the user's vehicle profile (plain text, no manufacturer logo).
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Row(verticalAlignment = Alignment.Bottom) {
-                Text(state.make.uppercase(), style = Numeral.copy(fontSize = 26.sp, letterSpacing = 0.06.em), color = Color.White)
-                Spacer(Modifier.width(6.dp))
-                Text(state.model.uppercase(), style = Numeral.copy(fontSize = 26.sp, letterSpacing = 0.06.em), color = palette.accent2)
-            } }
-            Spacer(Modifier.weight(1f))
-            IconButton(onClick = onSettings) { Icon(Icons.Rounded.Settings, stringResource(R.string.dash_settings), tint = Color.White) }
-        }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ConnectionPill(state, Modifier.weight(1f), onAdapter)
-            SportToggle(state.cockpit.sportMode, palette, onSport)
-            CheckEnginePill(check)
-        }
-    }
-}
-
-@Composable
-private fun ConnectionPill(state: DashboardUiState, modifier: Modifier, onClick: () -> Unit) {
     val s = state.snapshot
-    val (color, title, sub) = when {
-        s.mode == DataMode.DEMO -> Triple(DashPalette.Purple, stringResource(R.string.dash_demo), stringResource(R.string.dash_simulated))
-        s.connection is ConnectionState.Connected -> Triple(DashPalette.Green, stringResource(R.string.dash_connected), stringResource(R.string.dash_live_data))
-        s.connection is ConnectionState.Connecting -> Triple(DashPalette.Amber, stringResource(R.string.dash_connecting), "OBDII")
-        s.connection is ConnectionState.Failed -> Triple(DashPalette.Amber, stringResource(R.string.dash_reconnecting), "OBDII")
-        else -> Triple(DashPalette.Red, stringResource(R.string.dash_disconnected), stringResource(R.string.dash_tap_connect))
+    val (dot, status) = when {
+        s.mode == DataMode.DEMO -> DashPalette.Purple to stringResource(R.string.dash_hdr_demo)
+        s.connection is ConnectionState.Connected -> DashPalette.Green to stringResource(R.string.dash_hdr_connected)
+        s.connection is ConnectionState.Connecting -> DashPalette.Amber to stringResource(R.string.dash_hdr_connecting)
+        s.connection is ConnectionState.Failed -> DashPalette.Amber to stringResource(R.string.dash_hdr_lost)
+        else -> DashPalette.Red to stringResource(R.string.dash_hdr_disconnected)
     }
-    val pulse by rememberInfiniteTransition(label = "conn").animateFloat(0.35f, 1f, infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "pulse")
-    val shape = RoundedCornerShape(14.dp)
+    val pulse by rememberInfiniteTransition(label = "conn").animateFloat(0.45f, 1f, infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "pulse")
+    val shape = RoundedCornerShape(50)
+    val edge = palette.accent
     Row(
-        modifier.clip(shape).background(Color(0x22102A55)).border(1.dp, color.copy(alpha = 0.35f), shape).clickable(onClick = onClick).padding(horizontal = 10.dp, vertical = 6.dp),
+        Modifier.fillMaxWidth().height(54.dp).glass(shape, edge.copy(alpha = 0.7f)).padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(10.dp).clip(CircleShape).background(color.copy(alpha = if (color == DashPalette.Green || color == DashPalette.Purple) pulse else 1f)))
-        Spacer(Modifier.width(8.dp))
-        Column {
-            Text("$title · OBDII", style = MaterialTheme.typography.labelLarge, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(sub, style = MaterialTheme.typography.labelSmall, color = Color(0xFF9FB6D6), maxLines = 1)
+        IconButton(onClick = onMenu, modifier = Modifier.size(36.dp)) { Icon(Icons.Rounded.Menu, stringResource(R.string.dash_menu), tint = Color.White) }
+        Row(Modifier.weight(1.45f).clip(RoundedCornerShape(12.dp)).clickable(onClick = onAdapter).padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(10.dp).drawBehind {
+                drawCircle(Brush.radialGradient(listOf(dot.copy(alpha = 0.7f * pulse), Color.Transparent)), radius = size.minDimension * 1.2f)
+                drawCircle(dot.copy(alpha = if (dot == DashPalette.Green || dot == DashPalette.Purple) 0.6f + 0.4f * pulse else 1f))
+            })
+            Spacer(Modifier.width(7.dp))
+            Text(status.uppercase(), style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.02.em), color = Color.White, maxLines = 2, lineHeight = 13.sp, overflow = TextOverflow.Ellipsis)
+        }
+        VDivider(edge)
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Row(Modifier.padding(horizontal = 8.dp), verticalAlignment = Alignment.Bottom) {
+                Text(state.make.uppercase(), style = Numeral.copy(fontSize = 22.sp, fontStyle = FontStyle.Italic, letterSpacing = 0.04.em), color = Color.White)
+                Spacer(Modifier.width(6.dp))
+                Text(state.model.uppercase(), style = Numeral.copy(fontSize = 22.sp, fontStyle = FontStyle.Italic, letterSpacing = 0.04.em), color = DashPalette.Red)
+            }
+        }
+        VDivider(edge)
+        Row(Modifier.weight(0.75f), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+            val sportOn = state.cockpit.sportMode
+            val sportTint by animateColorAsState(if (sportOn) DashPalette.Orange else Color(0xFF8AA0BF), label = "sport")
+            IconButton(onClick = { onSport(!sportOn) }, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Rounded.SportsScore, stringResource(R.string.dash_sport), tint = sportTint)
+            }
+            IconButton(onClick = onSettings, modifier = Modifier.size(36.dp)) { Icon(Icons.Rounded.Settings, stringResource(R.string.dash_settings), tint = Color.White) }
         }
     }
 }
 
 @Composable
-private fun SportToggle(on: Boolean, palette: DashPalette, onChange: (Boolean) -> Unit) {
-    val bg by animateColorAsState(if (on) palette.accent.copy(alpha = 0.25f) else Color(0x22102A55), label = "sportBg")
-    val fg by animateColorAsState(if (on) DashPalette.Orange else Color(0xFF9FB6D6), label = "sportFg")
-    val shape = RoundedCornerShape(14.dp)
-    Column(
-        Modifier.clip(shape).background(bg).border(1.dp, fg.copy(alpha = 0.6f), shape).clickable { onChange(!on) }.padding(horizontal = 10.dp, vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Icon(Icons.Rounded.SportsScore, null, tint = fg, modifier = Modifier.size(18.dp))
-        Text(stringResource(R.string.dash_sport), style = MaterialTheme.typography.labelSmall, color = fg)
-    }
-}
+private fun VDivider(color: Color) = Box(Modifier.width(1.dp).height(26.dp).background(color.copy(alpha = 0.5f)))
 
+/** Hexagonal glowing banner: red fault, green clean recent scan, amber not checked. */
 @Composable
-private fun CheckEnginePill(check: EngineCheck) {
-    val (color, value) = when (check.state) {
-        EngineCheckState.OK -> DashPalette.Green to stringResource(R.string.dash_ok)
-        EngineCheckState.FAULT -> DashPalette.Red to (check.codeCount?.takeIf { it > 0 }?.let { stringResource(R.string.dash_faults_n, it) } ?: stringResource(R.string.dash_fault))
-        EngineCheckState.UNKNOWN -> DashPalette.Amber to stringResource(R.string.dash_unknown)
+private fun CheckEngineBanner(check: EngineCheck, onClick: () -> Unit) {
+    val target = when (check.state) {
+        EngineCheckState.FAULT -> DashPalette.Red
+        EngineCheckState.OK -> DashPalette.Green
+        EngineCheckState.UNKNOWN -> DashPalette.Amber
     }
-    val shape = RoundedCornerShape(14.dp)
-    Row(
-        Modifier.clip(shape).background(color.copy(alpha = 0.12f)).border(1.5.dp, color.copy(alpha = 0.8f), shape).padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(EngineIcon, null, tint = color, modifier = Modifier.size(24.dp))
-        Spacer(Modifier.width(6.dp))
-        Column {
-            Text(stringResource(R.string.dash_check_engine), style = MaterialTheme.typography.labelSmall, color = color, maxLines = 1)
-            Text(value, style = MaterialTheme.typography.labelLarge, color = color, maxLines = 1)
+    val color by animateColorAsState(target, tween(500), label = "banner")
+    val detail = when (check.state) {
+        EngineCheckState.FAULT -> check.codeCount?.takeIf { it > 0 }?.let { stringResource(R.string.dash_dtc_count, it) } ?: stringResource(R.string.dash_banner_fault)
+        EngineCheckState.OK -> stringResource(R.string.dash_banner_ok)
+        EngineCheckState.UNKNOWN -> stringResource(R.string.dash_banner_unknown)
+    }
+    val glow by rememberInfiniteTransition(label = "bannerGlow").animateFloat(0.55f, 1f, infiniteRepeatable(tween(1400), RepeatMode.Reverse), label = "g")
+    val g = if (check.state == EngineCheckState.FAULT) glow else 0.7f
+    Box(Modifier.fillMaxWidth().padding(horizontal = 18.dp), contentAlignment = Alignment.Center) {
+        Row(
+            Modifier.fillMaxWidth().height(48.dp)
+                .drawBehind {
+                    val cut = size.height * 0.45f
+                    val hex = Path().apply {
+                        moveTo(cut, 0f); lineTo(size.width - cut, 0f); lineTo(size.width, size.height / 2)
+                        lineTo(size.width - cut, size.height); lineTo(cut, size.height); lineTo(0f, size.height / 2); close()
+                    }
+                    drawPath(hex, color.copy(alpha = 0.22f * g), style = Stroke(10.dp.toPx(), join = StrokeJoin.Round))
+                    drawPath(hex, Brush.horizontalGradient(listOf(color.copy(alpha = 0.18f), Color(0xFF14040A).copy(alpha = 0.85f), color.copy(alpha = 0.18f))))
+                    drawPath(hex, color, style = Stroke(1.5.dp.toPx(), join = StrokeJoin.Round))
+                }
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(onClick = onClick)
+                .padding(horizontal = 26.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Icon(if (check.state == EngineCheckState.OK) Icons.Rounded.CheckCircle else Icons.Rounded.WarningAmber, null, tint = color, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.dash_check_engine).uppercase(), style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = color, maxLines = 1)
+            Box(Modifier.padding(horizontal = 10.dp).width(1.dp).height(22.dp).background(color.copy(alpha = 0.6f)))
+            Text(detail.uppercase(), style = MaterialTheme.typography.titleSmall, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
         }
     }
 }
 
-// ---------------------------------------------------------------- hero
+// ---------------------------------------------------------------- gauges + road
 
 @Composable
-private fun Hero(state: DashboardUiState, palette: DashPalette, now: Long) {
+private fun GaugesAndRoad(state: DashboardUiState, palette: DashPalette, now: Long) {
     val s = state.snapshot
     val speed = s.display(VehicleMetric.SPEED, state.units, now)
     val rpm = s.display(VehicleMetric.RPM, state.units, now)
     val animate = state.cockpit.animationsEnabled
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val gauge = minOf(maxWidth * 0.39f, 230.dp)
-        val sceneH = gauge * 1.12f
-        Box(Modifier.fillMaxWidth().height(sceneH)) {
-            HeroScene(
-                speedKmh = (if (s.mode != DataMode.OFFLINE && speed.freshness == Freshness.LIVE) speed.raw ?: 0.0 else 0.0).toFloat(),
-                palette = palette, animate = animate,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)),
-            )
-            val speedMax = UnitConverter.speedScaleMax(state.units.speed).toFloat()
-            CircularGauge(
-                value = speed.raw?.let { UnitConverter.speed(it, state.units.speed).toFloat() }, min = 0f, max = speedMax,
-                style = palette.speedStyle, modifier = Modifier.size(gauge).align(Alignment.CenterStart),
-                majorStep = if (speedMax > 200) 30f else 20f, minorDivisions = 3, animate = animate,
-                dimmed = speed.freshness == Freshness.STALE,
-            ) { GaugeCenter(speed.text ?: if (speed.unsupported) "N/A" else "—", speed.unit, palette.accent, gauge.value) }
-            CircularGauge(
-                value = rpm.raw?.toFloat(), min = 0f, max = 8000f,
-                style = palette.rpmStyle, modifier = Modifier.size(gauge).align(Alignment.CenterEnd),
-                majorStep = 1000f, minorDivisions = 4, labelDivisor = 1000f, dangerFrom = state.cockpit.redlineRpm.toFloat(),
-                animate = animate, dimmed = rpm.freshness == Freshness.STALE,
-            ) { GaugeCenter(rpm.raw?.let { Num.one(it / 1000) } ?: if (rpm.unsupported) "N/A" else "—", stringResource(R.string.dash_rpm_unit), Color.White, gauge.value) }
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val gauge = minOf(maxWidth * 0.48f, 300.dp)
+            val roadH = gauge * 0.62f
+            Box(Modifier.fillMaxWidth().height(gauge + roadH * 0.62f)) {
+                HeroScene(
+                    speedKmh = (if (s.mode != DataMode.OFFLINE && speed.freshness == Freshness.LIVE) speed.raw ?: 0.0 else 0.0).toFloat(),
+                    palette = palette, animate = animate,
+                    modifier = Modifier.fillMaxWidth().height(roadH).align(Alignment.BottomCenter),
+                )
+                val speedMax = UnitConverter.speedScaleMax(state.units.speed).toFloat()
+                CircularGauge(
+                    value = speed.raw?.let { UnitConverter.speed(it, state.units.speed).toFloat() }, min = 0f, max = speedMax,
+                    style = palette.speedStyle, modifier = Modifier.size(gauge).align(Alignment.TopStart),
+                    majorStep = if (speedMax > 200) 30f else 20f, minorDivisions = 3, animate = animate,
+                    dimmed = speed.freshness == Freshness.STALE,
+                ) { GaugeCenter(speed.text ?: if (speed.unsupported) "N/A" else "—", speed.unit, palette.accent, gauge.value) }
+                CircularGauge(
+                    value = rpm.raw?.toFloat(), min = 0f, max = 8000f,
+                    style = palette.rpmStyle, modifier = Modifier.size(gauge).align(Alignment.TopEnd),
+                    majorStep = 1000f, minorDivisions = 4, labelDivisor = 1000f, dangerFrom = state.cockpit.redlineRpm.toFloat(),
+                    animate = animate, dimmed = rpm.freshness == Freshness.STALE,
+                ) { GaugeCenter(rpm.raw?.let { Num.one(it / 1000) } ?: if (rpm.unsupported) "N/A" else "—", stringResource(R.string.dash_rpm_unit), palette.accent, gauge.value) }
+            }
         }
-    } }
+    }
 }
 
 @Composable
 private fun GaugeCenter(value: String, unit: String, unitColor: Color, gaugeDp: Float) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = Numeral.copy(fontSize = (gaugeDp * 0.165f).sp, lineHeight = (gaugeDp * 0.17f).sp), color = Color.White)
-        Text(unit, style = MaterialTheme.typography.labelLarge.copy(fontSize = (gaugeDp * 0.05f).sp, textDirection = TextDirection.Ltr), color = unitColor)
+        Text(value, style = Numeral.copy(fontSize = (gaugeDp * 0.20f).sp, lineHeight = (gaugeDp * 0.21f).sp, fontStyle = FontStyle.Italic), color = Color.White)
+        Text(unit, style = MaterialTheme.typography.labelLarge.copy(fontSize = (gaugeDp * 0.058f).sp, fontWeight = FontWeight.Bold, textDirection = TextDirection.Ltr), color = unitColor)
     }
 }
 
 // ---------------------------------------------------------------- metric cards
 
-private data class MetricSpec(val metric: VehicleMetric, val icon: ImageVector, val identity: Color)
+private data class MetricSpec(val metric: VehicleMetric, val icon: ImageVector)
 
 @Composable
 private fun MetricGrid(state: DashboardUiState, palette: DashPalette, now: Long) {
     val specs = listOf(
-        MetricSpec(VehicleMetric.COOLANT_TEMP, Icons.Rounded.DeviceThermostat, DashPalette.Cyan),
-        MetricSpec(VehicleMetric.BATTERY_VOLTAGE, Icons.Rounded.BatteryChargingFull, DashPalette.Blue),
-        MetricSpec(VehicleMetric.FUEL_LEVEL, Icons.Rounded.LocalGasStation, DashPalette.Amber),
-        MetricSpec(VehicleMetric.ENGINE_LOAD, Icons.Rounded.Scale, DashPalette.Purple),
-        MetricSpec(VehicleMetric.THROTTLE_POSITION, Icons.Rounded.Tune, DashPalette.Green),
-        MetricSpec(VehicleMetric.INTAKE_AIR_TEMP, Icons.Rounded.Air, DashPalette.Teal),
+        MetricSpec(VehicleMetric.COOLANT_TEMP, Icons.Rounded.DeviceThermostat),
+        MetricSpec(VehicleMetric.BATTERY_VOLTAGE, Icons.Rounded.BatteryChargingFull),
+        MetricSpec(VehicleMetric.FUEL_LEVEL, Icons.Rounded.LocalGasStation),
+        MetricSpec(VehicleMetric.ENGINE_LOAD, EngineIcon),
+        MetricSpec(VehicleMetric.THROTTLE_POSITION, Icons.Rounded.Tune),
+        MetricSpec(VehicleMetric.INTAKE_AIR_TEMP, Icons.Rounded.Air),
     )
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         specs.chunked(3).forEach { row ->
@@ -310,7 +321,7 @@ private fun MetricGrid(state: DashboardUiState, palette: DashPalette, now: Long)
     }
 }
 
-/** Warning colour for a value, or null when normal. Uses the user's alert thresholds where they exist. */
+/** Red = critical, orange = warning, null = normal. Uses the user's alert thresholds where they exist. */
 private fun warning(state: DashboardUiState, metric: VehicleMetric, v: Double, now: Long): Color? {
     val rpm = state.snapshot[VehicleMetric.RPM]?.takeIf { it.freshness(VehicleMetric.RPM, now) == Freshness.LIVE }?.value ?: 0.0
     return when (metric) {
@@ -334,11 +345,13 @@ private fun warning(state: DashboardUiState, metric: VehicleMetric, v: Double, n
     }
 }
 
+
 @Composable
 private fun MetricCard(spec: MetricSpec, state: DashboardUiState, palette: DashPalette, now: Long, modifier: Modifier) {
     val d = state.snapshot.display(spec.metric, state.units, now)
     val warn = d.raw?.let { warning(state, spec.metric, it, now) }
-    val color by animateColorAsState(warn ?: spec.identity, tween(400), label = "metricColor")
+    val critical = warn == DashPalette.Red
+    val color by animateColorAsState(warn ?: palette.accent, tween(400), label = "metricColor")
     val fraction by animateFloatAsState(barFraction(spec.metric, d.raw) ?: 0f, tween(500), label = "metricBar")
     val stale = d.freshness == Freshness.STALE
     val value = when {
@@ -346,88 +359,63 @@ private fun MetricCard(spec: MetricSpec, state: DashboardUiState, palette: DashP
         d.text == null -> "—"
         else -> d.text
     }
-    JacCard(modifier, contentPadding = PaddingValues(12.dp), highlight = color.copy(alpha = if (warn != null) 1f else 0.75f)) {
+    val shape = RoundedCornerShape(18.dp)
+    Column(modifier.glass(shape, color, tint = if (critical) Color(0xFF8C1018) else null, glow = warn != null).padding(horizontal = 10.dp, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(spec.icon, null, tint = color, modifier = Modifier.size(26.dp))
+            Icon(spec.icon, null, tint = color, modifier = Modifier.size(30.dp))
             Spacer(Modifier.weight(1f))
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) { Row(verticalAlignment = Alignment.Bottom) {
-                Text(value, style = Numeral.copy(fontSize = 24.sp), color = if (warn != null) color else if (stale) Color(0xFF9FB6D6) else Color.White, maxLines = 1)
-                if (d.text != null) Text(" ${d.unit}", style = MaterialTheme.typography.labelMedium.copy(textDirection = TextDirection.Ltr), color = Color(0xFFCFE3FF), modifier = Modifier.padding(bottom = 3.dp))
-            } }
-        }
-        Text(
-            stringResource(spec.metric.labelRes()), style = MaterialTheme.typography.labelMedium, color = Color(0xFFCFE3FF),
-            maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
-        )
-        Spacer(Modifier.height(8.dp))
-        Box(Modifier.fillMaxWidth().height(5.dp).clip(CircleShape).background(Color(0x22FFFFFF))) {
-            if (d.raw != null) {
-                Box(Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(5.dp).clip(CircleShape).background(Brush.horizontalGradient(listOf(color.copy(alpha = 0.6f), color))))
-            }
-        }
-    }
-}
-
-// ---------------------------------------------------------------- trip & DTC
-
-@Composable
-private fun TripCard(state: DashboardUiState, now: Long, modifier: Modifier) {
-    val trip = state.snapshot.display(VehicleMetric.TRIP_DISTANCE, state.units, now)
-    val avg = state.snapshot.display(VehicleMetric.AVG_FUEL_CONSUMPTION, state.units, now)
-    JacCard(modifier, contentPadding = PaddingValues(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.Route, null, tint = DashPalette.Cyan, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.width(10.dp))
-            Text(stringResource(R.string.dash_trip_info), style = MaterialTheme.typography.titleMedium, color = Color.White)
-        }
-        Spacer(Modifier.height(8.dp))
-        Row {
-            Column(Modifier.weight(1f)) {
-                Text(if (trip.text != null) "${trip.text} ${trip.unit}" else if (trip.unsupported) "N/A" else "—", style = Numeral.copy(fontSize = 22.sp, fontStyle = FontStyle.Normal), color = Color.White)
-                Text(stringResource(R.string.dash_trip_distance), style = MaterialTheme.typography.labelMedium, color = Color(0xFF9FB6D6))
-            }
-            Box(Modifier.width(1.dp).height(40.dp).background(Color(0x33FFFFFF)))
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(if (avg.text != null) "${avg.text} ${avg.unit}" else if (avg.unsupported) "N/A" else "—", style = Numeral.copy(fontSize = 22.sp, fontStyle = FontStyle.Normal), color = Color.White)
-                Text(stringResource(R.string.dash_avg_fuel), style = MaterialTheme.typography.labelMedium, color = Color(0xFF9FB6D6))
-            }
-        }
-    }
-}
-
-@Composable
-private fun DtcCard(check: EngineCheck, modifier: Modifier, onClick: () -> Unit) {
-    val locale = LocalConfiguration.current.locales[0]
-    val (color, icon, text) = when (check.state) {
-        EngineCheckState.OK -> Triple(DashPalette.Green, Icons.Rounded.CheckCircle, stringResource(R.string.dash_dtc_none))
-        EngineCheckState.FAULT -> Triple(
-            DashPalette.Red, Icons.Rounded.WarningAmber,
-            check.codeCount?.takeIf { it > 0 }?.let { stringResource(R.string.dash_dtc_count, it) } ?: stringResource(R.string.dash_dtc_mil_on),
-        )
-        EngineCheckState.UNKNOWN -> Triple(DashPalette.Amber, Icons.Rounded.HelpOutline, stringResource(R.string.dash_dtc_unknown))
-    }
-    JacCard(modifier, onClick = onClick, contentPadding = PaddingValues(14.dp), highlight = if (check.state == EngineCheckState.FAULT) color else null) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Rounded.WarningAmber, null, tint = DashPalette.Red, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.width(10.dp))
-            Text(stringResource(R.string.dash_dtc_title), style = MaterialTheme.typography.titleMedium, color = Color.White, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = Color(0xFF9FB6D6))
-        }
-        Spacer(Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = color, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(10.dp))
-            Column {
-                Text(text, style = MaterialTheme.typography.titleSmall, color = color)
-                check.lastScanMs?.let {
-                    Text(
-                        stringResource(R.string.dash_last_scan, DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).format(Date(it))),
-                        style = MaterialTheme.typography.labelSmall, color = Color(0xFF9FB6D6),
-                    )
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(value, style = Numeral.copy(fontSize = 24.sp), color = if (critical) DashPalette.Red else if (stale) Color(0xFF9FB6D6) else Color.White, maxLines = 1)
+                    if (d.text != null) Text(d.unit, style = Numeral.copy(fontSize = 13.sp), color = if (critical) DashPalette.Red else Color.White, modifier = Modifier.padding(start = 1.dp, bottom = 3.dp))
                 }
             }
         }
+        Text(
+            stringResource(spec.metric.labelRes()), style = MaterialTheme.typography.labelMedium,
+            color = if (critical) Color.White else Color(0xFFCFE3FF),
+            maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+        )
+        Spacer(Modifier.height(8.dp))
+        Box(Modifier.fillMaxWidth().height(5.dp).clip(CircleShape).background(Color(0x33789FD2))) {
+            if (d.raw != null) {
+                Box(
+                    Modifier.fillMaxWidth(fraction.coerceIn(0f, 1f)).height(5.dp)
+                        .shadow(6.dp, CircleShape, ambientColor = color, spotColor = color)
+                        .clip(CircleShape).background(Brush.horizontalGradient(listOf(color.copy(alpha = 0.7f), color))),
+                )
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- trip bar
+
+@Composable
+private fun TripBar(state: DashboardUiState, palette: DashPalette, now: Long) {
+    val trip = state.snapshot.display(VehicleMetric.TRIP_DISTANCE, state.units, now)
+    val avg = state.snapshot.display(VehicleMetric.AVG_FUEL_CONSUMPTION, state.units, now)
+    fun show(d: com.jacdrive.dashboard.cockpit.MetricDisplay) = if (d.text != null) "${d.text} ${d.unit}" else if (d.unsupported) "N/A" else "—"
+    val shape = RoundedCornerShape(50)
+    Row(
+        Modifier.fillMaxWidth().height(58.dp).glass(shape, palette.accent, glow = true).padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Rounded.Route, null, tint = palette.accent, modifier = Modifier.size(26.dp))
+        Spacer(Modifier.width(12.dp))
+        VDivider(palette.accent)
+        TripPair(stringResource(R.string.dash_trip_short), show(trip), Modifier.weight(1f))
+        VDivider(palette.accent)
+        TripPair(stringResource(R.string.dash_avg_short), show(avg), Modifier.weight(1.2f))
+    }
+}
+
+@Composable
+private fun TripPair(label: String, value: String, modifier: Modifier) {
+    Row(modifier, horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.Bottom) {
+        Text(label.uppercase(), style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold), color = TextCyan, modifier = Modifier.padding(bottom = 2.dp))
+        Spacer(Modifier.width(6.dp))
+        Text(value, style = Numeral.copy(fontSize = 20.sp), color = Color.White, maxLines = 1)
     }
 }
 

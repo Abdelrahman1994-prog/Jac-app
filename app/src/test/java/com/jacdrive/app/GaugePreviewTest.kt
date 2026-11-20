@@ -38,15 +38,16 @@ class GaugePreviewTest {
             speed = 92f, speedMax = 240f, speedUnit = "km/h", rpm = 2350f, redline = 6000f,
             coolant = 91f, coolantUnit = "°C", coolantHot = false, battery = 14.1f, batteryBad = false,
             fuel = 64f, load = 38f, status = "Connected · OBDII", demo = false, milOn = false,
-            throttle = 22f, intake = 34f, trip = "12.4 km", avgFuel = "8.6 L/100km", roadPhase = 0.35f,
-            labels = com.jacdrive.app.auto.CockpitFrame.Labels("x1000 rpm", "Coolant", "Battery", "Fuel", "Load", "DEMO", "CHECK ENGINE", "Throttle", "Intake", "Trip", "Avg"),
+            throttle = 22f, intake = 34f, trip = "12.4 km", avgFuel = "8.6 L/100km", roadPhase = 0.35f, travelled = 3.3f,
+            connected = true, engineState = com.jacdrive.app.auto.CockpitFrame.ENGINE_OK, engineText = "No active faults",
+            labels = com.jacdrive.app.auto.CockpitFrame.Labels("x1000 rpm", "Coolant", "Battery", "Fuel", "Load", "DEMO", "Check engine", "Throttle", "Intake", "Trip", "Avg"),
         )
         // Host controls occupy the top-right corner; draw in the remaining area.
         r.draw(android.graphics.Canvas(bmp), android.graphics.Rect(0, 90, 1280, 720), frame)
         File("build/outputs/gauges/cockpit_surface.png").outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
         // Portrait head unit (JAC J7): tall surface.
         val tall = android.graphics.Bitmap.createBitmap(800, 1066, android.graphics.Bitmap.Config.ARGB_8888)
-        r.draw(android.graphics.Canvas(tall), android.graphics.Rect(0, 80, 800, 1066), frame.copy(milOn = true, coolant = 107f, coolantHot = true))
+        r.draw(android.graphics.Canvas(tall), android.graphics.Rect(0, 80, 800, 1066), frame.copy(milOn = true, coolant = 107f, coolantHot = true, engineState = com.jacdrive.app.auto.CockpitFrame.ENGINE_FAULT, engineText = "Fault detected"))
         File("build/outputs/gauges/cockpit_surface_portrait.png").outputStream().use { tall.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 }

@@ -24,8 +24,8 @@ android {
         applicationId = "com.jacdrive.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 17
-        versionName = "1.6.4"
+        versionCode = 18
+        versionName = "1.7.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

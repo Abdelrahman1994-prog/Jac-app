@@ -30,6 +30,7 @@ class JacDriveCarAppService : CarAppService() {
     @Inject lateinit var diagnosticDao: DiagnosticDao
     @Inject lateinit var dtc: DtcDatabaseProvider
     @Inject lateinit var alertDao: AlertDao
+    @Inject lateinit var vehicle: com.jacdrive.vehicle.VehicleRepository
 
     override fun createHostValidator(): HostValidator =
         if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
@@ -42,7 +43,7 @@ class JacDriveCarAppService : CarAppService() {
 
     override fun onCreateSession(): Session = object : Session() {
         override fun onCreateScreen(intent: Intent): Screen =
-            CockpitNavScreen(carContext, CarDeps(vehicleData, settings, diagnosticDao, dtc, alertDao))
+            CockpitNavScreen(carContext, CarDeps(vehicleData, settings, diagnosticDao, dtc, alertDao, vehicle))
     }
 }
 
@@ -53,4 +54,5 @@ class CarDeps(
     val diagnosticDao: DiagnosticDao,
     val dtc: DtcDatabaseProvider,
     val alertDao: AlertDao,
+    val vehicle: com.jacdrive.vehicle.VehicleRepository? = null,
 )

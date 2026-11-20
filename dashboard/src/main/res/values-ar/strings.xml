@@ -94,4 +94,14 @@
     <string name="drawer_themes">الثيمات</string>
     <string name="drawer_sport">الوضع الرياضي</string>
     <string name="drawer_title">JAC DRIVE</string>
+    <string name="dash_hdr_connected">OBDII متصل</string>
+    <string name="dash_hdr_demo">بيانات تجريبية</string>
+    <string name="dash_hdr_connecting">جارٍ الاتصال</string>
+    <string name="dash_hdr_lost">انقطع الاتصال</string>
+    <string name="dash_hdr_disconnected">OBDII غير متصل</string>
+    <string name="dash_banner_fault">يوجد عطل</string>
+    <string name="dash_banner_ok">لا توجد أعطال</string>
+    <string name="dash_banner_unknown">لم يُفحص</string>
+    <string name="dash_trip_short">الرحلة</string>
+    <string name="dash_avg_short">المتوسط</string>
 </resources>

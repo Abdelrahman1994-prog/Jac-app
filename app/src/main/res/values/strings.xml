@@ -40,4 +40,9 @@
     <string name="car_rpm_x1000">x1000 rpm</string>
     <string name="car_trip">Trip</string>
     <string name="car_avg_fuel">Avg</string>
+    <string name="car_check_engine">Check engine</string>
+    <string name="car_engine_fault">Fault detected</string>
+    <string name="car_engine_codes">Active codes: %1$d</string>
+    <string name="car_engine_ok">No active faults</string>
+    <string name="car_engine_unknown">Not checked</string>
 </resources>
