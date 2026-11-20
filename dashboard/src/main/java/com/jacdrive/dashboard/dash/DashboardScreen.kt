@@ -258,7 +258,7 @@ private fun Hero(state: DashboardUiState, palette: DashPalette, now: Long) {
         val sceneH = gauge * 1.02f
         Box(Modifier.fillMaxWidth().height(sceneH)) {
             HeroScene(
-                speedKmh = (s[VehicleMetric.SPEED]?.takeIf { s.mode != DataMode.OFFLINE }?.value ?: 0.0).toFloat(),
+                speedKmh = (if (s.mode != DataMode.OFFLINE && speed.freshness == Freshness.LIVE) speed.raw ?: 0.0 else 0.0).toFloat(),
                 palette = palette, animate = animate,
                 modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)),
             )
