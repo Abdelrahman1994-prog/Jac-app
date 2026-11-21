@@ -86,7 +86,8 @@ class CockpitRenderer(private val bold: Typeface?, private val light: Typeface?)
         background(c)
         val w = area.width().toFloat()
         val h = area.height().toFloat()
-        if (h > w * 1.05f) drawPortrait(c, area, f, w, h) else drawLandscape(c, area, f, w, h)
+        // Tall and near-square areas (Android Auto split screen on the J7) use the stacked layout.
+        if (h > w * 0.8f) drawPortrait(c, area, f, w, h) else drawLandscape(c, area, f, w, h)
     }
 
     private fun accentOf(f: CockpitFrame) = if (f.demo) purple else cyan

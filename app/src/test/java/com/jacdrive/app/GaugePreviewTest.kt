@@ -49,5 +49,9 @@ class GaugePreviewTest {
         val tall = android.graphics.Bitmap.createBitmap(800, 1066, android.graphics.Bitmap.Config.ARGB_8888)
         r.draw(android.graphics.Canvas(tall), android.graphics.Rect(0, 80, 800, 1066), frame.copy(milOn = true, coolant = 107f, coolantHot = true, engineState = com.jacdrive.app.auto.CockpitFrame.ENGINE_FAULT, engineText = "Fault detected"))
         File("build/outputs/gauges/cockpit_surface_portrait.png").outputStream().use { tall.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+        // Android Auto split screen on the J7 head unit: the app gets an almost square card.
+        val square = android.graphics.Bitmap.createBitmap(1000, 960, android.graphics.Bitmap.Config.ARGB_8888)
+        r.draw(android.graphics.Canvas(square), android.graphics.Rect(0, 0, 1000, 960), frame)
+        File("build/outputs/gauges/cockpit_surface_square.png").outputStream().use { square.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 }
